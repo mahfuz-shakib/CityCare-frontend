@@ -1,0 +1,26 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+*{
+    font-family: "Inter", sans-serif;
+}
+a.active{
+    color:coral;
+    text-decoration: underline;
+}
+body{
+    background-color:white
+}
+
+.input-field{
+    @apply input w-full placeholder-gray-500 hover:border-green-300 focus:border-green-300 outline-none
+}
+.booking-input-field{
+    @apply w-full placeholder-gray-500 hover:border-green-300 focus:border-green-300 outline-none transition-all duration-200
+}
+.footer-ul
+{
+  @apply text-gray-300  flex justify-center text-sm sm:text-base sm:justify-start flex-wrap items-center gap-2 divide-x divide-gray-600 sm:block sm:space-y-2 sm:divide-x-0
+}
