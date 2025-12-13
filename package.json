@@ -24,7 +24,8 @@
     "react-spinners": "^0.17.0",
     "react-toastify": "^11.0.5",
     "sweetalert2": "^11.26.4",
-    "tailwindcss": "^4.1.18"
+    "tailwindcss": "^4.1.18",
+    "tanstack-query": "^1.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

@@ -8,11 +8,13 @@ import { easeInOut, motion } from "framer-motion";
 import { FcGoogle } from "react-icons/fc";
 import { AuthContext } from "../../providers/AuthContext";
 import Container from "../../container/Container";
-import useAxios from "../../hooks/useAxios";
+// import useAxios from "../../hooks/useAxios";
+import axios from "axios";
+import { imageUpload } from "../../utils";
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const { setUser, createUser, signInWithGoogle, updateUser } = use(AuthContext);
-  const axiosInstance = useAxios();
+  const { createUser, signInWithGoogle, updateUser } = use(AuthContext);
+  // const axiosInstance = useAxios();
   const navigate = useNavigate();
   const {
     register,
@@ -20,69 +22,31 @@ const Register = () => {
     watch,
     formState: { errors },
   } = useForm();
-  console.log(errors);
-  const onSubmit = (data) => console.log(data);
+  const onSubmit = async (data) => {
+    const photoURL = await imageUpload(data?.image[0])
+    createUser(data?.email,data?.password)
+    .then(res=>{
+      updateUser(data.name,photoURL)
+      .then(res=>{
+        toast('Registration Successfull');
+        navigate('/');
+      })
+    })
+  }
 
-  //register by email/password
-  // const handleRegister = (e) => {
-  //   e.preventDefault();
-  //   const name = e.target.name.value || "";
-  //   const email = e.target.email.value || "";
-  //   const photoURL = e.target.photo.value || "";
-  //   const password = e.target.password.value || "";
-  //   const confirmPassword = e.target.confirmPassword.value || "";
-  //   const err = formValidation({ name, email, photoURL, password, confirmPassword });
-  //   console.log({ name, email, photoURL, password, err });
-  //   if (err) {
-  //     setError(err);
-  //     return;
-  //   }
-
-  //   setError("");
-  //   //create user by email/password
-  //   createUser(email, password)
-  //     .then((res) => {
-  //       const user = res.user;
-  //       console.log(user);
-  //       updateUser(user, name, photoURL);
-  //       setUser({ ...user, displayName: name, photoURL: photoURL });
-  //       axiosInstance
-  //         .post("/users", { name, email, photoURL })
-  //         .then((data) => {
-  //           console.log(data);
-  //         })
-  //         .catch((err) => {
-  //           console.log(err);
-  //         });
-  //       toast.success("Registration Successful");
-  //       e.target.reset();
-  //       navigate("/");
-  //     })
-  //     .catch((err) => {
-  //       setError(err.code.slice(5));
-  //       console.log(err.code.slice(5));
-  //       toast.error(err.code.slice(5));
-  //     });
-  // };
-
-  // google login
   const handleGoogleAuth = async () => {
     signInWithGoogle()
       .then((res) => {
-        console.log(res.user);
-        axiosInstance
-          .post("/users", { name: res.user.displayName, email: res.user.email, photoURL: res.user.photoURL })
-          .then((data) => {
-            console.log(data);
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-        toast.success("Registration Successfully");
+        // axiosInstance
+        //   .post("/users", { name: res.user?.displayName, email: res.user?.email, photoURL: res.user?.photoURL })
+        //   .then((data) => {
+        //   })
+        //   .catch((err) => {
+        //   });
+        toast.success("Registration Successfull");
         navigate("/");
       })
       .catch((err) => {
-        console.log(err);
         toast.error(err.code);
       });
   };
@@ -110,7 +74,6 @@ const Register = () => {
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 1, ease: easeInOut }}
             viewport={{ once: true }}
-            className=""
           >
             <div className={`card w-full max-w-sm mx-auto shrink-0 shadow-2xl`}>
               <div className="card-body">
@@ -144,15 +107,16 @@ const Register = () => {
                         className="input-field"
                         placeholder="Enter your email"
                       />
-                      {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name.message} </p>}
+                      {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message} </p>}
                     </div>
-                    <label className="label">Profile Image</label>
-                    <input
-                      type="file"
-                      id="image"
-                      accept="image/*"
-                      {...register("image")}
-                      className="block w-full text-sm text-gray-500
+                    <div>
+                      <label className="label">Profile Image</label>
+                      <input
+                        type="file"
+                        id="image"
+                        accept="image/*"
+                        {...register("image")}
+                        className="block w-full text-sm text-gray-500
                       file:mr-4 file:py-2 file:px-4
                       file:rounded-md file:border-0
                       file:text-sm file:font-semibold
@@ -161,8 +125,9 @@ const Register = () => {
                     bg-gray-100 border border-dashed border-lime-300 rounded-md cursor-pointer
                       focus:outline-none focus:ring-2 focus:ring-lime-400 focus:border-lime-400
                       py-2"
-                    />
-                    <p className="mt-1 text-xs text-gray-400">PNG, JPG or JPEG (max 2MB)</p>
+                      />
+                      {/* <p className="mt-1 text-xs text-gray-400">PNG, JPG or JPEG (max 2MB)</p> */}
+                    </div>
                     <div>
                       <label className="label">Password</label>
                       <div className="relative">
@@ -188,6 +153,7 @@ const Register = () => {
                           {showPassword ? <FaEyeSlash /> : <FaEye />}
                         </button>
                       </div>
+                      {errors.password && <p className="mt-1 text-xs text-red-500">{errors.password.message} </p>}
                     </div>
                     <button className={`btn mt-4 hover:scale-101`}>Create Account</button>
                   </fieldset>

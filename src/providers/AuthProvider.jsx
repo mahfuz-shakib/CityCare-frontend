@@ -17,11 +17,10 @@ const AuthProvider = ({ children }) => {
   };
   const createUser = (email, password ) => {
     setLoading(true);
-    console.log(email,password);
     return createUserWithEmailAndPassword(auth, email, password);
   };
-  const updateUser = (user,name,photoURL)=>{
-    return updateProfile(auth.currentUser,{...user,displayName:name,photoURL:photoURL})
+  const updateUser = (name,photoURL)=>{
+    return updateProfile(auth.currentUser,{displayName:name,photoURL:photoURL})
   }
   const logOut=()=>{
     return signOut(auth);

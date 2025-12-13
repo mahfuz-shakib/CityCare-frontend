@@ -4,10 +4,11 @@ import { FaEye } from "react-icons/fa6";
 import { FaEyeSlash } from "react-icons/fa6";
 import { toast } from "react-toastify";
 import { FcGoogle } from "react-icons/fc";
-import { motion, easeInOut} from "framer-motion";
+import { motion, easeInOut } from "framer-motion";
 import { AuthContext } from "../../providers/AuthContext";
 import Container from "../../container/Container";
 import useAxios from "../../hooks/useAxios";
+import { useForm } from "react-hook-form";
 const Login = () => {
   const { signInWithGoogle, signInUser } = use(AuthContext);
   const axiosInstance = useAxios();
@@ -16,30 +17,39 @@ const Login = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm();
+  console.log(errors);
+  const onSubmit = (data) => console.log(data);
+
   // login by email/passsword
-  const handleSignIn = (e) => {
-    e.preventDefault();
-    console.log("login clicked");
-    const email = e.target.email.value;
-    const password = e.target.password.value;
-    setError("");
-    // login by email/passsword
-    signInUser(email, password)
-      .then((res) => {
-        console.log(res.user);
-        toast.success("Login Successfully");
-        navigate(location.state ? location.state : "/");
-      })
-      .catch((err) => {
-        if (err.code.slice(5) == "invalid-credential") {
-          setError("Invalid email or password");
-          toast.error("Invalid email or password");
-        } else {
-          setError(err.code.slice(5));
-          toast.error(err.code.slice(5));
-        }
-      });
-  };
+  // const handleSignIn = (e) => {
+  //   e.preventDefault();
+  //   console.log("login clicked");
+  //   const email = e.target.email.value;
+  //   const password = e.target.password.value;
+  //   setError("");
+  //   // login by email/passsword
+  //   signInUser(email, password)
+  //     .then((res) => {
+  //       console.log(res.user);
+  //       toast.success("Login Successfully");
+  //       navigate(location.state ? location.state : "/");
+  //     })
+  //     .catch((err) => {
+  //       if (err.code.slice(5) == "invalid-credential") {
+  //         setError("Invalid email or password");
+  //         toast.error("Invalid email or password");
+  //       } else {
+  //         setError(err.code.slice(5));
+  //         toast.error(err.code.slice(5));
+  //       }
+  //     });
+  // };
 
   // login by google
   const handleGoogleAuth = () => {
@@ -82,26 +92,43 @@ const Login = () => {
             </div>
             <div className={`card w-full max-w-sm mx-auto shrink-0 shadow-2xl  `}>
               <div className="card-body">
-                <form onSubmit={handleSignIn}>
+                <form onSubmit={handleSubmit(onSubmit)}>
                   <fieldset className="fieldset">
-                    <label className="label">Email</label>
-                    <input type="email" name="email" className="input-field" placeholder="Enter your email" />
-                    <label className="label">Enter your password</label>
-                    <div className="relative">
+                    <div>
+                      <label className="label">Email</label>
                       <input
-                        type={showPassword ? "text" : "password"}
-                        name="password"
-                        id="password"
+                        type="email"
+                        {...register("email", {
+                          required: "email must be required",
+                          message: "Please give a valid email",
+                        })}
                         className="input-field"
-                        placeholder="Password"
+                        placeholder="Enter your email"
                       />
-                      <button
-                        onClick={() => setShowPassword(!showPassword)}
-                        type="button"
-                        className="text-base text-gray-700 absolute top-3 right-6 hover:cursor-pointer z-10"
-                      >
-                        {showPassword ? <FaEyeSlash /> : <FaEye />}
-                      </button>
+                      {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message} </p>}
+                    </div>
+                    <div>
+                      <label className="label">Enter your password</label>
+                      <div className="relative">
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          {...register("password", {
+                            required: "password must be required",
+                            message: "Password is incorrect",
+                          })}
+                          id="password"
+                          className="input-field"
+                          placeholder="Password"
+                        />
+                        <button
+                          onClick={() => setShowPassword(!showPassword)}
+                          type="button"
+                          className="text-base text-gray-700 absolute top-3 right-6 hover:cursor-pointer z-10"
+                        >
+                          {showPassword ? <FaEyeSlash /> : <FaEye />}
+                        </button>
+                      </div>
+                      {errors.password && <p className="mt-1 text-xs text-red-500">{errors.password.message} </p>}
                     </div>
                     {/* <Link to="/forgotPassword" className="link link-hover mt-2">
                       Forgot password?
