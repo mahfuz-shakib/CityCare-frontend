@@ -87,6 +87,7 @@ const Navbar = () => {
                 {user.photoURL ? (
                   <img
                     src={user.photoURL}
+                    referrerPolicy="no-reffer"
                     onClick={() => setOpenDropdown(!openDropdown)}
                     alt=""
                     className="size-10 rounded-full border-2 border-indigo-300 hover:cursor-pointer hover:scale-102 "
@@ -109,15 +110,22 @@ const Navbar = () => {
               </>
             )}
             {openDropdown && (
-              <div className="absolute w-48 right-0 bg-grad flex flex-col text-center p-3 space-y-2 rounded mt-36 z-50">
+              <div className="absolute w-48 right-0 bg-lime-200 flex flex-col text-center p-2 space-y-1 rounded mt-42 z-50">
                 <Link
                   to="/myprofile"
                   onClick={() => setOpenDropdown(false)}
-                  className="rounded py-1 hover:bg-fuchsia-400"
+                  className="rounded py-1 hover:bg-gray-100"
                 >
                   {user.displayName}
                 </Link>
-                <button onClick={handdleLogOut} className="rounded py-1 hover:bg-fuchsia-400">
+                <Link
+                  to="/dashboard"
+                  onClick={() => setOpenDropdown(false)}
+                  className="rounded py-1 hover:bg-gray-100"
+                >
+                  Dashboard
+                </Link>
+                <button onClick={handdleLogOut} className="rounded py-1 hover:bg-gray-100">
                   Log Out
                 </button>
               </div>

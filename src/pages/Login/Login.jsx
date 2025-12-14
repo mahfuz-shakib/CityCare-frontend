@@ -5,10 +5,10 @@ import { FaEyeSlash } from "react-icons/fa6";
 import { toast } from "react-toastify";
 import { FcGoogle } from "react-icons/fc";
 import { motion, easeInOut } from "framer-motion";
-import { AuthContext } from "../../providers/AuthContext";
 import Container from "../../container/Container";
 import useAxios from "../../hooks/useAxios";
 import { useForm } from "react-hook-form";
+import { AuthContext } from "../../providers/AuthContext";
 const Login = () => {
   const { signInWithGoogle, signInUser } = use(AuthContext);
   const axiosInstance = useAxios();
@@ -20,36 +20,30 @@ const Login = () => {
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm();
   console.log(errors);
-  const onSubmit = (data) => console.log(data);
-
-  // login by email/passsword
-  // const handleSignIn = (e) => {
-  //   e.preventDefault();
-  //   console.log("login clicked");
-  //   const email = e.target.email.value;
-  //   const password = e.target.password.value;
-  //   setError("");
-  //   // login by email/passsword
-  //   signInUser(email, password)
-  //     .then((res) => {
-  //       console.log(res.user);
-  //       toast.success("Login Successfully");
-  //       navigate(location.state ? location.state : "/");
-  //     })
-  //     .catch((err) => {
-  //       if (err.code.slice(5) == "invalid-credential") {
-  //         setError("Invalid email or password");
-  //         toast.error("Invalid email or password");
-  //       } else {
-  //         setError(err.code.slice(5));
-  //         toast.error(err.code.slice(5));
-  //       }
-  //     });
-  // };
+  const onSubmit = (data) => {
+    console.log(data);
+    const email = data?.email;
+    const password = data?.password;
+    // console.log(email, password);
+    signInUser(email, password)
+      .then((res) => {
+        console.log(res.user);
+        toast.success("Login Successfully");
+        navigate(location.state ? location.state : "/");
+      })
+      .catch((err) => {
+        if (err.code.slice(5) == "invalid-credential") {
+          setError("Invalid email or password");
+          toast.error("Invalid email or password");
+        } else {
+          setError(err.code.slice(5));
+          toast.error(err.code.slice(5));
+        }
+      });
+  };
 
   // login by google
   const handleGoogleAuth = () => {
@@ -57,14 +51,14 @@ const Login = () => {
     signInWithGoogle()
       .then((res) => {
         console.log(res.user);
-        axiosInstance
-          .post("/users", { name: res.user.displayName, email: res.user.email, photoURL: res.user.photoURL })
-          .then((data) => {
-            console.log(data);
-          })
-          .catch((err) => {
-            console.log(err);
-          });
+        // axiosInstance
+        //   .post("/users", { name: res.user.displayName, email: res.user.email, photoURL: res.user.photoURL })
+        //   .then((data) => {
+        //     console.log(data);
+        //   })
+        //   .catch((err) => {
+        //     console.log(err);
+        //   });
         toast.success("Login Successfully");
         navigate(location.state ? location.state : "/");
       })
