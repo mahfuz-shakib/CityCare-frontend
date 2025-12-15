@@ -4,35 +4,55 @@ import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { imageUpload } from "../../utils";
 import useAuth from "../../hooks/useAuth";
-// import useAxiosSecure from "../../hooks/useAxiosSecure";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
+import { useMutation } from "@tanstack/react-query";
+
+import { toast } from "react-toastify";
 
 const ReportIssueForm = () => {
   const { user } = useAuth();
-  // const axiosSecure = useAxiosSecure()
+  const axiosSecure = useAxiosSecure();
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
+  const { isPending, isError, data, mutateAsync } = useMutation({
+    mutationFn: async (issueData) => await axiosSecure.post('/issues',issueData),
+    onSettled: (data, error) => {
+      if (data) console.log(data);
+      if (error) console.log(error);
+    },
+    retry: 3,
+  });
   const onSubmit = async (data) => {
-    const imageURL = await imageUpload(data?.image[0]);
     const { title, category, description, location } = data;
-    const issueInfo = {
-      title,
-      category,
-      description,
-      location,
-      image: imageURL,
-      reporter: {
-        name: user.displayName,
-        email: user.email,
-        photo: user.photoURL,
-      },
-    };
 
-    // cosnt {data:}
+    try {
+      const imageURL = await imageUpload(data?.image[0]);
+      const issueInfo = {
+        title,
+        category,
+        description,
+        location,
+        image: imageURL,
+        reporter: {
+          name: user.displayName,
+          email: user.email,
+          photo: user.photoURL,
+        },
+      };
+      console.log(issueInfo);
 
-    console.log(issueInfo);
+      const result = await mutateAsync(issueInfo);
+      if (result.data) {
+        toast.success("Issue reported successfully");
+      }
+      console.log(isError);
+      console.log(result.data);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
@@ -138,7 +158,6 @@ const ReportIssueForm = () => {
           </form>
         </div>
       </motion.div>
-      )
     </Container>
   );
 };
