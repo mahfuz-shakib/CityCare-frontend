@@ -126,7 +126,6 @@ const DashboardLayout = () => {
                 <span className="is-drawer-close:hidde">Resolved Issues</span>
               </NavLink>
             </li>
-
             <li>
               <NavLink
                 className="is-drawer-close:tooltip is-drawer-close:tooltip-right flex"

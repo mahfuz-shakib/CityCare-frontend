@@ -12,7 +12,7 @@ a.active{
 }
 
 body{
-    background-color:white
+    background-color:#F8FAFC
 }
 
 .input-field{
@@ -24,4 +24,299 @@ body{
 .footer-ul
 {
   @apply text-gray-300  flex justify-center text-sm sm:text-base sm:justify-start flex-wrap items-center gap-2 divide-x divide-gray-600 sm:block sm:space-y-2 sm:divide-x-0
+}
+
+/* ======================================================
+   🌐 GLOBAL LAYOUT & PAGE BACKGROUNDS
+   Use for: body, root wrapper, main layout containers
+====================================================== */
+
+.bg-page {
+  /* Main app background (body / main wrapper) */
+  @apply bg-slate-50;
+}
+
+.bg-section {
+  /* White sections like hero, dashboard sections */
+  @apply bg-white;
+}
+
+.bg-surface {
+  /* Cards, panels, inner surfaces */
+  @apply bg-slate-100;
+}
+
+.container-default {
+  /* Standard page width wrapper */
+  @apply max-w-7xl mx-auto px-4;
+}
+
+/* ======================================================
+   📝 TEXT SYSTEM
+   Use for: paragraphs, labels, metadata, links
+====================================================== */
+
+.text-primary {
+  /* Main readable text */
+  @apply text-slate-900;
+}
+
+.text-secondary {
+  /* Supporting text, subtitles */
+  @apply text-slate-600;
+}
+
+.text-muted {
+  /* Small hints, timestamps, helper text */
+  @apply text-slate-500;
+}
+
+.text-inverse {
+  /* Text on dark backgrounds */
+  @apply text-white;
+}
+
+.text-link {
+  /* Clickable links */
+  @apply text-blue-600 hover:underline;
+}
+
+/* ======================================================
+   🧩 HEADINGS & TITLES
+   Use for: page titles, section titles, card titles
+====================================================== */
+
+.heading-main {
+  /* Page title (Home, Dashboard) */
+  @apply text-3xl font-bold text-blue-900;
+}
+
+.heading-section {
+  /* Section headings */
+  @apply text-2xl font-bold text-blue-900;
+}
+
+.heading-sub {
+  /* Card titles, subsections */
+  @apply text-lg font-semibold text-slate-700;
+}
+
+/* ======================================================
+   🧾 CARD SYSTEM
+   Use for: issue cards, dashboard widgets, panels
+====================================================== */
+
+.card-default {
+  /* Base card layout */
+  @apply card bg-base-100 shadow border-1 border-gray-300;
+}
+
+.card-hover {
+  /* Hover animation for cards */
+  @apply hover:shadow-md transition;
+}
+
+/* ======================================================
+   🔘 BUTTON SYSTEM
+   Use for: forms, actions, navigation
+====================================================== */
+
+.btn-primary {
+  /* Main CTA buttons (Submit, Save, Pay) */
+  @apply bg-blue-600 hover:bg-blue-700 text-white;
+}
+
+.btn-secondary {
+  /* Secondary actions (Cancel, Back) */
+  @apply bg-slate-200 hover:bg-slate-300 text-slate-800;
+}
+
+.btn-danger {
+  /* Destructive actions (Delete, Reject) */
+  @apply bg-red-600 hover:bg-red-700 text-white;
+}
+
+.btn-outline-primary {
+  /* Less emphasized actions */
+  @apply border border-blue-600 text-blue-600 hover:bg-blue-50;
+}
+
+/* ======================================================
+   🚦 ISSUE STATUS BADGES
+   Use for: issue cards, tables, timeline, details page
+====================================================== */
+
+.badge-status-pending {
+  /* Newly reported issue */
+  @apply bg-amber-100 text-amber-700;
+}
+
+.badge-status-progress {
+  /* Issue assigned / in progress */
+  @apply bg-blue-100 text-blue-700;
+}
+
+.badge-status-working {
+  /* Staff actively working */
+  @apply bg-indigo-100 text-indigo-700;
+}
+
+.badge-status-resolved {
+  /* Work finished */
+  @apply bg-green-100 text-green-700;
+}
+
+.badge-status-closed {
+  /* Issue closed by admin */
+  @apply bg-slate-200 text-slate-700;
+}
+
+.badge-status-rejected {
+  /* Issue rejected */
+  @apply bg-red-100 text-red-700;
+}
+
+/* ======================================================
+   🚨 PRIORITY BADGES
+   Use for: boosted issues, priority display
+====================================================== */
+
+.badge-priority-high {
+  /* Boosted / urgent issues */
+  @apply bg-red-600 text-white;
+}
+
+.badge-priority-normal {
+  /* Default priority */
+  @apply bg-slate-400 text-white;
+}
+
+/* ======================================================
+   💎 PREMIUM / PAYMENT UI
+   Use for: subscription, boost, Stripe status
+====================================================== */
+
+.badge-premium {
+  /* Premium user badge */
+  @apply bg-yellow-400 text-yellow-900 font-semibold;
+}
+
+.text-payment-success {
+  /* Payment success message */
+  @apply text-green-600;
+}
+
+.text-payment-error {
+  /* Payment failure message */
+  @apply text-red-600;
+}
+
+/* ======================================================
+   🧑‍💼 ROLE BADGES
+   Use for: admin/staff/citizen labels
+====================================================== */
+
+.badge-role-admin {
+  /* Admin role label */
+  @apply bg-purple-600 text-white;
+}
+
+.badge-role-staff {
+  /* Staff role label */
+  @apply bg-blue-500 text-white;
+}
+
+.badge-role-citizen {
+  /* Citizen role label */
+  @apply bg-slate-500 text-white;
+}
+
+/* ======================================================
+   📊 DASHBOARD STAT CARDS
+   Use for: counts, analytics, summary widgets
+====================================================== */
+
+.stat-blue {
+  /* Total issues, general stats */
+  @apply bg-blue-100 text-blue-800;
+}
+
+.stat-green {
+  /* Resolved / success metrics */
+  @apply bg-green-100 text-green-800;
+}
+
+.stat-amber {
+  /* Pending / attention needed */
+  @apply bg-amber-100 text-amber-800;
+}
+
+.stat-red {
+  /* Rejected / blocked / errors */
+  @apply bg-red-100 text-red-800;
+}
+
+.stat-indigo {
+  /* Payments / premium related stats */
+  @apply bg-indigo-100 text-indigo-800;
+}
+
+/* ======================================================
+   🧾 TABLE STYLES
+   Use for: admin tables, staff tables, payment lists
+====================================================== */
+
+.table-header {
+  /* Table header row */
+  @apply bg-slate-200 text-slate-700;
+}
+
+.table-row {
+  /* Table row hover effect */
+  @apply hover:bg-slate-100;
+}
+
+.table-border {
+  /* Table border */
+  @apply border border-slate-300;
+}
+
+/* ======================================================
+   🚨 ALERTS & NOTIFICATIONS
+   Use for: toast, warnings, messages
+====================================================== */
+
+.alert-success-custom {
+  /* Success messages */
+  @apply bg-green-100 text-green-800;
+}
+
+.alert-error-custom {
+  /* Error messages */
+  @apply bg-red-100 text-red-800;
+}
+
+.alert-warning-custom {
+  /* Warning messages */
+  @apply bg-amber-100 text-amber-800;
+}
+
+.alert-info-custom {
+  /* Info messages */
+  @apply bg-blue-100 text-blue-800;
+}
+
+/* ======================================================
+   🧭 NAVBAR & FOOTER
+   Use for: site navigation & footer sections
+====================================================== */
+
+.bg-navbar {
+  /* Top navigation bar */
+  @apply bg-blue-900 text-white;
+}
+
+.bg-footer {
+  /* Footer area */
+  @apply bg-slate-900 text-slate-300;
 }

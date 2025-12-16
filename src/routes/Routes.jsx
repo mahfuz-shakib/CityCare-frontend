@@ -9,6 +9,7 @@ import PrivateRoute from "./PrivateRoute";
 import BeAStaff from "../pages/Dashboard/Staff/BeAStaff";
 import DashboardLayout from "../layout/DashboardLayout";
 import MyIssues from "../pages/Dashboard/Citizen/MyIssues";
+import Issues from "../pages/All-Issues/Issues";
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -22,12 +23,8 @@ export const router = createBrowserRouter([
       { path: "/login", Component: Login },
       { path: "/register", Component: Register },
       {
-        path: "be-staff",
-        element: (
-          <PrivateRoute>
-            <BeAStaff></BeAStaff>
-          </PrivateRoute>
-        ),
+        path: "all-issues",
+       Component:Issues
       },
       {
         path: "dashboard",
@@ -38,11 +35,11 @@ export const router = createBrowserRouter([
         ),
         children:[
           {
-            path:'report-issue',
+            path:'/dashboard/report-issue',
             Component:ReportIssue
           },
           {
-            path:'my-issues',
+            path:'/dashboard/my-issues',
             Component:MyIssues
           }
         ]

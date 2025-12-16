@@ -8,10 +8,12 @@ import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { useMutation } from "@tanstack/react-query";
 
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router";
 
 const ReportIssueForm = () => {
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
+  const navigate = useNavigate()
   const {
     register,
     handleSubmit,
@@ -36,17 +38,14 @@ const ReportIssueForm = () => {
         description,
         location,
         image: imageURL,
-        reporter: {
-          name: user.displayName,
-          email: user.email,
-          photo: user.photoURL,
-        },
+        reporter: user.email,
       };
       console.log(issueInfo);
 
       const result = await mutateAsync(issueInfo);
       if (result.data) {
         toast.success("Issue reported successfully");
+        navigate('/dashboard/my-issues')
       }
       console.log(isError);
       console.log(result.data);
