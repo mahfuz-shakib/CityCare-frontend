@@ -1,3 +1,3 @@
-export const condition =  (user,reporter)=>{
-     return reporter==user.email
+export const condition =  (userEmail,reporter)=>{
+     return reporter==userEmail
 }
