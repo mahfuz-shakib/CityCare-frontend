@@ -11,11 +11,11 @@ const Issues = () => {
     queryKey: ["issues", filters],
     queryFn: async () => {
       const params = new URLSearchParams(filters).toString();
-      const res = await axiosSecure.get(`/issues?${params}`);
+      const res = await axiosSecure.get(`/issues/?${params}`);
       return res.data;
     },
   });
-  if (isLoading) return <p>loading....</p>;
+  // if (isLoading) return <p>loading....</p>;
 
   return (
     <Container>
@@ -71,7 +71,8 @@ const Issues = () => {
         </select>
       </div>
       <div className="grid md:grid-cols-3 gap-6">
-        {issues.map((issue) => (
+        {isLoading?<p>Loading....</p>:
+        issues.map((issue) => (
           <IssueCard key={issue._id} issue={issue} />
         ))}
       </div>

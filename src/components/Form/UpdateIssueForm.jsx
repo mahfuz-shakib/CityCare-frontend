@@ -1,9 +1,11 @@
 import React from "react";
 import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
+import { motion } from "framer-motion";
 import { imageUpload } from "../../utils";
 import useAuth from "../../hooks/useAuth";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
+import Container from "../../container/Container";
 
 const UpdateIssueForm = ({ updateItem, modalRef, refetch }) => {
   const { user } = useAuth();

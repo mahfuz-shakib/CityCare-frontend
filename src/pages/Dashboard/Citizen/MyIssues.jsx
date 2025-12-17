@@ -1,22 +1,30 @@
 import { useQuery } from "@tanstack/react-query";
-import React ,{ useState,useRef } from "react";
+import React, { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import Swal from "sweetalert2";
 import useAuth from "../../../hooks/useAuth";
+import Loader from "../../../components/Loader"
 import Container from "../../../container/Container";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import UpdateIssueForm from "../../../components/Form/UpdateIssueForm";
+import { Link } from "react-router";
 const MyIssues = () => {
   const { user, loading } = useAuth();
+
   const [filters, setFilters] = useState({ email: user?.email, category: "", status: "", priority: "", search: "" });
+  console.log(filters);
   const [isDisabled, setIsDisabled] = useState(false);
   const [updateItem, setUpdateItem] = useState({});
   const modalRef = useRef();
   const axiosSecure = useAxiosSecure();
-  const { data: myIssues = [], isLoading,refetch } = useQuery({
+  const {
+    data: myIssues = [],
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["issues", filters],
     queryFn: async () => {
-      const params = new URLSearchParams(filters).toString();
+      const params = new URLSearchParams({ ...filters, email: user?.email }).toString();
       const res = await axiosSecure.get(`/issues/?${params}`);
       return res.data;
     },
@@ -47,14 +55,13 @@ const MyIssues = () => {
               text: "Your issue item has been deleted.",
               icon: "success",
             });
-            refetch()
+            refetch();
           })
           .catch((err) => console.log(err));
       }
     });
   };
 
-  if (loading || isLoading) return <p>loading....</p>;
   return (
     <Container>
       <h1>citizen: my issues: {myIssues.length}</h1>
@@ -110,84 +117,89 @@ const MyIssues = () => {
         </select>
       </div>
 
-      <motion.table
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.5 }}
-        className="table max-w-6xl mx-auto"
-      >
-        {/* head */}
-        <thead>
-          <tr className="bg-green-50">
-            <th>SL. No. </th>
-            <th>Title</th>
-            <th>Reported At</th>
-            <th>Status</th>
-            <th>Priority</th>
-            <th>Edit</th>
-            <th>Delete</th>
-            <th>View Details</th>
-          </tr>
-        </thead>
-        <tbody>
-          {myIssues?.map((list, index) => {
-            if (list.status !== "pending") {
-              setIsDisabled(true);
-            }
-            return (
-              <tr key={list._id} className={`${index % 2 ? "bg-gray-50" : "bg-violet-50"}`}>
-                <td>{index + 1}</td>
-                <td>
-                  <div className="flex items-center gap-3">
-                    <div className="avatar">
-                      <div className="mask mask-squircle h-12 w-12">
-                        <img src={list.image} alt={list.title} />
+      { !user.email || loading || isLoading ? (
+        <Loader/>
+      ) : myIssues.length ? (
+        <motion.table
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="table max-w-6xl mx-auto"
+        >
+          {/* head */}
+          <thead>
+            <tr className="bg-green-50">
+              <th>SL. No. </th>
+              <th>Title</th>
+              <th>Reported At</th>
+              <th>Status</th>
+              <th>Priority</th>
+              <th>Edit</th>
+              <th>Delete</th>
+              <th>View Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            {myIssues?.map((list, index) => {
+              if (list.status !== "pending") {
+                setIsDisabled(true);
+              }
+              return (
+                <tr key={list._id} className={`${index % 2 ? "bg-gray-50" : "bg-violet-50"}`}>
+                  <td>{index + 1}</td>
+                  <td>
+                    <div className="flex items-center gap-3">
+                      <div className="avatar">
+                        <div className="mask mask-squircle h-12 w-12">
+                          <img src={list.image} alt={list.title} />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="font-bold">{list.title}</div>
+                        <div className="text-sm opacity-50">({list.location})</div>
                       </div>
                     </div>
-                    <div>
-                      <div className="font-bold">{list.title}</div>
-                      <div className="text-sm opacity-50">({list.location})</div>
-                    </div>
-                  </div>
-                </td>
+                  </td>
 
-                <td>{list.createdAt}</td>
-                <td>
-                  <button className="badge badge-secondary btn-xs">{list.status}</button>
-                </td>
-                <td className="opacity-75">{list.priority}</td>
-                <td>
-                  <button
-                    onClick={() => handleUpdate(list)}
-                    className="btn badge badge-primary btn-xs hover:scale-101"
-                    disabled={isDisabled}
-                  >
-                    Edit
-                  </button>
-                </td>
-                <td>
-                  <button
-                    onClick={() => handleDelete(list)}
-                    className="btn badge badge-secondary btn-xs hover:scale-101"
-                  >
-                    Delete
-                  </button>
-                </td>
-                <td>
-                  <Link to={`/issues/${list._id}`} className="btn badge badge-primary btn-xs hover:scale-101">
-                    Details
-                  </Link>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </motion.table>
+                  <td>{list.createdAt}</td>
+                  <td>
+                    <button className="badge badge-secondary btn-xs">{list.status}</button>
+                  </td>
+                  <td className="opacity-75">{list.priority}</td>
+                  <td>
+                    <button
+                      onClick={() => handleUpdate(list)}
+                      className="btn badge badge-primary btn-xs cursor-pointer hover:scale-101"
+                      disabled={isDisabled}
+                    >
+                      Edit
+                    </button>
+                  </td>
+                  <td>
+                    <button
+                      onClick={() => handleDelete(list)}
+                      className="btn badge badge-secondary btn-xs cursor-pointer hover:scale-101"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                  <td>
+                    <Link to={`/issues/${list._id}`} className="btn badge badge-primary btn-xs cursor-pointer hover:scale-101">
+                      Details
+                    </Link>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </motion.table>
+      ) : (
+        <p className="my-18 text-3xl font-bold">No reported issues found</p>
+      )}
+
       <dialog ref={modalRef} className="modal modal-bottom sm:modal-middle">
-        <div
-          className={`p-2 md:p-4 rounded scale-85 md:scale-100 mx-auto`}
-        >
+        <div className={`p-2 md:p-4 rounded scale-85 md:scale-100 mx-auto`}>
           <h1 className="text-center font-bold mb-2 md:mb-3">Update Information</h1>
           <UpdateIssueForm updateItem={updateItem} modalRef={modalRef} refetch={refetch} />
           <div className="w-fit mx-auto ">

@@ -1,9 +1,11 @@
 import React from 'react';
 import useAxiosSecure from '../../hooks/useAxiosSecure';
 import { useQuery } from '@tanstack/react-query';
+import { useParams } from 'react-router';
+import Container from '../../container/Container';
 
-const IssueDetails = ({params}) => {
-    const {_id}=params;
+const IssueDetails = () => {
+    const {_id}=useParams();
     const axiosSecure = useAxiosSecure();
       const { data: issue = {}, isLoading } = useQuery({
         queryKey: ["issue",_id],
@@ -13,9 +15,9 @@ const IssueDetails = ({params}) => {
         },
       });
     return (
-        <div>
-            
-        </div>
+        <Container>
+            <h1>hellow</h1>
+        </Container>
     );
 };
 

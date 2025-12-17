@@ -6,10 +6,10 @@ import MainLayout from "../layout/MainLayout";
 // import Dashboard from "../pages/Dashboard/Dashboard/Dashboard";
 import ReportIssue from "../pages/Dashboard/Citizen/ReportIssue";
 import PrivateRoute from "./PrivateRoute";
-import BeAStaff from "../pages/Dashboard/Staff/BeAStaff";
 import DashboardLayout from "../layout/DashboardLayout";
 import MyIssues from "../pages/Dashboard/Citizen/MyIssues";
 import Issues from "../pages/All-Issues/Issues";
+import IssueDetails from '../pages/IssueDetails/IssueDetails'
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -22,9 +22,14 @@ export const router = createBrowserRouter([
       },
       { path: "/login", Component: Login },
       { path: "/register", Component: Register },
+      { path: "all-issues", Component: Issues },
       {
-        path: "all-issues",
-       Component:Issues
+        path: "all-issues/:_id",
+        element: (
+          <PrivateRoute>
+            <IssueDetails />
+          </PrivateRoute>
+        ),
       },
       {
         path: "dashboard",
@@ -33,37 +38,17 @@ export const router = createBrowserRouter([
             <DashboardLayout></DashboardLayout>
           </PrivateRoute>
         ),
-        children:[
+        children: [
           {
-            path:'/dashboard/report-issue',
-            Component:ReportIssue
+            path: "/dashboard/report-issue",
+            Component: ReportIssue,
           },
           {
-            path:'/dashboard/my-issues',
-            Component:MyIssues
-          }
-        ]
+            path: "/dashboard/my-issues",
+            Component: MyIssues,
+          },
+        ],
       },
-
-      // {
-      //   path: "dashboard",
-      //   element: (
-      //     <PrivateRoute>
-      //       <Dashboard></Dashboard>
-      //     </PrivateRoute>
-      //   ),
-      //   children: [
-      //     {
-      //       path: "reportIssue",
-      //       element: (
-      //         <PrivateRoute>
-      //           <ReportIssue></ReportIssue>
-      //         </PrivateRoute>
-      //       ),
-      //     },
-      //   ],
-      // },
-      // {path:'allIssues', Component:}
     ],
   },
 ]);
