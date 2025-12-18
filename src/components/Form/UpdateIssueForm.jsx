@@ -5,9 +5,12 @@ import { motion } from "framer-motion";
 import { imageUpload } from "../../utils";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import Container from "../../container/Container";
+import {useQueryClient } from "@tanstack/react-query";
 
-const UpdateIssueForm = ({ updateItem, modalRef, refetch }) => {
+const UpdateIssueForm = ({ updateItem, modalRef}) => {
   const axiosSecure = useAxiosSecure();
+  const queryClient = useQueryClient();
+
   const {
     register,
     handleSubmit,
@@ -18,7 +21,10 @@ const UpdateIssueForm = ({ updateItem, modalRef, refetch }) => {
     const { title, category, description, location } = data;
 
     try {
-      const imageURL = await imageUpload(data?.image[0]);
+      let imageURL = updateItem.image; // Default to existing image
+      if (data?.image && data.image[0]) {
+        imageURL = await imageUpload(data.image[0]);
+      }
       const issueInfo = {
         title,
         category,
@@ -30,10 +36,11 @@ const UpdateIssueForm = ({ updateItem, modalRef, refetch }) => {
       axiosSecure
         .patch(`/issues/${updateItem._id}`, issueInfo)
         .then((data) => {
-          console.log(data);
-          refetch();
+          console.log(data.data);
           toast.success("Updated successfully");
           modalRef.current.close();
+          queryClient.invalidateQueries(["issueDetails", updateItem._id]);
+
         })
         .catch((err) => {
           toast.error("Updated failed");
@@ -53,7 +60,7 @@ const UpdateIssueForm = ({ updateItem, modalRef, refetch }) => {
         className=" max-w-76 md:max-w-[856px]  mx-auto card rounded-lg overflow-hidden my-16"
       >
         <div className={`card-body px-2 md:px-4 bg-gray-100`}>
-          <form onSubmit={() => handleSubmit(onSubmit)}>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <fieldset className="! fieldset space-y-2">
               <div className="flex flex-col md:flex-row justify-between gap-5">
                 <div className="w-72 md:w-md">
@@ -67,7 +74,7 @@ const UpdateIssueForm = ({ updateItem, modalRef, refetch }) => {
                     defaultValue={updateItem.title}
                     {...register("title", {
                       required: "Title must be required",
-                      minLength: { value: 3, message: "title atleast 3 character" },
+                      minLength: { value: 3, message: "Title atleast 3 character" },
                     })}
                   />
                   {errors.title && <p className="mt-1 text-xs text-red-500">{errors.title.message} </p>}
@@ -117,13 +124,11 @@ const UpdateIssueForm = ({ updateItem, modalRef, refetch }) => {
                       type="file"
                       id="image"
                       accept="image/*"
-                      defaultValue={updateItem.image}
-                      {...register("image", {
-                        required: "Image must be required",
-                      })}
+                      // defaultValue={updateItem.image}
+                      {...register("image")}
                       className=" file-input file:bg-lime-50 file:text-lime-700"
                     />
-                    {errors.image && <p className="mt-1 text-xs text-red-500">{errors.image.message} </p>}
+                    <p className="text-xs text-gray-500 mt-1">Leave empty to keep current image</p>
                   </div>
                 </div>
               </div>
@@ -135,16 +140,16 @@ const UpdateIssueForm = ({ updateItem, modalRef, refetch }) => {
                   defaultValue={updateItem.description}
                   {...register("description", {
                     required: "Description must be required",
-                    minLength: { value: 3, message: "Description atleast 10 character" },
+                    minLength: { value: 10, message: "Description atleast 10 character" },
                   })}
                 ></textarea>
                 {errors.description && <p className="mt-1 text-xs text-red-500">{errors.description.message} </p>}
               </div>
 
+            </fieldset>
               <button className={`btn mx-auto w-72  md:w-sm  text-whit mt-4 hover:bg-purple-800  "bg-grad"`}>
                 Update Issue
               </button>
-            </fieldset>
           </form>
           <div className="w-fit text-right ">
             <form method="dialog">

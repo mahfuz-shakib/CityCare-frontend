@@ -7,8 +7,8 @@ import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import { useRef } from "react";
-import Container from "../../container/Container"
-import UpdateIssueForm from "../../components/Form/UpdateIssueForm"
+import Container from "../../container/Container";
+import UpdateIssueForm from "../../components/Form/UpdateIssueForm";
 const IssueActions = ({ issue }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -19,7 +19,7 @@ const IssueActions = ({ issue }) => {
   const canEdit = isOwner && issue.status === "pending";
   const axiosSecure = useAxiosSecure();
 
-  const deleteMutation = useMutation({
+  const { mutateAsync:deleteMutation} = useMutation({
     mutationFn: async () => {
       const res = await axiosSecure.delete(`/issues/${issue._id}`);
       return res.data;
@@ -38,7 +38,7 @@ const IssueActions = ({ issue }) => {
     },
   });
 
-  const boostMutation = useMutation({
+  const {mutateAsync:boostMutation} = useMutation({
     mutationFn: async () => {
       const res = await axiosSecure.post(`/issues/boost/${issue._id}`);
       return res.data;
@@ -53,6 +53,7 @@ const IssueActions = ({ issue }) => {
   });
   const handleUpdate = () => {
     modalRef.current.showModal();
+    queryClient.invalidateQueries(["issueDetails", issue._id]);
   };
   const handleDelete = () => {
     Swal.fire({
@@ -124,7 +125,6 @@ const IssueActions = ({ issue }) => {
         <div className={`p-2 md:p-4 rounded scale-85 md:scale-100 mx-auto`}>
           <h1 className="text-center font-bold mb-2 md:mb-3">Update Information</h1>
           <UpdateIssueForm updateItem={issue} modalRef={modalRef} />
-          
         </div>
       </dialog>
     </Container>

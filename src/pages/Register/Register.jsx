@@ -9,7 +9,6 @@ import { FcGoogle } from "react-icons/fc";
 import { AuthContext } from "../../providers/AuthContext";
 import Container from "../../container/Container";
 // import useAxios from "../../hooks/useAxios";
-import axios from "axios";
 import { imageUpload } from "../../utils";
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);

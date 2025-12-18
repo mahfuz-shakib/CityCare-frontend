@@ -3,13 +3,15 @@ import Home from "../pages/Home/Home";
 import Login from "../pages/Login/Login";
 import Register from "../pages/Register/Register";
 import MainLayout from "../layout/MainLayout";
-// import Dashboard from "../pages/Dashboard/Dashboard/Dashboard";
+import Statistics from "../pages/Dashboard/Common/Statistics";
 import ReportIssue from "../pages/Dashboard/Citizen/ReportIssue";
 import PrivateRoute from "./PrivateRoute";
 import DashboardLayout from "../layout/DashboardLayout";
 import MyIssues from "../pages/Dashboard/Citizen/MyIssues";
 import Issues from "../pages/All-Issues/Issues";
 import IssueDetails from '../pages/IssueDetails/IssueDetails'
+import AllIssues from "../pages/Dashboard/Admin/AllIssues";
+import ManageStaffs from "../pages/Dashboard/Admin/ManageStaffs"
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -40,12 +42,25 @@ export const router = createBrowserRouter([
         ),
         children: [
           {
+            index:true,
+            path: "/dashboard/homepage",
+            Component: Statistics,
+          },
+          {
             path: "/dashboard/report-issue",
             Component: ReportIssue,
           },
           {
             path: "/dashboard/my-issues",
             Component: MyIssues,
+          },
+          {
+            path: "/dashboard/all-issues",
+            Component: AllIssues,
+          },
+          {
+            path: "/dashboard/manage-staffs",
+            Component: ManageStaffs,
           },
         ],
       },

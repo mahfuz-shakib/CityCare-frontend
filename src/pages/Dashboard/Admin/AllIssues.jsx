@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import Container from "../../../container/Container";
 import { useState } from "react";
 import { useRef } from "react";
+import { motion } from "framer-motion";
 
 const AllIssues = () => {
   const [isDisabled, setIsDisabled] = useState(false);
@@ -41,10 +42,10 @@ const AllIssues = () => {
           <tr className="bg-green-50">
             <th>SL. No. </th>
             <th>Title</th>
-            <th>Reported At</th>
             <th>Status</th>
             <th>Priority</th>
-            <th>Edit</th>
+            <th>Assigned Staff</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
@@ -56,31 +57,20 @@ const AllIssues = () => {
               <tr key={list._id} className={`${index % 2 ? "bg-gray-50" : "bg-violet-50"}`}>
                 <td>{index + 1}</td>
                 <td>
-                  <div className="flex items-center gap-3">
-                    <div className="avatar">
-                      <div className="mask mask-squircle h-12 w-12">
-                        <img src={list.image} alt={list.title} />
-                      </div>
-                    </div>
-                    <div>
-                      <div className="font-bold">{list.title}</div>
-                      <div className="text-sm opacity-50">({list.location})</div>
-                    </div>
-                  </div>
+                  <div className="font-bold">{list.title}</div>
                 </td>
-
-                <td>{list.createdAt}</td>
                 <td>
                   <button className="badge badge-secondary btn-xs">{list.status}</button>
                 </td>
                 <td className="opacity-75">{list.priority}</td>
+                <td >{list.assignedStaff}</td>
                 <td>
                   <button
                     onClick={() => handleAssignStaff(list)}
                     className="btn badge badge-primary btn-xs hover:scale-101"
                     disabled={isDisabled}
                   >
-                    Edit
+                    Assign Staff
                   </button>
                 </td>
               </tr>

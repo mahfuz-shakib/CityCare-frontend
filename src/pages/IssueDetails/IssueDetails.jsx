@@ -10,7 +10,8 @@ import useAxiosSecure from "../../hooks/useAxiosSecure";
 const IssueDetails = () => {
   const { _id } = useParams();
   const axiosSecure = useAxiosSecure();
-  const { data: issue, isLoading } = useQuery({
+
+  const { data: issue, isLoading} = useQuery({
     queryKey: ["issueDetails", _id],
     queryFn: async () => {
       const res = await axiosSecure.get(`/issues/${_id}`);

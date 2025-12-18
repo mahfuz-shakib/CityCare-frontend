@@ -202,11 +202,6 @@ const MyIssues = () => {
         <div className={`p-2 md:p-4 rounded scale-85 md:scale-100 mx-auto`}>
           <h1 className="text-center font-bold mb-2 md:mb-3">Update Information</h1>
           <UpdateIssueForm updateItem={updateItem} modalRef={modalRef} refetch={refetch} />
-          <div className="w-fit mx-auto ">
-            <form method="dialog">
-              <button className="btn bg-primary/10">Cancel</button>
-            </form>
-          </div>
         </div>
       </dialog>
     </Container>

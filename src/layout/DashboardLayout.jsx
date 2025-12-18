@@ -52,7 +52,7 @@ const DashboardLayout = () => {
             </li>
             <li>
               <NavLink
-                to="/dashboard"
+                to="/dashboard/homepage"
                 className="is-drawer-close:tooltip is-drawer-close:tooltip-right flex"
                 data-tip="Homepage"
               >
@@ -98,6 +98,16 @@ const DashboardLayout = () => {
             <li>
               <NavLink
                 className="is-drawer-close:tooltip is-drawer-close:tooltip-right flex"
+                data-tip="AllIssues"
+                to="/dashboard/all-issues"
+              >
+                <CiDeliveryTruck />
+                <span className="is-drawer-close:hidde">All Issues</span>
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                className="is-drawer-close:tooltip is-drawer-close:tooltip-right flex"
                 data-tip="Payment History"
                 to="/dashboard/payment-history"
               >
@@ -110,10 +120,10 @@ const DashboardLayout = () => {
               <NavLink
                 className="is-drawer-close:tooltip is-drawer-close:tooltip-right flex"
                 data-tip="Assigned Deliveries"
-                to="/dashboard/assigned-deliveries"
+                to="/dashboard/manage-staffs"
               >
                 <FaTasks />
-                <span className="is-drawer-close:hidde">Assigned Deliveries</span>
+                <span className="is-drawer-close:hidde">Manage Staffs</span>
               </NavLink>
             </li>
             <li>
