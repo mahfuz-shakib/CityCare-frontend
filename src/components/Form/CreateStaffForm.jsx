@@ -38,9 +38,9 @@ const CreateStaffForm = ({ modalRef }) => {
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 1, ease: easeInOut }}
           viewport={{ once: true }}
-          className={`card w-full max-w-md  mx-auto shrink-0 shadow-2xl`}
+          className={`card w-full max-w-lg  mx-auto shrink-0 shadow-2xl`}
         >
-          <div className="card-body max-w-md bg-gray-500 rounded">
+          <div className="card-body max-w-lg bg-gray-500 rounded">
             <form onSubmit={handleSubmit(onSubmit)}>
               <fieldset className="fieldset">
                 <div>

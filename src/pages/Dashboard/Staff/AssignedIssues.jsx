@@ -1,6 +1,6 @@
 import React from 'react';
 
-const AssignedIssue = () => {
+const AssignedIssues = () => {
     return (
         <div>
             <h1>staff: assigned issue</h1>
@@ -8,4 +8,4 @@ const AssignedIssue = () => {
     );
 };
 
-export default AssignedIssue;
+export default AssignedIssues;
