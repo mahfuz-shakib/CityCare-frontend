@@ -185,7 +185,7 @@ const MyIssues = () => {
                     </button>
                   </td>
                   <td>
-                    <Link to={`/issues/${list._id}`} className="btn badge badge-primary btn-xs cursor-pointer hover:scale-101">
+                    <Link to={`/all-issues/${list._id}`} className="btn badge badge-primary btn-xs cursor-pointer hover:scale-101">
                       Details
                     </Link>
                   </td>

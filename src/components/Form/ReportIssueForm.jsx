@@ -13,19 +13,25 @@ import { useNavigate } from "react-router";
 const ReportIssueForm = () => {
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
-  const { isPending, isError, data, mutateAsync } = useMutation({
-    mutationFn: async (issueData) => await axiosSecure.post('/issues',issueData),
-    onSettled: (data, error) => {
-      if (data) console.log(data);
-      if (error) console.log(error);
+  const { isPending:isPostPending, isError:isPostError, data:postData, mutateAsync:postIssue } = useMutation({
+    mutationFn: async (issueData) => await axiosSecure.post("/issues", issueData),
+    onSettled:() => {
+       console.log("settled data: ", postData);
     },
-    retry: 3,
+    retry: 2,
+  });
+  const { isPending, isError, data, mutateAsync:addTimeline } = useMutation({
+    mutationFn: async (timelineInfo) => await axiosSecure.post("/timelines", timelineInfo),
+    onSettled:() => {
+       console.log("settled data: ",data);
+    },
+    retry: 2,
   });
   const onSubmit = async (data) => {
     const { title, category, description, location } = data;
@@ -40,15 +46,21 @@ const ReportIssueForm = () => {
         image: imageURL,
         reporter: user.email,
       };
-      console.log(issueInfo);
 
-      const result = await mutateAsync(issueInfo);
-      if (result.data) {
-        toast.success("Issue reported successfully");
-        navigate('/dashboard/my-issues')
-      }
-      console.log(isError);
+      const result = await postIssue(issueInfo);
       console.log(result.data);
+      if (result.data.insertedId) {
+        const timelineInfo = {
+          issueId:result.data.insertedId,
+          message:"Issue Creation",
+          updatedBy:"Citizen"
+        }
+        const res = await addTimeline(timelineInfo)
+        console.log("timeline created: ",res);
+        toast.success("Issue reported successfully");
+        navigate("/dashboard/my-issues");
+      }
+      console.log(isPostError);
     } catch (err) {
       console.log(err);
     }

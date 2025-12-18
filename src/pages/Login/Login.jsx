@@ -50,9 +50,10 @@ const Login = () => {
     setError("");
     signInWithGoogle()
       .then((res) => {
+        const userInfo = { name: res.user.displayName, email: res.user.email, image: res.user.photoURL };
         console.log(res.user);
         // axiosInstance
-        //   .post("/users", { name: res.user.displayName, email: res.user.email, photoURL: res.user.photoURL })
+        //   .post("/users", userinfo)
         //   .then((data) => {
         //     console.log(data);
         //   })

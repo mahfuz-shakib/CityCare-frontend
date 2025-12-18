@@ -3,12 +3,10 @@ import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
 import { imageUpload } from "../../utils";
-import useAuth from "../../hooks/useAuth";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import Container from "../../container/Container";
 
 const UpdateIssueForm = ({ updateItem, modalRef, refetch }) => {
-  const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
   const {
     register,
@@ -27,7 +25,6 @@ const UpdateIssueForm = ({ updateItem, modalRef, refetch }) => {
         description,
         location,
         image: imageURL,
-        reporter: user.email,
       };
       console.log(issueInfo);
       axiosSecure
@@ -56,7 +53,7 @@ const UpdateIssueForm = ({ updateItem, modalRef, refetch }) => {
         className=" max-w-76 md:max-w-[856px]  mx-auto card rounded-lg overflow-hidden my-16"
       >
         <div className={`card-body px-2 md:px-4 bg-gray-100`}>
-          <form onSubmit={()=>handleSubmit(onSubmit)}>
+          <form onSubmit={() => handleSubmit(onSubmit)}>
             <fieldset className="! fieldset space-y-2">
               <div className="flex flex-col md:flex-row justify-between gap-5">
                 <div className="w-72 md:w-md">
@@ -67,7 +64,7 @@ const UpdateIssueForm = ({ updateItem, modalRef, refetch }) => {
                     type="text"
                     id="name"
                     className="input-field"
-                    placeholder="Enter issue title"
+                    defaultValue={updateItem.title}
                     {...register("title", {
                       required: "Title must be required",
                       minLength: { value: 3, message: "title atleast 3 character" },
@@ -79,6 +76,7 @@ const UpdateIssueForm = ({ updateItem, modalRef, refetch }) => {
                   <label className="label md:text-sm">Select Category</label>
                   <br />
                   <select
+                    defaultValue={updateItem.category}
                     className="select select-bordered"
                     {...register("category", {
                       required: true,
@@ -104,7 +102,7 @@ const UpdateIssueForm = ({ updateItem, modalRef, refetch }) => {
                   <input
                     type="text"
                     className="input-field"
-                    placeholder="e.g. Jashore"
+                    defaultValue={updateItem.location}
                     {...register("location", {
                       required: "Location must be required",
                       minLength: { value: 3, message: "Location atleast 3 character" },
@@ -119,6 +117,7 @@ const UpdateIssueForm = ({ updateItem, modalRef, refetch }) => {
                       type="file"
                       id="image"
                       accept="image/*"
+                      defaultValue={updateItem.image}
                       {...register("image", {
                         required: "Image must be required",
                       })}
@@ -133,7 +132,7 @@ const UpdateIssueForm = ({ updateItem, modalRef, refetch }) => {
                 <br />
                 <textarea
                   className="textarea textarea-bordered h-24 md:h-8 md:w-full"
-                  placeholder="Enter description"
+                  defaultValue={updateItem.description}
                   {...register("description", {
                     required: "Description must be required",
                     minLength: { value: 3, message: "Description atleast 10 character" },
@@ -147,6 +146,11 @@ const UpdateIssueForm = ({ updateItem, modalRef, refetch }) => {
               </button>
             </fieldset>
           </form>
+          <div className="w-fit text-right ">
+            <form method="dialog">
+              <button className="btn bg-primary/10">Cancel</button>
+            </form>
+          </div>
         </div>
       </motion.div>
     </Container>

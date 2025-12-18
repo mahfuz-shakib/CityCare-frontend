@@ -198,7 +198,7 @@ const IssueDetails = () => {
             </div>
           </motion.div>
         </div>
-
+            <hr className="border-dashed border-gray-400" />
         {/* Timeline Below */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -206,8 +206,7 @@ const IssueDetails = () => {
           transition={{ duration: 0.6, delay: 0.6 }}
           className="mt-12"
         >
-          <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">Issue Timeline</h3>
-          <IssueTimeline timeline={issue.timeline || []} />
+          <IssueTimeline issueId={_id} />
         </motion.div>
       </motion.section>
     </Container>
