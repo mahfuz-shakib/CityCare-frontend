@@ -1,30 +1,27 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import React, { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import Swal from "sweetalert2";
 import useAuth from "../../../hooks/useAuth";
-import Loader from "../../../components/Loader"
+import Loader from "../../../components/Loader";
 import Container from "../../../container/Container";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import UpdateIssueForm from "../../../components/Form/UpdateIssueForm";
 import { Link } from "react-router";
 const MyIssues = () => {
   const { user, loading } = useAuth();
-
+  console.log(user);
   const [filters, setFilters] = useState({ email: user?.email, category: "", status: "", priority: "", search: "" });
-  console.log(filters);
-  const [isDisabled, setIsDisabled] = useState(false);
   const [updateItem, setUpdateItem] = useState({});
   const modalRef = useRef();
   const axiosSecure = useAxiosSecure();
-  const {
-    data: myIssues = [],
-    isLoading,
-    refetch,
-  } = useQuery({
-    queryKey: ["issues", filters],
+  const queryClient = useQueryClient();
+
+  const queryKey = ["issues", filters];
+  const { data: myIssues = [], isLoading } = useQuery({
+    queryKey,
     queryFn: async () => {
-      const params = new URLSearchParams({ ...filters, email: user?.email }).toString();
+      const params = new URLSearchParams(filters).toString();
       const res = await axiosSecure.get(`/issues/?${params}`);
       return res.data;
     },
@@ -33,6 +30,7 @@ const MyIssues = () => {
   const handleUpdate = (item) => {
     setUpdateItem(item);
     modalRef.current.showModal();
+    queryClient.invalidateQueries({ queryKey });
   };
 
   const handleDelete = (item) => {
@@ -55,7 +53,7 @@ const MyIssues = () => {
               text: "Your issue item has been deleted.",
               icon: "success",
             });
-            refetch();
+            queryClient.invalidateQueries({ queryKey });
           })
           .catch((err) => console.log(err));
       }
@@ -117,8 +115,8 @@ const MyIssues = () => {
         </select>
       </div>
 
-      { !user.email || loading || isLoading ? (
-        <Loader/>
+      {!user.email || loading || isLoading ? (
+        <Loader />
       ) : myIssues.length ? (
         <motion.table
           initial={{ opacity: 0, y: 20 }}
@@ -142,9 +140,6 @@ const MyIssues = () => {
           </thead>
           <tbody>
             {myIssues?.map((list, index) => {
-              if (list.status !== "pending") {
-                setIsDisabled(true);
-              }
               return (
                 <tr key={list._id} className={`${index % 2 ? "bg-gray-50" : "bg-violet-50"}`}>
                   <td>{index + 1}</td>
@@ -171,7 +166,7 @@ const MyIssues = () => {
                     <button
                       onClick={() => handleUpdate(list)}
                       className="btn badge badge-primary btn-xs cursor-pointer hover:scale-101"
-                      disabled={isDisabled}
+                      disabled={list.status !== "pending"}
                     >
                       Edit
                     </button>
@@ -185,7 +180,10 @@ const MyIssues = () => {
                     </button>
                   </td>
                   <td>
-                    <Link to={`/all-issues/${list._id}`} className="btn badge badge-primary btn-xs cursor-pointer hover:scale-101">
+                    <Link
+                      to={`/all-issues/${list._id}`}
+                      className="btn badge badge-primary btn-xs cursor-pointer hover:scale-101"
+                    >
                       Details
                     </Link>
                   </td>
@@ -200,8 +198,7 @@ const MyIssues = () => {
 
       <dialog ref={modalRef} className="modal modal-bottom sm:modal-middle">
         <div className={`p-2 md:p-4 rounded scale-85 md:scale-100 mx-auto`}>
-          <h1 className="text-center font-bold mb-2 md:mb-3">Update Information</h1>
-          <UpdateIssueForm updateItem={updateItem} modalRef={modalRef} refetch={refetch} />
+          <UpdateIssueForm updateItem={updateItem} modalRef={modalRef} />
         </div>
       </dialog>
     </Container>

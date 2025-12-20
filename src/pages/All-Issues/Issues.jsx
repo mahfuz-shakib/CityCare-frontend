@@ -56,6 +56,7 @@ const Issues = () => {
           <option value="">Select Status</option>
           <option value="pending">Pending</option>
           <option value="in-progress">In-progress</option>
+          <option value="working">Working</option>
           <option value="resolved">Resolved</option>
           <option value="closed">Closed</option>
           <option value="rejected">Rejected</option>

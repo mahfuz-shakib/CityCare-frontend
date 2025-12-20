@@ -7,7 +7,7 @@ import LatestResolvedIssues from "./ResolvedIssues/LatestResolvedIssues";
 const Home = () => {
   return (
     <div className="bg-gray-0">
-      <title>PawMart/Home</title>
+      <title>CityCare/Home</title>
       <Container>
         <h1>hellow home</h1>
         <Banner/>

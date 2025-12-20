@@ -1,22 +1,25 @@
 import React from "react";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient} from "@tanstack/react-query";
 import Container from "../../../container/Container";
 import { useState } from "react";
 import { useRef } from "react";
 import { motion } from "framer-motion";
+import AvailableStaffs from "../../../components/Modal/AvailableStaffs";
+import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 
 const AllIssues = () => {
-  const [isDisabled, setIsDisabled] = useState(false);
   const [issue, setIssue] = useState({});
-  const modalRef = useRef();
+  const staffModalRef = useRef();
   const axiosSecure = useAxiosSecure();
+  const queryClient = useQueryClient();
+
   const {
     data: issues = [],
     isLoading,
-    refetch,
   } = useQuery({
-    queryKey: ["issues"],
+    queryKey: ["issues", "adminPage"],
     queryFn: async () => {
       const res = await axiosSecure.get("/issues");
       return res.data;
@@ -25,7 +28,37 @@ const AllIssues = () => {
   if (isLoading) return <p>loading....</p>;
   const handleAssignStaff = (issue) => {
     setIssue(issue);
-    modalRef.current.showModal();
+    staffModalRef.current.showModal();
+  };
+  const handleReject = (issue) => {
+    const status = "rejected"
+    Swal.fire({
+           title: "Are you sure?",
+           text: "You won't be able to revert this!",
+           icon: "warning",
+           showCancelButton: true,
+           confirmButtonColor: "#3085d6",
+           cancelButtonColor: "#d33",
+           confirmButtonText: `Yes, reject it!`,
+         }).then((result) => {
+           if (result.isConfirmed) {
+             axiosSecure
+          .patch(`/issues/${issue._id}`,{status})
+          .then((data) => {
+            Swal.fire({
+                           title: "Reject",
+                           text: `Your issue item has been rejected`,
+                           icon: "success",
+                         });
+            queryClient.invalidateQueries(["issues", "adminPage"]);
+          })
+          .catch((err) => {
+            toast.error("Updated failed");
+            console.log(err);
+          });
+           }
+         });
+    
   };
 
   return (
@@ -45,14 +78,12 @@ const AllIssues = () => {
             <th>Status</th>
             <th>Priority</th>
             <th>Assigned Staff</th>
-            <th>Action</th>
+            <th>Assign Staff</th>
+            <th>Reject Issue</th>
           </tr>
         </thead>
         <tbody>
           {issues?.map((list, index) => {
-            if (list.status !== "pending") {
-              setIsDisabled(true);
-            }
             return (
               <tr key={list._id} className={`${index % 2 ? "bg-gray-50" : "bg-violet-50"}`}>
                 <td>{index + 1}</td>
@@ -63,14 +94,23 @@ const AllIssues = () => {
                   <button className="badge badge-secondary btn-xs">{list.status}</button>
                 </td>
                 <td className="opacity-75">{list.priority}</td>
-                <td >{list.assignedStaff}</td>
+                <td>{list.assignedStaff ? list.assignedStaff.displayName : "- - -"}</td>
                 <td>
                   <button
                     onClick={() => handleAssignStaff(list)}
                     className="btn badge badge-primary btn-xs hover:scale-101"
-                    disabled={isDisabled}
+                    disabled={list.assignedStaff}
                   >
                     Assign Staff
+                  </button>
+                </td>
+                <td>
+                  <button
+                    onClick={() => handleReject(list)}
+                    disabled={list.status!=="pending"}
+                    className="btn badge badge-secondary btn-xs hover:scale-101"
+                  >
+                    Reject
                   </button>
                 </td>
               </tr>
@@ -78,15 +118,9 @@ const AllIssues = () => {
           })}
         </tbody>
       </motion.table>
-      <dialog ref={modalRef} className="modal modal-bottom sm:modal-middle">
+      <dialog ref={staffModalRef} className="modal modal-bottom sm:modal-middle">
         <div className={`p-2 md:p-4 rounded scale-85 md:scale-100 mx-auto`}>
-          <h1 className="text-center font-bold mb-2 md:mb-3">Update Information</h1>
-          {/* <UpdateIssueForm issue={issue} modalRef={modalRef} refetch={refetch} /> */}
-          <div className="w-fit mx-auto ">
-            <form method="dialog">
-              <button className="btn bg-primary/10">Cancel</button>
-            </form>
-          </div>
+          <AvailableStaffs issue={issue} staffModalRef={staffModalRef} />
         </div>
       </dialog>
     </Container>

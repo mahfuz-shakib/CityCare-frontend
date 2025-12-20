@@ -9,7 +9,7 @@ import Container from "../container/Container";
 const Navbar = () => {
   const [openDropdown, setOpenDropdown] = useState(false);
   const { user, loading, logOut } = use(AuthContext);
-  console.log(user);
+  // console.log(user);
   const navigate = useNavigate();
   const links = (
     <>
@@ -112,7 +112,7 @@ const Navbar = () => {
             {openDropdown && (
               <div className="absolute w-48 right-0 bg-lime-200 flex flex-col text-center p-2 space-y-1 rounded mt-42 z-50">
                 <Link
-                  to="/myprofile"
+                  to="/dashboard/myProfile"
                   onClick={() => setOpenDropdown(false)}
                   className="rounded py-1 hover:bg-gray-100"
                 >

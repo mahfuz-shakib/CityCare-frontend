@@ -8,41 +8,54 @@ import { easeInOut, motion } from "framer-motion";
 import { FcGoogle } from "react-icons/fc";
 import { AuthContext } from "../../providers/AuthContext";
 import Container from "../../container/Container";
-// import useAxios from "../../hooks/useAxios";
 import { imageUpload } from "../../utils";
+import { useMutation } from "@tanstack/react-query";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { createUser, signInWithGoogle, updateUser } = use(AuthContext);
-  // const axiosInstance = useAxios();
+  const queryClient = useQueryClient();
+  const axiosSecure = useAxiosSecure();
   const navigate = useNavigate();
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm();
+  const { data, mutateAsync } = useMutation({
+    mutationFn: async (payload) => axiosSecure.post("/users", payload),
+  });
   const onSubmit = async (data) => {
-    const photoURL = await imageUpload(data?.image[0])
-    createUser(data?.email,data?.password)
-    .then(res=>{
-      updateUser(data.name,photoURL)
-      .then(res=>{
-        toast('Registration Successfull');
-        navigate('/');
+    const photoURL = await imageUpload(data?.image[0]);
+    const userInfo = {
+      displayName: data.name,
+      photoURL,
+      email: data.email,
+    };
+
+    createUser(data.email, data.password)
+      .then(async (res) => {
+        console.log(res);
+        toast.success("Registration Successful");
+        await mutateAsync(userInfo);
+        updateUser(data.name, photoURL).then((response) => {
+          console.log(response);
+        });
+      queryClient.invalidateQueries();
+        navigate("/");
       })
-    })
-  }
+      .catch((err) => {
+        toast.error(err.message);
+      });
+  };
 
   const handleGoogleAuth = async () => {
     signInWithGoogle()
-      .then((res) => {
-        // axiosInstance
-        //   .post("/users", { name: res.user?.displayName, email: res.user?.email, photoURL: res.user?.photoURL })
-        //   .then((data) => {
-        //   })
-        //   .catch((err) => {
-        //   });
-        toast.success("Registration Successfull");
+      .then(async (res) => {
+        console.log(res);
+        toast.success("Registration Successful");
+        const userInfo = { displayName: res.user?.displayName, email: res.user?.email, photoURL: res.user?.photoURL };
+        await mutateAsync(userInfo);
         navigate("/");
       })
       .catch((err) => {
@@ -65,7 +78,7 @@ const Register = () => {
           >
             <div className="text-center ">
               <h1 className="text-3xl md:text-5xl font-semibold  my-3 text-yellow-400">Join CityCare</h1>
-              <p className="text-gray-500 mb-4">Create your account</p>
+              <p className="text-gra-500 mb-4">Create your account</p>
             </div>
           </motion.div>
           <motion.div
@@ -114,7 +127,7 @@ const Register = () => {
                         type="file"
                         id="image"
                         accept="image/*"
-                        {...register("image")}
+                        {...register("image", { required: "image must be required" })}
                         className="block w-full text-sm text-gray-500
                       file:mr-4 file:py-2 file:px-4
                       file:rounded-md file:border-0

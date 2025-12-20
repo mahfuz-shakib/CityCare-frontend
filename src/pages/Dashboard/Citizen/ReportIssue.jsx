@@ -2,8 +2,8 @@ import React from "react";
 import Container from "../../../container/Container";
 import ReportIssueForm from "../../../components/Form/ReportIssueForm";
 import useAuth from "../../../hooks/useAuth";
-import BlockedWarning from "../../../components/BlockedWarning";
-import PremiumSubscriptionWarning from "../../../components/PremiumSubscriptionWarning";
+// import BlockedWarning from "../../../components/BlockedWarning";
+// import PremiumSubscriptionWarning from "../../../components/PremiumSubscriptionWarning";
 const ReportIssue = () => {
   const { user } = useAuth();
   return (

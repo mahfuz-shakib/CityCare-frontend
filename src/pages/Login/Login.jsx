@@ -6,28 +6,33 @@ import { toast } from "react-toastify";
 import { FcGoogle } from "react-icons/fc";
 import { motion, easeInOut } from "framer-motion";
 import Container from "../../container/Container";
-import useAxios from "../../hooks/useAxios";
 import { useForm } from "react-hook-form";
 import { AuthContext } from "../../providers/AuthContext";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 const Login = () => {
   const { signInWithGoogle, signInUser } = use(AuthContext);
-  const axiosInstance = useAxios();
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const axiosSecure = useAxiosSecure();
+  const queryClient = useQueryClient();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
+
+  const { data, mutateAsync } = useMutation({
+    mutationFn: async (payload) => axiosSecure.post("/users", payload),
+  });
   console.log(errors);
   const onSubmit = (data) => {
     console.log(data);
     const email = data?.email;
     const password = data?.password;
-    // console.log(email, password);
     signInUser(email, password)
       .then((res) => {
         console.log(res.user);
@@ -47,24 +52,17 @@ const Login = () => {
 
   // login by google
   const handleGoogleAuth = () => {
-    setError("");
     signInWithGoogle()
-      .then((res) => {
-        const userInfo = { name: res.user.displayName, email: res.user.email, image: res.user.photoURL };
+      .then(async (res) => {
+        const userInfo = { displayName: res.user.displayName, email: res.user.email, image: res.user.photoURL };
         console.log(res.user);
-        // axiosInstance
-        //   .post("/users", userinfo)
-        //   .then((data) => {
-        //     console.log(data);
-        //   })
-        //   .catch((err) => {
-        //     console.log(err);
-        //   });
-        toast.success("Login Successfully");
+        toast.success("Login Successful");
+        await mutateAsync(userInfo);
+      queryClient.invalidateQueries();
+
         navigate(location.state ? location.state : "/");
       })
       .catch((err) => {
-        setError(err.code);
         toast.error(err.code);
       });
   };

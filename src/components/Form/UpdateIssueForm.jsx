@@ -5,12 +5,11 @@ import { motion } from "framer-motion";
 import { imageUpload } from "../../utils";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import Container from "../../container/Container";
-import {useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 
-const UpdateIssueForm = ({ updateItem, modalRef}) => {
+const UpdateIssueForm = ({ updateItem, modalRef }) => {
   const axiosSecure = useAxiosSecure();
   const queryClient = useQueryClient();
-
   const {
     register,
     handleSubmit,
@@ -40,7 +39,6 @@ const UpdateIssueForm = ({ updateItem, modalRef}) => {
           toast.success("Updated successfully");
           modalRef.current.close();
           queryClient.invalidateQueries(["issueDetails", updateItem._id]);
-
         })
         .catch((err) => {
           toast.error("Updated failed");
@@ -60,6 +58,8 @@ const UpdateIssueForm = ({ updateItem, modalRef}) => {
         className=" max-w-76 md:max-w-[856px]  mx-auto card rounded-lg overflow-hidden my-16"
       >
         <div className={`card-body px-2 md:px-4 bg-gray-100`}>
+          <h1 className="text-center  md:text-xl font-bold text-wrap">Update issue Info.</h1>
+
           <form onSubmit={handleSubmit(onSubmit)}>
             <fieldset className="! fieldset space-y-2">
               <div className="flex flex-col md:flex-row justify-between gap-5">
@@ -145,11 +145,10 @@ const UpdateIssueForm = ({ updateItem, modalRef}) => {
                 ></textarea>
                 {errors.description && <p className="mt-1 text-xs text-red-500">{errors.description.message} </p>}
               </div>
-
             </fieldset>
-              <button className={`btn mx-auto w-72  md:w-sm  text-whit mt-4 hover:bg-purple-800  "bg-grad"`}>
-                Update Issue
-              </button>
+            <button className={`btn mx-auto w-72  md:w-sm  text-whit mt-4 hover:bg-purple-800  "bg-grad"`}>
+              Update Issue
+            </button>
           </form>
           <div className="w-fit text-right ">
             <form method="dialog">

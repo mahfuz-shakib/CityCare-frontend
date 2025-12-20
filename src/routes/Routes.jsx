@@ -16,6 +16,7 @@ import Payments from "../pages/Dashboard/Admin/Payments";
 import AssignedIssues from "../pages/Dashboard/Staff/AssignedIssues";
 import DashboardHomepage from "../pages/Dashboard/Common/DashboardHomepage";
 import MyProfile from "../pages/Dashboard/Common/MyProfile";
+import CitizenProfile from "../pages/Dashboard/Citizen/CitizenProfile";
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -84,7 +85,7 @@ export const router = createBrowserRouter([
           },
           {
             path: "/dashboard/myProfile",
-            Component: MyProfile,
+            Component: CitizenProfile,
           },
         ],
       },

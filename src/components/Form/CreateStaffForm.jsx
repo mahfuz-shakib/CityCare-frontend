@@ -1,34 +1,51 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router";
 import { FaEye } from "react-icons/fa6";
 import { FaEyeSlash } from "react-icons/fa6";
 import { toast } from "react-toastify";
 import { easeInOut, motion } from "framer-motion";
-import useAuth from "../../hooks/useAuth";
 import Container from "../../container/Container";
 import { imageUpload } from "../../utils";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 const CreateStaffForm = ({ modalRef }) => {
   const [showPassword, setShowPassword] = useState(false);
-  const { createUser, updateUser } = useAuth();
-  // const axiosInstance = useAxios();
-  const navigate = useNavigate();
+  const axiosSecure = useAxiosSecure();
+  const queryClient=useQueryClient()
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm();
+
+  const {data,mutateAsync} =useMutation({
+    mutationFn:async(payload)=>axiosSecure.post("/staffs",payload),
+    // onSettled:()=>{
+    //   toast.success("New staff has been created!")
+    //   queryClient.invalidateQueries(["staffs"])
+    //   modalRef.curent.close();
+    // }
+  }) 
+
   const onSubmit = async (data) => {
-    // const photoURL = await imageUpload(data?.image[0]);
+    const photoURL = await imageUpload(data?.image[0]);
     console.log(data);
     console.log("create-staff");
-    // createUser(data?.email, data?.password).then((res) => {
-    //   updateUser(data.name, photoURL).then((res) => {
-    //     toast("staff Successfull");
-    //     modalRef.current.close()
-    //   });
-    // });
+    const staffInfo = {
+      displayName:data.name,
+      photoURL,
+      email:data.email,
+      password:data.password,
+      phone:data.phone
+    }
+    const res= await mutateAsync(staffInfo);
+    console.log(res.data);
+    if(res.data.currentStaff.insertedId)
+    {
+      toast.success("Staff creation successful")
+      queryClient.invalidateQueries(["staffs"])
+      modalRef.current.close();
+    }
   };
   return (
     <Container>
@@ -38,11 +55,12 @@ const CreateStaffForm = ({ modalRef }) => {
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 1, ease: easeInOut }}
           viewport={{ once: true }}
-          className={`card w-full max-w-lg  mx-auto shrink-0 shadow-2xl`}
+          className={`card w-full max-w-lg md:!min-w-md  mx-auto shrink-0 shadow-2xl`}
         >
-          <div className="card-body max-w-lg bg-gray-500 rounded">
+          <div className="card-body bg-white rounded">
             <form onSubmit={handleSubmit(onSubmit)}>
               <fieldset className="fieldset">
+
                 <div>
                   <label className="label">Name</label>
                   <input
@@ -53,7 +71,7 @@ const CreateStaffForm = ({ modalRef }) => {
                       minLength: { value: 3, message: "Name atleast 3 character" },
                       maxLength: { value: 25, message: "Name atmost 25 character" },
                     })}
-                    placeholder="Enter your full name"
+                    placeholder="Enter staff name"
                     className="input-field md:w-full"
                   />
                   {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name.message} </p>}
@@ -69,10 +87,11 @@ const CreateStaffForm = ({ modalRef }) => {
                       pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Please enter a valid email" },
                     })}
                     className="input-field md:w-full"
-                    placeholder="Enter your email"
+                    placeholder="Enter staff email"
                   />
                   {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message} </p>}
                 </div>
+
                 <div>
                   <label className="label">Phone Number</label>
                   <input
@@ -86,8 +105,9 @@ const CreateStaffForm = ({ modalRef }) => {
                     className="input-field md:w-full"
                     placeholder="017xxxxxxx"
                   />
-                  {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message} </p>}
+                  {errors.phone && <p className="mt-1 text-xs text-red-500">{errors.phone.message} </p>}
                 </div>
+
                 <div>
                   <label className="label">Profile Image</label>
                   <input
@@ -107,6 +127,7 @@ const CreateStaffForm = ({ modalRef }) => {
                   />
                   {/* <p className="mt-1 text-xs text-gray-400">PNG, JPG or JPEG (max 2MB)</p> */}
                 </div>
+
                 <div>
                   <label className="label">Password</label>
                   <div className="relative">
@@ -131,15 +152,16 @@ const CreateStaffForm = ({ modalRef }) => {
                       {showPassword ? <FaEyeSlash /> : <FaEye />}
                     </button>
                   </div>
-                  {errors.password && <p className="mt-1 text-xs text-red-500">{errors.password.message} </p>}
+                  {errors.password && <p className="mt-1 w-full text-xs text-red-500 text-wrap">{errors.password.message} </p>}
                 </div>
-                <div className="flex gap-2">
+
+                <div className="flex gap-2 mt-4 justify-between">
                   <div className="w-fit">
                     <form method="dialog">
                       <button className="btn bg-primary/10">Cancel</button>
                     </form>
                   </div>
-                  <button className={`btn mt-4 hover:scale-101`}>Create Staff</button>
+                  <button className={`btn  hover:scale-101`}>Create Staff</button>
                 </div>
               </fieldset>
             </form>
