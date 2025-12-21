@@ -19,6 +19,7 @@ import MyProfile from "../pages/Dashboard/Common/MyProfile";
 import CitizenProfile from "../pages/Dashboard/Citizen/CitizenProfile";
 import PaymentSuccess from "../pages/Dashboard/Payments/PaymentSuccess";
 import PaymentCancelled from "../pages/Dashboard/Payments/PaymentCancelled";
+import PaymentHistory from "../pages/Dashboard/Payments/PaymentHistory";
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -86,8 +87,8 @@ export const router = createBrowserRouter([
             Component: PaymentCancelled,
           },
           {
-            path: "/dashboard/payments",
-            Component: Payments,
+            path: "/dashboard/payment-history",
+            Component: PaymentHistory,
           },
           {
             path: "/dashboard/myProfile",

@@ -107,7 +107,7 @@ const AllIssues = () => {
                 <td>
                   <button
                     onClick={() => handleReject(list)}
-                    disabled={list.status!=="pending"}
+                    disabled={list.status!=="pending" ||list.assignedStaff}
                     className="btn badge badge-secondary btn-xs hover:scale-101"
                   >
                     Reject

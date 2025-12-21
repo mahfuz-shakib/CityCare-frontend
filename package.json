@@ -17,6 +17,7 @@
     "firebase": "^12.6.0",
     "firebase-admin": "^13.6.0",
     "framer-motion": "^12.23.26",
+    "jspdf": "^3.0.4",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-hook-form": "^7.68.0",
@@ -25,10 +26,10 @@
     "react-router": "^7.9.6",
     "react-spinners": "^0.17.0",
     "react-toastify": "^11.0.5",
+    "styled-components": "^6.1.19",
     "sweetalert2": "^11.26.4",
     "tailwindcss": "^4.1.18",
-    "tanstack-query": "^1.0.0",
-    "styled-components": "^6.1.19"
+    "tanstack-query": "^1.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

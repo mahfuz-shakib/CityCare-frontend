@@ -78,7 +78,6 @@ const handleBoost = async () => {
         issueTitle:issue.title,
         issueImage:issue.image,
         senderEmail:issue.reporter,
-        cost:100
       }
       const res = await axiosSecure.post("/boost-payment-session",issueInfo);
       window.location.replace(res.data.url); // Stripe Checkout URL
