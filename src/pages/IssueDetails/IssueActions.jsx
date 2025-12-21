@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { motion } from "framer-motion";
-import { FaEdit, FaTrash, FaRocket, FaExclamationTriangle, FaSpinner } from "react-icons/fa";
+import { FaEdit, FaTrash, FaRocket, FaSpinner } from "react-icons/fa";
 import useAuth from "../../hooks/useAuth";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { toast } from "react-toastify";
@@ -13,11 +13,11 @@ const IssueActions = ({ issue }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const axiosSecure = useAxiosSecure();
   const modalRef = useRef();
 
   const isOwner = user?.email === issue.reporter;
   const canEdit = isOwner && issue.status === "pending";
-  const axiosSecure = useAxiosSecure();
 
   const { mutateAsync:deleteMutation} = useMutation({
     mutationFn: async () => {
@@ -38,19 +38,19 @@ const IssueActions = ({ issue }) => {
     },
   });
 
-  const {mutateAsync:boostMutation} = useMutation({
-    mutationFn: async () => {
-      const res = await axiosSecure.post(`/issues/boost/${issue._id}`);
-      return res.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(["issueDetails", issue._id]);
-      toast.success("Issue priority boosted!");
-    },
-    onError: () => {
-      toast.error("Failed to boost priority.");
-    },
-  });
+  // const {mutateAsync:boostMutation} = useMutation({
+  //   mutationFn: async (issueInfo) => {
+  //     const res = await axiosSecure.post(`/issues/boost/${issue._id}`);
+  //     return res.data;
+  //   },
+  //   onSuccess: () => {
+  //     queryClient.invalidateQueries(["issueDetails", issue._id]);
+  //     toast.success("Issue priority boosted!");
+  //   },
+  //   onError: () => {
+  //     toast.error("Failed to boost priority.");
+  //   },
+  // });
   const handleUpdate = () => {
     modalRef.current.showModal();
     queryClient.invalidateQueries(["issueDetails", issue._id]);
@@ -71,7 +71,21 @@ const IssueActions = ({ issue }) => {
       }
     });
   };
-
+const handleBoost = async () => {
+    try {
+      const issueInfo = {
+        issueId:issue._id,
+        issueTitle:issue.title,
+        issueImage:issue.image,
+        senderEmail:issue.reporter,
+        cost:100
+      }
+      const res = await axiosSecure.post("/boost-payment-session",issueInfo);
+      window.location.replace(res.data.url); // Stripe Checkout URL
+    } catch (error) {
+      Swal.fire("Payment Error", error.message, "error");
+    }
+  };
   return (
     <Container>
       <motion.div
@@ -112,12 +126,12 @@ const IssueActions = ({ issue }) => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="btn btn-primary btn-lg pl-6 py-3 flex items-center gap-2 hover:bg-blue-700 transition-colors"
-            onClick={() => boostMutation.mutate()}
-            disabled={boostMutation.isPending}
+            onClick={handleBoost}
             title="Boost priority to high for faster resolution (costs ৳100)"
           >
-            {boostMutation.isPending ? <FaSpinner className="animate-spin" /> : <FaRocket />}
-            {boostMutation.isPending ? "Boosting..." : "Boost Now (৳100)"}
+            {/* {boostMutation.isPending ? <FaSpinner className="animate-spin" /> : <FaRocket />}
+            {boostMutation.isPending ? "Boosting..." : "Boost Now (৳100)"} */}
+            Boost Now (৳100)
           </motion.button>
         )}
       </motion.div>

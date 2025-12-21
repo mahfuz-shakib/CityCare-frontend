@@ -17,6 +17,8 @@ import AssignedIssues from "../pages/Dashboard/Staff/AssignedIssues";
 import DashboardHomepage from "../pages/Dashboard/Common/DashboardHomepage";
 import MyProfile from "../pages/Dashboard/Common/MyProfile";
 import CitizenProfile from "../pages/Dashboard/Citizen/CitizenProfile";
+import PaymentSuccess from "../pages/Dashboard/Payments/PaymentSuccess";
+import PaymentCancelled from "../pages/Dashboard/Payments/PaymentCancelled";
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -76,8 +78,12 @@ export const router = createBrowserRouter([
             Component: ManageUsers,
           },
           {
-            path: "/dashboard/payments",
-            Component: Payments,
+            path: "/dashboard/payment-success",
+            Component: PaymentSuccess,
+          },
+          {
+            path: "/dashboard/payment-cancelled",
+            Component: PaymentCancelled,
           },
           {
             path: "/dashboard/payments",
