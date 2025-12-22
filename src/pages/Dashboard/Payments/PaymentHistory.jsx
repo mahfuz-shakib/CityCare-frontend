@@ -13,7 +13,7 @@ const formatDate = (ts) => {
         return ts;
     }
 };
-
+// 
 const toCurrency = (amount, currency = 'BDT') => `${amount} ${currency?.toUpperCase()}`;
 
 const PaymentHistory = () => {

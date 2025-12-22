@@ -29,6 +29,7 @@ const Login = () => {
     mutationFn: async (payload) => axiosSecure.post("/users", payload),
   });
   console.log(errors);
+  console.log(location.state)
   const onSubmit = (data) => {
     console.log(data);
     const email = data?.email;

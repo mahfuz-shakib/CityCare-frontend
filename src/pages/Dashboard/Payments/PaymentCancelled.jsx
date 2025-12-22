@@ -4,7 +4,7 @@ import Container from '../../../container/Container';
 
 const PaymentCancelled = () => {
     const navigate = useNavigate();
-
+// 
     return (
         <Container>
             <div className="min-h-[60vh] flex items-center justify-center py-12 px-4">
