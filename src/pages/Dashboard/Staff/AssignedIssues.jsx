@@ -95,7 +95,7 @@ const AssignedIssues = () => {
             <th>Priority</th>
             <th>Status</th>
             <th>Action</th>
-            <th>View</th>
+            {/* <th>View</th> */}
           </tr>
         </thead>
         <tbody>
@@ -134,9 +134,9 @@ const AssignedIssues = () => {
                     )}
                   </div>
                 </td>
-                <td>
+                {/* <td>
                   <button className="btn badge badge-secondary btn-xs hover:scale-101">Details</button>
-                </td>
+                </td> */}
               </motion.tr>
             );
           })}

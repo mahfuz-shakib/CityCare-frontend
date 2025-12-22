@@ -23,7 +23,7 @@ const CitizenProfile = () => {
     },
     enabled: !!user?.email,
   });
-
+console.log(userData)
   const { data: issuesData } = useQuery({
     queryKey: ["citizen-issues", user?.email],
     queryFn: async () => {
@@ -119,11 +119,7 @@ const CitizenProfile = () => {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className={`bg-gradient-to-r ${
-            userData?.isPremium
-              ? "from-yellow-400 via-yellow-500 to-orange-500"
-              : "from-sky-400 via-blue-500 to-indigo-500"
-          } shadow-xl rounded-2xl p-8 text-white`}
+          className={`bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-500 shadow-xl rounded-2xl p-8 text-white`}
         >
           <div className="flex flex-col md:flex-row items-center gap-6">
             <div className="relative flex-shrink-0">
@@ -150,17 +146,17 @@ const CitizenProfile = () => {
                   <h2 className="text-3xl font-bold">{userData?.displayName || user?.displayName}</h2>
                   <p className="text-blue-100">{userData?.email || user?.email}</p>
                   <div className="flex gap-2 mt-3 justify-center md:justify-start">
-                    <span className="badge badge-lg bg-white/20 border-white/30 text-white">Citizen</span>
+                    <span className="badge badge-lg bg-white/20 border-white/30 ">Citizen</span>
                     {userData?.isPremium ? (
-                      <span className="badge badge-lg bg-yellow-500 border-yellow-400 text-white">
+                      <span className="badge badge-lg bg-yellow-500 border-yellow-400 ">
                         <FaCrown className="mr-1" />
                         Premium
                       </span>
                     ) : (
-                      <span className="badge badge-lg bg-white/20 border-white/30 text-white">Free Plan</span>
+                      <span className="badge badge-lg bg-white/20 border-white/30 ">Free Plan</span>
                     )}
                     {userData?.isBlocked && (
-                      <span className="badge badge-lg bg-red-500 border-red-400 text-white">
+                      <span className="badge badge-lg bg-red-500 border-red-400 ">
                         <FaBan className="mr-1" />
                         Blocked
                       </span>

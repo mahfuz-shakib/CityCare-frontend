@@ -104,7 +104,7 @@ const Navbar = memo(() => {
                 {user.photoURL ? (
                   <img
                     src={user.photoURL}
-                    referrerPolicy="no-reffer"
+                    referrerPolicy="no-referrer"
                     onClick={() => setOpenDropdown(!openDropdown)}
                     alt=""
                     className="size-10 rounded-full border-2 border-indigo-300 hover:cursor-pointer hover:scale-102 "

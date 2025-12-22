@@ -146,15 +146,18 @@ const UpdateIssueForm = ({ updateItem, modalRef }) => {
                 {errors.description && <p className="mt-1 text-xs text-red-500">{errors.description.message} </p>}
               </div>
             </fieldset>
-            <button className={`btn mx-auto w-72  md:w-sm  text-whit mt-4 hover:bg-purple-800  "bg-grad"`}>
-              Update Issue
-            </button>
-          </form>
-          <div className="w-fit text-right ">
+            <div className="flex justify-center gap-3 md:gap-8 items-center mt-4">
+<div className="w-fit text-right ">
             <form method="dialog">
               <button className="btn bg-primary/10">Cancel</button>
             </form>
           </div>
+            <button className={`btn w-fit  w-72    bg-lime-600 hover:bg-lime-700 text-white`}>
+              Update Issue
+            </button>
+            </div>
+          </form>
+          
         </div>
       </motion.div>
     </Container>

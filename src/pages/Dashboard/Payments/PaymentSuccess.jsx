@@ -43,7 +43,7 @@ const PaymentSuccess = () => {
                 metadata: data.metadata,
                 purpose: data.metadata?.issueId ? 'Boost' : data.metadata?.userId ? 'Premium Subscription' : 'Unknown',
             };
-            
+            console.log('Saving payment data: ',paymentData)
             await axiosSecure.post('/payments', paymentData);
             
             // Create timeline entry for boost payment

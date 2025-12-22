@@ -92,10 +92,10 @@ const IssueDetails = () => {
               >
                 <h4 className="font-semibold text-gray-800 mb-2 flex items-center">
                   <FaUser className="mr-2 text-blue-600" />
-                  Assigned Staff
+                  Staff Assigned
                 </h4>
-                <p className="text-gray-700">{issue?.assignedStaff?.displayName || issue?.assignedStaff?.name}</p>
-                <p className="text-sm text-gray-500">{issue?.assignedStaff?.email}</p>
+                {/* <p className="text-gray-700">{issue?.assignedStaff?.displayName || issue?.assignedStaff?.name}</p> */}
+                {/* <p className="text-sm text-gray-500">{issue?.assignedStaff?.email}</p> */}
               </motion.div>
             )}
           </div>
