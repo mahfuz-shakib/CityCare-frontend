@@ -113,6 +113,8 @@ console.log(userData)
 
   return (
     <Container>
+            <title>Profile</title>
+
       <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
         {/* Profile Header */}
         <motion.div

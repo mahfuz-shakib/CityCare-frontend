@@ -65,6 +65,8 @@ const MyIssues = () => {
 
   return (
     <Container>
+            <title>My Issues</title>
+
       <div className=" rounded-xl py-10 mb-8">
         <h1 className="text-4xl font-bold text-slate-800 mb-3">
           My Issues

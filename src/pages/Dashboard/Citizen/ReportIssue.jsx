@@ -35,6 +35,8 @@ const ReportIssue = () => {
 
   return (
     <Container>
+            <title>Report Issues</title>
+
       <div className=" rounded-xl mt-10">
         <h1 className="text-4xl font-bold text-slate-800 mb-3">
           Report an Issue

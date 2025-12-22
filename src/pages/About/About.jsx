@@ -29,6 +29,7 @@ const About = () => {
 
     return (
         <Container>
+            <title>About</title>
             <div className="min-h-screen py-20">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}

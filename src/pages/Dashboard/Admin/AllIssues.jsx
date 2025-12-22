@@ -75,6 +75,8 @@ const AllIssues = () => {
 
   return (
     <Container>
+            <title>All Issues</title>
+
       <motion.table
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}

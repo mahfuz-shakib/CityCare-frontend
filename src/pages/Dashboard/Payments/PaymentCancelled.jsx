@@ -7,6 +7,8 @@ const PaymentCancelled = () => {
 // 
     return (
         <Container>
+            <title>Payment Cancelled</title>
+
             <div className="min-h-[60vh] flex items-center justify-center py-12 px-4">
                 <div className="max-w-lg w-full bg-white rounded-2xl shadow-lg p-10 text-center">
                     <div className="text-7xl text-red-500 mb-4">✖</div>

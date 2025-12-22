@@ -82,6 +82,8 @@ const StaffHome = () => {
 
     return (
         <Container>
+            <title>Dashboard</title>
+            
             <div className="space-y-8 py-8">
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}

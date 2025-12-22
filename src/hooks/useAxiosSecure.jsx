@@ -11,7 +11,7 @@ const axiosInstance = axios.create({
 const useAxiosSecure = () => {
   const { user, logOut, loading } = useAuth()
   const navigate = useNavigate()
-
+  
   useEffect(() => {
     if (!loading && user?.accessToken) {
       // Add request interceptor

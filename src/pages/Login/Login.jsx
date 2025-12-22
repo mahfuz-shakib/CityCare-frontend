@@ -9,6 +9,7 @@ import Container from "../../container/Container";
 import { useForm } from "react-hook-form";
 import { AuthContext } from "../../providers/AuthContext";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
+import useRole from "../../hooks/useRole";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 const Login = () => {
   const { signInWithGoogle, signInUser } = use(AuthContext);
@@ -18,7 +19,7 @@ const Login = () => {
   const navigate = useNavigate();
   const axiosSecure = useAxiosSecure();
   const queryClient = useQueryClient();
-
+const {role,roleLoading}=useRole();
   const {
     register,
     handleSubmit,
@@ -58,9 +59,10 @@ const Login = () => {
         const userInfo = { displayName: res.user.displayName, email: res.user.email, image: res.user.photoURL };
         console.log(res.user);
         toast.success("Login Successful");
+
         await mutateAsync(userInfo);
       queryClient.invalidateQueries();
-
+        
         navigate(location.state ? location.state : "/");
       })
       .catch((err) => {

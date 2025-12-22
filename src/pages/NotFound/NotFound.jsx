@@ -7,6 +7,8 @@ import Container from '../../container/Container';
 const NotFound = () => {
     return (
         <Container>
+            <title>Not Found</title>
+
             <div className="min-h-screen flex items-center justify-center py-20">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}

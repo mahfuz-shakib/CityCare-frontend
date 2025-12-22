@@ -215,6 +215,8 @@ const Payments = () => {
 
     return (
         <Container>
+            <title>Payments</title>
+            
             <div className="space-y-6 py-8">
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}

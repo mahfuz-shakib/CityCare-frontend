@@ -64,6 +64,8 @@ const ManageStaffs = () => {
    };
   return (
     <Container>
+            <title>Manage Staffs</title>
+
       <div>
       <div className="text-right my-6">
         <button onClick={handleCreateStaff} className="btn btn-primary">

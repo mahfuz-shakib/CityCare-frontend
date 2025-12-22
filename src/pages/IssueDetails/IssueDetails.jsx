@@ -22,6 +22,8 @@ const IssueDetails = () => {
   if (isLoading) {
     return (
       <Container>
+            <title>Issue Details</title>
+
         <div className="flex justify-center items-center min-h-screen">
           <motion.div
             animate={{ rotate: 360 }}
@@ -36,6 +38,8 @@ const IssueDetails = () => {
   if (!issue) {
     return (
       <Container>
+            <title>Issue Details</title>
+
         <div className="text-center py-12">
           <h2 className="text-2xl font-bold text-gray-500">Issue not found</h2>
         </div>
@@ -45,6 +49,8 @@ const IssueDetails = () => {
 
   return (
     <Container>
+            <title>{issue.title}</title>
+
       <motion.section
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

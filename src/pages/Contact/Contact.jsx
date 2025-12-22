@@ -37,6 +37,8 @@ const Contact = () => {
 
     return (
         <Container>
+            <title>Contact</title>
+
             <div className="min-h-screen py-20">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
