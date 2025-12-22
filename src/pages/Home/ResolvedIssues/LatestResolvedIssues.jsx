@@ -16,16 +16,17 @@ const LatestResolvedIssues = () => {
       return res.data?.data || res.data || [];
     },
   });
-  const issues = issuesResponse?.data || [];
-
   if (isLoading) {
     return <Loader />;
   }
+  
+  const issues = issuesResponse || [];
+  console.log("resolved: ",issues?.length,issues)
 
-  const resolvedIssues = issues
-    .filter(issue => issue.status === 'resolved' || issue.status === 'closed')
-    .sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt))
-    .slice(0, 6);
+  // const resolvedIssues = issues
+  //   .filter(issue => issue.status === 'resolved' || issue.status === 'closed')
+  //   .sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt))
+  //   .slice(0, 6);
 
   return (
     <section className="py-16 max-w-7xl mx-auto px-4">
@@ -40,10 +41,10 @@ const LatestResolvedIssues = () => {
         <p className="text-gray-600 text-lg">See how our community is making a difference</p>
       </motion.div>
 
-      {resolvedIssues.length > 0 ? (
+      {issues.length > 0 ? (
         <>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            {resolvedIssues.map((issue, index) => (
+            {issues.map((issue, index) => (
               <motion.div
                 key={issue._id}
                 initial={{ opacity: 0, y: 20 }}
