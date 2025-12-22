@@ -166,7 +166,7 @@ const ReportIssueForm = () => {
                 {errors.description && <p className="mt-1 text-xs text-red-500">{errors.description.message} </p>}
               </div>
 
-              <button className={`btn mx-auto w-72  md:w-sm  text-whit mt-4 hover:bg-purple-800  "bg-grad"`}>
+              <button className={`btn mx-auto w-72  md:w-sm  mt-4 bg-lime-600 "`}>
                 Report Issue
               </button>
             </fieldset>

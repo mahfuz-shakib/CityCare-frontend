@@ -50,16 +50,16 @@ const Issues = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h2 className="text-4xl font-bold text-center mb-4 text-gray-800">All Issues</h2>
+        <h2 className="text-4xl font-bold text-center mb-4 text-gray-800 mt-8 md:mt-12">All Issues</h2>
         <p className="text-center text-gray-600 mb-8">Browse and filter through all reported issues</p>
       </motion.div>
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.4, delay: 0.1 }}
-        className="mt-8 mx-auto w-full max-w-2xl"
+        className="mt-8 mx-auto w-fit"
       >
-        <label className="input rounded-full w-full lg:w-md ">
+        <label className="input mx-auto rounded-full w-full lg:w-md ">
           <svg className="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
             <g strokeLinejoin="round" strokeLinecap="round" strokeWidth="2.5" fill="none" stroke="currentColor">
               <circle cx="11" cy="11" r="8"></circle>
@@ -123,7 +123,7 @@ const Issues = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
+            className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12"
           >
             {issues.map((issue, index) => (
               <motion.div
@@ -143,7 +143,7 @@ const Issues = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="flex flex-wrap justify-center items-center gap-3 mt-12 mb-8"
+              className="flex flex-wrap justify-center items-center gap-3  mb-8"
             >
               <motion.button
                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}

@@ -35,6 +35,14 @@ const ReportIssue = () => {
 
   return (
     <Container>
+      <div className=" rounded-xl mt-10">
+        <h1 className="text-4xl font-bold text-slate-800 mb-3">
+          Report an Issue
+        </h1>
+        <p className="text-lg text-slate-600 leading-relaxed">
+          Help us improve your city by reporting issues. Share details about problems you've noticed in your community.
+        </p>
+      </div>
       <ReportIssueForm />
     </Container>
   );

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link } from "react-router";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import useAuth from "../../../hooks/useAuth";
 import Container from "../../../container/Container";
@@ -102,7 +101,7 @@ const AssignedIssues = () => {
         <tbody>
           {issues?.map((list, index) => {
             return (
-              <tr key={list._id} className={`${index % 2 ? "bg-gray-50" : "bg-violet-50"}`}>
+              <motion.tr key={list._id} className={`${index % 2 ? "bg-gray-50" : "bg-violet-50"}`}>
                 <td>{index + 1}</td>
                 <td>
                   <div className="font-bold">{list.title}</div>

@@ -6,6 +6,7 @@ import AdminMenu from '../components/Dashboard/Menu/AdminMenu';
 import StaffMenu from '../components/Dashboard/Menu/StaffMenu';
 import CitizenMenu from '../components/Dashboard/Menu/CitizenMenu';
 import Loader from '../components/Loader';
+import Container from "../container/Container";
 
 const DashboardLayout = () => {
   const { role, roleLoading } = useRole();
@@ -24,6 +25,7 @@ const DashboardLayout = () => {
     }
   };
   return (
+    <div className="">
     <div className="drawer lg:drawer-open">
       <input id="my-drawer-4" type="checkbox" className="drawer-toggle" />
       <div className="drawer-content">
@@ -96,6 +98,7 @@ const DashboardLayout = () => {
           </ul>
         </motion.div>
       </div>
+    </div>
     </div>
   );
 };

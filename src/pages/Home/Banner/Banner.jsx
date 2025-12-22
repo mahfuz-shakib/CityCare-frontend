@@ -2,8 +2,10 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router';
 import { FaArrowRight, FaClipboardCheck, FaUsers, FaChartLine } from 'react-icons/fa';
+import useRole from '../../../hooks/useRole';
 
 const Banner = () => {
+    const {role,roleLoading}=useRole()
     return (
         <div className="relative min-h-[600px] bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 overflow-hidden">
             {/* Background Pattern */}
@@ -52,12 +54,14 @@ const Banner = () => {
                                 View All Issues
                                 <FaArrowRight className="ml-2" />
                             </Link>
-                            <Link
-                                to="/register"
+                            {
+                                role==='citizen' && !roleLoading && <Link
+                                to="/dashboard/report-issue"
                                 className="btn btn-lg btn-outline text-white border-2 border-white hover:bg-white hover:text-purple-600 font-bold px-8"
                             >
-                                Get Started
+                                Report Issue
                             </Link>
+                            }
                         </motion.div>
                     </motion.div>
 

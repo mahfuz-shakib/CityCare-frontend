@@ -133,7 +133,7 @@ const Navbar = memo(() => {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -10, scale: 0.95 }}
                   transition={{ duration: 0.2 }}
-                  className="absolute w-48 right-0 bg-white shadow-xl border border-gray-200 flex flex-col text-center p-2 space-y-1 rounded-lg mt-12 z-50"
+                  className="absolute w-48 right-0 top-2 bg-white shadow-xl border border-gray-200 flex flex-col text-center p-2 space-y-1 rounded-lg mt-12 z-50"
                 >
                   <motion.div whileHover={{ backgroundColor: "#f3f4f6" }}>
                     <Link

@@ -65,8 +65,15 @@ const MyIssues = () => {
 
   return (
     <Container>
-      <h1>citizen: my issues: {myIssues.length}</h1>
-
+      <div className=" rounded-xl py-10 mb-8">
+        <h1 className="text-4xl font-bold text-slate-800 mb-3">
+          My Issues
+        </h1>
+        <p className="text-lg text-slate-600 leading-relaxed">
+          Track and manage all the issues you've reported. View their status, priority, and take action when needed.
+        </p>
+      </div>
+     
       <div className="mt-12 mx-auto w-fit">
         <label className="input rounded-full w-full lg:w-md ">
           <svg className="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">

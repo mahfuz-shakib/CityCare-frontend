@@ -9,7 +9,7 @@ import { FcGoogle } from "react-icons/fc";
 import { AuthContext } from "../../providers/AuthContext";
 import Container from "../../container/Container";
 import { imageUpload } from "../../utils";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -63,135 +63,183 @@ const Register = () => {
       });
   };
 
-  return (
-    <div className={`min-h-screen flex justify-center items-center`}>
-      <title>Register</title>
+ return (
+  <div className="min-h-screen flex justify-center items-center bg-slate-50">
+    <title>Register</title>
 
-      <Container>
-        <div className="md:flex justify-center items-center gap-36 mb-12">
-          <motion.div
-            initial={{ x: -150, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 1, ease: easeInOut }}
-            viewport={{ once: true }}
-            className=" my-10"
-          >
-            <div className="text-center ">
-              <h1 className="text-3xl md:text-5xl font-semibold  my-3 text-yellow-400">Join CityCare</h1>
-              <p className="text-gra-500 mb-4">Create your account</p>
-            </div>
-          </motion.div>
-          <motion.div
-            initial={{ x: 150, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 1, ease: easeInOut }}
-            viewport={{ once: true }}
-          >
-            <div className={`card w-full max-w-sm mx-auto shrink-0 shadow-2xl`}>
-              <div className="card-body">
-                <form onSubmit={handleSubmit(onSubmit)}>
-                  <fieldset className="fieldset">
-                    <div>
-                      <label className="label">Name</label>
-                      <input
-                        type="text"
-                        id="name"
-                        {...register("name", {
-                          required: "Name must be required",
-                          minLength: { value: 3, message: "Name atleast 3 character" },
-                          maxLength: { value: 25, message: "Name atmost 25 character" },
-                        })}
-                        placeholder="Enter your full name"
-                        className="input-field"
-                      />
-                      {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name.message} </p>}
-                    </div>
+    <Container>
+      <div className="md:flex justify-center items-center gap-36 mb-12">
 
-                    <div>
-                      <label className="label">Email</label>
+        {/* Left Content */}
+        <motion.div
+          initial={{ x: -150, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ duration: 1, ease: easeInOut }}
+          viewport={{ once: true }}
+          className="my-10 text-center"
+        >
+          <h1 className="text-3xl md:text-5xl font-semibold text-slate-800 mb-3">
+            Join <span className="text-sky-600">CityCare</span>
+          </h1>
+          <p className="text-slate-500">
+            Create your citizen account
+          </p>
+        </motion.div>
+
+        {/* Form Card */}
+        <motion.div
+          initial={{ x: 150, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ duration: 1, ease: easeInOut }}
+          viewport={{ once: true }}
+        >
+          <div className="card w-full max-w-sm mx-auto bg-white shadow-lg">
+            <div className="card-body">
+
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <fieldset className="fieldset space-y-4">
+
+                  {/* Name */}
+                  <div>
+                    <label className="label text-slate-700">Full Name</label>
+                    <input
+                      type="text"
+                      {...register("name", {
+                        required: "Name is required",
+                        minLength: { value: 3, message: "Minimum 3 characters" },
+                        maxLength: { value: 25, message: "Maximum 25 characters" },
+                      })}
+                      className="input input-bordered w-full border-slate-300 focus:border-sky-500"
+                      placeholder="Enter your full name"
+                    />
+                    {errors.name && (
+                      <p className="mt-1 text-xs text-red-500">
+                        {errors.name.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Email */}
+                  <div>
+                    <label className="label text-slate-700">Email</label>
+                    <input
+                      type="email"
+                      {...register("email", {
+                        required: "Email is required",
+                        pattern: {
+                          value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                          message: "Enter a valid email",
+                        },
+                      })}
+                      className="input input-bordered w-full border-slate-300 focus:border-sky-500"
+                      placeholder="Enter your email"
+                    />
+                    {errors.email && (
+                      <p className="mt-1 text-xs text-red-500">
+                        {errors.email.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Profile Image */}
+                  <div>
+                    <label className="label text-slate-700">Profile Image</label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      {...register("image", { required: "Image is required" })}
+                      className="block w-full text-sm text-slate-500
+                        file:mr-4 file:py-2 file:px-4
+                        file:rounded-md file:border-0
+                        file:text-sm file:font-semibold
+                        file:bg-sky-50 file:text-sky-700
+                        hover:file:bg-sky-100
+                        bg-slate-100 border border-dashed border-slate-300
+                        rounded-md cursor-pointer py-2"
+                    />
+                    {errors.image && (
+                      <p className="mt-1 text-xs text-red-500">
+                        {errors.image.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Password */}
+                  <div>
+                    <label className="label text-slate-700">Password</label>
+                    <div className="relative">
                       <input
-                        type="email"
-                        id="email"
-                        {...register("email", {
-                          required: "email must be required",
-                          pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Please enter a valid email" },
+                        type={showPassword ? "text" : "password"}
+                        {...register("password", {
+                          required: "Password is required",
+                          pattern: {
+                            value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/,
+                            message:
+                              "At least 1 uppercase, 1 lowercase & 1 number",
+                          },
                         })}
-                        className="input-field"
-                        placeholder="Enter your email"
+                        className="input input-bordered w-full border-slate-300 focus:border-sky-500"
+                        placeholder="Create a password"
                       />
-                      {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message} </p>}
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute top-3 right-4 text-slate-500 hover:text-slate-700"
+                      >
+                        {showPassword ? <FaEyeSlash /> : <FaEye />}
+                      </button>
                     </div>
-                    <div>
-                      <label className="label">Profile Image</label>
-                      <input
-                        type="file"
-                        id="image"
-                        accept="image/*"
-                        {...register("image", { required: "image must be required" })}
-                        className="block w-full text-sm text-gray-500
-                      file:mr-4 file:py-2 file:px-4
-                      file:rounded-md file:border-0
-                      file:text-sm file:font-semibold
-                    file:bg-lime-50 file:text-lime-700
-                    hover:file:bg-lime-100
-                    bg-gray-100 border border-dashed border-lime-300 rounded-md cursor-pointer
-                      focus:outline-none focus:ring-2 focus:ring-lime-400 focus:border-lime-400
-                      py-2"
-                      />
-                      {/* <p className="mt-1 text-xs text-gray-400">PNG, JPG or JPEG (max 2MB)</p> */}
-                    </div>
-                    <div>
-                      <label className="label">Password</label>
-                      <div className="relative">
-                        <input
-                          type={showPassword ? "text" : "password"}
-                          id="password"
-                          {...register("password", {
-                            required: "password must be required",
-                            pattern: {
-                              value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/,
-                              message:
-                                "Password must be atleast one uppercase, lowercase character and digit respectively",
-                            },
-                          })}
-                          className="input-field"
-                          placeholder="Create a password"
-                        />
-                        <button
-                          onClick={() => setShowPassword(!showPassword)}
-                          type="button"
-                          className="text-base text-gray-700  absolute top-3 right-6 hover:cursor-pointer z-10"
-                        >
-                          {showPassword ? <FaEyeSlash /> : <FaEye />}
-                        </button>
-                      </div>
-                      {errors.password && <p className="mt-1 text-xs text-red-500">{errors.password.message} </p>}
-                    </div>
-                    <button className={`btn mt-4 hover:scale-101`}>Create Account</button>
-                  </fieldset>
-                </form>
-                <div className="flex justify-center items-center gap-2 my-1">
-                  <h1 className="h-px w-24 bg-gray-300"></h1>
-                  <h1 className="text-sm text-gray-500">Or continue with</h1>
-                  <h1 className="h-px w-24 bg-gray-300"></h1>
-                </div>
-                <button onClick={handleGoogleAuth} className="btn mb-1">
-                  <FcGoogle className="text-xl"></FcGoogle>
-                  Sign Up with Google
-                </button>
-                <p className="text-center">
-                  Already have an account?{" "}
-                  <Link to="/login" className="text-blue-500 underline">
-                    Login in Here
-                  </Link>
-                </p>
+                    {errors.password && (
+                      <p className="mt-1 text-xs text-red-500">
+                        {errors.password.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Submit */}
+                  <button className="btn w-full bg-sky-600 hover:bg-sky-700 text-white">
+                    Create Account
+                  </button>
+                </fieldset>
+              </form>
+
+              {/* Divider */}
+              <div className="flex justify-center items-center gap-2 my-4">
+                <span className="h-px w-24 bg-slate-300"></span>
+                <span className="text-sm text-slate-500">
+                  Or continue with
+                </span>
+                <span className="h-px w-24 bg-slate-300"></span>
               </div>
+
+              {/* Google */}
+              <button
+                onClick={handleGoogleAuth}
+                className="btn w-full bg-white border border-slate-300 hover:bg-slate-100"
+              >
+                <FcGoogle className="text-xl" />
+                Sign up with Google
+              </button>
+
+              {/* Footer */}
+              <p className="text-center text-slate-600 mt-4">
+                Already have an account?{" "}
+                <Link
+                  to="/login"
+                  className="text-sky-600 hover:text-sky-700 underline"
+                >
+                  Login here
+                </Link>
+              </p>
+
             </div>
-          </motion.div>
-        </div>
-      </Container>
-    </div>
-  );
+          </div>
+        </motion.div>
+      </div>
+    </Container>
+  </div>
+);
+
 };
 
 export default Register;
