@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import UpdateStaffForm from "../../../components/Form/UpdateStaffForm";
+import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 
 const ManageStaffs = () => {
@@ -43,19 +44,21 @@ const ManageStaffs = () => {
        confirmButtonText: "Yes, delete it!",
      }).then((result) => {
        if (result.isConfirmed) {
-         console.log(staff._id);
          axiosSecure
            .delete(`/staffs/${staff._id}`)
            .then(() => {
              Swal.fire({
                title: "Deleted!",
-               text: "Your issue item has been deleted.",
+               text: "Staff has been deleted successfully.",
                icon: "success",
              });
       queryClient.invalidateQueries(["staffs"]);
 
            })
-           .catch((err) => console.log(err));
+           .catch((err) => {
+             toast.error("Failed to delete staff");
+             console.error(err);
+           });
        }
      });
    };

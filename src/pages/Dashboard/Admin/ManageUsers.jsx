@@ -4,6 +4,7 @@ import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 
 const ManageUsers = () => {
@@ -31,7 +32,6 @@ const ManageUsers = () => {
        confirmButtonText: `Yes, ${status?"Unblock":"Block"} it!`,
      }).then((result) => {
        if (result.isConfirmed) {
-         console.log(user._id);
          axiosSecure
            .patch(`/users/${user._id}`,{isBlocked:!status})
            .then(() => {
@@ -43,7 +43,10 @@ const ManageUsers = () => {
       queryClient.invalidateQueries(["users",'citizen']);
 
            })
-           .catch((err) => console.log(err));
+           .catch((err) => {
+             toast.error("Failed to update user status");
+             console.error(err);
+           });
        }
      });
    };

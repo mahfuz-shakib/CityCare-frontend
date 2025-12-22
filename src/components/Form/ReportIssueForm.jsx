@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { imageUpload } from "../../utils";
 import useAuth from "../../hooks/useAuth";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router";
@@ -14,6 +14,7 @@ const ReportIssueForm = () => {
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const {
     register,
     handleSubmit,
@@ -48,21 +49,24 @@ const ReportIssueForm = () => {
       };
 
       const result = await postIssue(issueInfo);
-      console.log(result.data);
       if (result.data.insertedId) {
         const timelineInfo = {
           issueId:result.data.insertedId,
           message:"Issue Creation",
           updatedBy:"Citizen"
         }
-        const res = await addTimeline(timelineInfo)
-        console.log("timeline created: ",res);
+        await addTimeline(timelineInfo);
+        
+        // Invalidate user query to refresh freeReport count
+        queryClient.invalidateQueries(['users', user?.email]);
+        queryClient.invalidateQueries(['issues']);
+        
         toast.success("Issue reported successfully");
         navigate("/dashboard/my-issues");
       }
-      console.log(isPostError);
     } catch (err) {
-      console.log(err);
+      toast.error("Failed to report issue. Please try again.");
+      console.error(err);
     }
   };
 

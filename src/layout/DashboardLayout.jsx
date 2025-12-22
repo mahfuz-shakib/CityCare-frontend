@@ -1,20 +1,39 @@
-import React from "react";
-import { CiDeliveryTruck } from "react-icons/ci";
-import { FaMotorcycle, FaRegCreditCard, FaTasks, FaUsers } from "react-icons/fa";
-import { Link, NavLink, Outlet } from "react-router";
-// import useRole from '../hooks/useRole';
-import { RiEBikeFill } from "react-icons/ri";
-import { SiGoogletasks } from "react-icons/si";
-// import logoImg from '../assets/logo.png';
+import React, { memo } from "react";
+import { Link, Outlet } from "react-router";
+import { motion } from "framer-motion";
+import useRole from '../hooks/useRole';
+import AdminMenu from '../components/Dashboard/Menu/AdminMenu';
+import StaffMenu from '../components/Dashboard/Menu/StaffMenu';
+import CitizenMenu from '../components/Dashboard/Menu/CitizenMenu';
+import Loader from '../components/Loader';
 
 const DashboardLayout = () => {
-  // const { role } = useRole();
+  const { role, roleLoading } = useRole();
+
+  if (roleLoading) {
+    return <Loader />;
+  }
+
+  const renderMenu = () => {
+    if (role === 'admin') {
+      return <AdminMenu />;
+    } else if (role === 'staff') {
+      return <StaffMenu />;
+    } else {
+      return <CitizenMenu />;
+    }
+  };
   return (
-    <div className="drawer lg:drawer-open ">
+    <div className="drawer lg:drawer-open">
       <input id="my-drawer-4" type="checkbox" className="drawer-toggle" />
       <div className="drawer-content">
         {/* Navbar */}
-        <nav className="navbar w-full bg-base-300">
+        <motion.nav
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.3 }}
+          className="navbar w-full bg-gradient-to-r from-blue-50 to-indigo-50 shadow-sm"
+        >
           <label htmlFor="my-drawer-4" aria-label="open sidebar" className="btn btn-square btn-ghost">
             {/* Sidebar toggle icon */}
             <svg
@@ -32,136 +51,53 @@ const DashboardLayout = () => {
               <path d="M14 10l2 2l-2 2"></path>
             </svg>
           </label>
-          <div className="px-4">City Care Dashboard</div>
-        </nav>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="px-4 font-semibold text-gray-700"
+          >
+            CityCare Dashboard
+          </motion.div>
+        </motion.nav>
         {/* Page content here */}
-        <Outlet></Outlet>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+        >
+          <Outlet />
+        </motion.div>
       </div>
 
       <div className="drawer-side is-drawer-close:overflow-visible">
         <label htmlFor="my-drawer-4" aria-label="close sidebar" className="drawer-overlay"></label>
-        <div className="flex min-h-full flex-col items-start bg-base-200 is-drawer-close:w-48 is-drawer-open:w-64">
+        <motion.div
+          initial={{ x: -100 }}
+          animate={{ x: 0 }}
+          transition={{ duration: 0.3 }}
+          className="flex min-h-full flex-col items-start bg-gradient-to-b from-blue-50 to-indigo-100 is-drawer-close:w-48 is-drawer-open:w-64 shadow-lg"
+        >
           {/* Sidebar content here */}
-          <ul className="menu w-full grow">
+          <ul className="menu w-full grow p-4">
             {/* List item */}
-            <li>
+            <motion.li
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+            >
               <Link to="/">
-                {/* <img src={logoImg} alt="" /> */}
-                <h3 className="text-3xl">L</h3>
+                <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  CityCare
+                </h3>
               </Link>
-            </li>
-            <li>
-              <NavLink
-                to="/dashboard/homepage"
-                className="is-drawer-close:tooltip is-drawer-close:tooltip-right flex"
-                data-tip="Homepage"
-              >
-                {/* Home icon */}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  strokeLinejoin="round"
-                  strokeLinecap="round"
-                  strokeWidth="2"
-                  fill="none"
-                  stroke="currentColor"
-                  className="my-1.5 inline-block size-4"
-                >
-                  <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path>
-                  <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                </svg>
-                <span className="is-drawer-close:hidde">Home page</span>
-              </NavLink>
-            </li>
-
-            {/* our dashboard links */}
-            <li>
-              <NavLink
-                className="is-drawer-close:tooltip is-drawer-close:tooltip-right flex"
-                data-tip="ReportIssues"
-                to="/dashboard/report-issue"
-              >
-                <CiDeliveryTruck />
-                <span className="is-drawer-close:hidde">Report Issues</span>
-              </NavLink>
-            </li>
-            <li>
-              <NavLink
-                className="is-drawer-close:tooltip is-drawer-close:tooltip-right flex"
-                data-tip="MyIssues"
-                to="/dashboard/my-issues"
-              >
-                <CiDeliveryTruck />
-                <span className="is-drawer-close:hidde">My Issues</span>
-              </NavLink>
-            </li>
-            <li>
-              <NavLink
-                className="is-drawer-close:tooltip is-drawer-close:tooltip-right flex"
-                data-tip="AssignedIssues"
-                to="/dashboard/assigned-issues"
-              >
-                <CiDeliveryTruck />
-                <span className="is-drawer-close:hidde">Assigned Issues</span>
-              </NavLink>
-            </li>
-            <li>
-              <NavLink
-                className="is-drawer-close:tooltip is-drawer-close:tooltip-right flex"
-                data-tip="AllIssues"
-                to="/dashboard/all-issues"
-              >
-                <CiDeliveryTruck />
-                <span className="is-drawer-close:hidde">All Issues</span>
-              </NavLink>
-            </li>
-            <li>
-              <NavLink
-                className="is-drawer-close:tooltip is-drawer-close:tooltip-right flex"
-                data-tip="Manage users"
-                to="/dashboard/manage-users"
-              >
-                <FaUsers></FaUsers>
-                <span className="is-drawer-close:hidde">Manage Users</span>
-              </NavLink>
-            </li>
-
-            <li>
-              <NavLink
-                className="is-drawer-close:tooltip is-drawer-close:tooltip-right flex"
-                data-tip="Manage Staffs"
-                to="/dashboard/manage-staffs"
-              >
-                <FaTasks />
-                <span className="is-drawer-close:hidde">Manage Staffs</span>
-              </NavLink>
-            </li>
-
-            <li>
-              <NavLink
-                className="is-drawer-close:tooltip is-drawer-close:tooltip-right flex"
-                data-tip="Payment History"
-                to="/dashboard/payment-history"
-              >
-                <FaRegCreditCard />
-                <span className="is-drawer-close:hidde">Payment History</span>
-              </NavLink>
-            </li>
-            <li>
-              <NavLink
-                className="is-drawer-close:tooltip is-drawer-close:tooltip-right flex"
-                data-tip="My Profile"
-                to="/dashboard/myProfile"
-              >
-                <FaUsers></FaUsers>
-                <span className="is-drawer-close:hidde">My Profile</span>
-              </NavLink>
-            </li>
+            </motion.li>
+            {renderMenu()}
           </ul>
-        </div>
+        </motion.div>
       </div>
     </div>
   );
 };
 
-export default DashboardLayout;
+export default memo(DashboardLayout);

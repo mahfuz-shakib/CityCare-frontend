@@ -14,14 +14,11 @@ const Footer = () => {
               <div className="max-w-68 mx-auto sm:mx-0">
                 <Link to="/">
                   <div className="flex flex-col sm:flex-row justify-center sm:justify-start items-center gap-2 ">
-                    {/* <img src={logo} alt='gren nest logo' className="size-12" /> */}
-                    <span className="text-xl font-semibold">PawMart</span>
+                    <span className="text-xl font-semibold">CityCare</span>
                   </div>
                 </Link>
                 <p className="text-gray-400 text-justify te sm:text-start mt-4 text-sm">
-                  PawMart is a community-driven platform where pet owners, breeders, and shops can list pets for
-                  adoption or sell pet-related products (food, toys, accessories, etc.). Buyers and adopters can browse,
-                  contact, and order directly.
+                  CityCare is a digital platform that enables citizens to report public infrastructure issues such as broken streetlights, potholes, water leakage, and more. Help make your city a better place to live.
                 </p>
               </div>
 
@@ -34,8 +31,8 @@ const Footer = () => {
                     </Link>
                   </li>
                   <li className="px-2 first:pl-0 sm:px-0">
-                    <Link to="/allListings" className="hover:underline">
-                      Pet & Supplies
+                    <Link to="/all-issues" className="hover:underline">
+                      All Issues
                     </Link>
                   </li>
                 </ul>
@@ -46,18 +43,18 @@ const Footer = () => {
                   <h3 className="text-white text-center sm:text-start font-semibold sm:mt-3 mb-3"> Links</h3>
                   <ul className="footer-ul">
                     <li className="px-2 first:pl-0 sm:px-0">
-                      <Link to="/addListings" className="hover:underline">
-                        Add Listings
+                      <Link to="/dashboard/report-issue" className="hover:underline">
+                        Report Issue
                       </Link>
                     </li>
                     <li className="px-2 first:pl-0 sm:px-0">
-                      <Link to="/myListings" className="hover:underline">
-                        My Listings
+                      <Link to="/dashboard/my-issues" className="hover:underline">
+                        My Issues
                       </Link>
                     </li>
                     <li className="px-2 first:pl-0 sm:px-0">
-                      <Link to="/myOders" className="hover:underline">
-                        My Orders
+                      <Link to="/dashboard/payment-history" className="hover:underline">
+                        Payment History
                       </Link>
                     </li>
                   </ul>
@@ -95,7 +92,7 @@ const Footer = () => {
             </div>
 
             <div className="text-center text-gray-400 border-t border-t-gray-600 text-sm mt-10 pt-6">
-              <p>Copyright © {new Date().getFullYear()} PawMart 🐾 All rights reserved.</p>
+              <p>Copyright © {new Date().getFullYear()} CityCare 🏙️ All rights reserved.</p>
             </div>
           </div>
         </Container>

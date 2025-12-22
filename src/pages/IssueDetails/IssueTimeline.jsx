@@ -16,7 +16,7 @@ const IssueTimeline = ({ issueId }) => {
       return res.data;
     },
   });
-  console.log(timeline);
+  
   if (isLoading) {
     return <Loader />;
   }

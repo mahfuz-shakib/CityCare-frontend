@@ -1,4 +1,5 @@
-import React from "react";
+import React, { memo } from "react";
+import { Link } from "react-router";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import { useQuery, useQueryClient} from "@tanstack/react-query";
 import Container from "../../../container/Container";
@@ -6,6 +7,7 @@ import { useState } from "react";
 import { useRef } from "react";
 import { motion } from "framer-motion";
 import AvailableStaffs from "../../../components/Modal/AvailableStaffs";
+import Loader from "../../../components/Loader";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 
@@ -16,7 +18,7 @@ const AllIssues = () => {
   const queryClient = useQueryClient();
 
   const {
-    data: issues = [],
+    data: issuesResponse ,
     isLoading,
   } = useQuery({
     queryKey: ["issues", "adminPage"],
@@ -25,7 +27,9 @@ const AllIssues = () => {
       return res.data;
     },
   });
-  if (isLoading) return <p>loading....</p>;
+  const issues = issuesResponse?.data || [];
+
+  if (isLoading) return <Loader />;
   const handleAssignStaff = (issue) => {
     setIssue(issue);
     staffModalRef.current.showModal();
@@ -40,22 +44,30 @@ const AllIssues = () => {
            confirmButtonColor: "#3085d6",
            cancelButtonColor: "#d33",
            confirmButtonText: `Yes, reject it!`,
-         }).then((result) => {
+         }).then(async (result) => {
            if (result.isConfirmed) {
-             axiosSecure
-          .patch(`/issues/${issue._id}`,{status})
-          .then((data) => {
-            Swal.fire({
-                           title: "Reject",
-                           text: `Your issue item has been rejected`,
-                           icon: "success",
-                         });
-            queryClient.invalidateQueries(["issues", "adminPage"]);
-          })
-          .catch((err) => {
-            toast.error("Updated failed");
-            console.log(err);
-          });
+             try {
+               await axiosSecure.patch(`/issues/${issue._id}`,{status});
+               
+               // Create timeline entry
+               const timelineInfo = {
+                 issueId: issue._id,
+                 message: "Issue rejected by Admin",
+                 updatedBy: "Admin"
+               };
+               await axiosSecure.post("/timelines", timelineInfo);
+               
+               Swal.fire({
+                 title: "Reject",
+                 text: `Your issue item has been rejected`,
+                 icon: "success",
+               });
+               queryClient.invalidateQueries(["issues", "adminPage"]);
+               queryClient.invalidateQueries(["timelines", issue._id]);
+             } catch (err) {
+               toast.error("Update failed");
+               console.error(err);
+             }
            }
          });
     
@@ -80,12 +92,19 @@ const AllIssues = () => {
             <th>Assigned Staff</th>
             <th>Assign Staff</th>
             <th>Reject Issue</th>
+            <th>View Details</th>
           </tr>
         </thead>
         <tbody>
           {issues?.map((list, index) => {
             return (
-              <tr key={list._id} className={`${index % 2 ? "bg-gray-50" : "bg-violet-50"}`}>
+              <motion.tr
+                key={list._id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
+                className={`${index % 2 ? "bg-gray-50" : "bg-violet-50"} hover:bg-blue-50 transition-colors`}
+              >
                 <td>{index + 1}</td>
                 <td>
                   <div className="font-bold">{list.title}</div>
@@ -113,7 +132,15 @@ const AllIssues = () => {
                     Reject
                   </button>
                 </td>
-              </tr>
+                <td>
+                  <Link
+                    to={`/all-issues/${list._id}`}
+                    className="btn badge badge-primary btn-xs hover:scale-101"
+                  >
+                    View Details
+                  </Link>
+                </td>
+              </motion.tr>
             );
           })}
         </tbody>

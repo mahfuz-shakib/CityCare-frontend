@@ -83,7 +83,7 @@ const IssueDetails = () => {
             </motion.div>
 
             {/* Assigned Staff Below Image */}
-            {!issue.assignedStaff && (
+            {issue.assignedStaff && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -94,7 +94,7 @@ const IssueDetails = () => {
                   <FaUser className="mr-2 text-blue-600" />
                   Assigned Staff
                 </h4>
-                <p className="text-gray-700">{issue?.assignedStaff?.name}</p>
+                <p className="text-gray-700">{issue?.assignedStaff?.displayName || issue?.assignedStaff?.name}</p>
                 <p className="text-sm text-gray-500">{issue?.assignedStaff?.email}</p>
               </motion.div>
             )}

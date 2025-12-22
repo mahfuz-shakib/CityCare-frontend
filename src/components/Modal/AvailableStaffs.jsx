@@ -15,24 +15,31 @@ const AvailableStaffs = ({ issue, staffModalRef }) => {
       return res.data;
     },
   });
-  const handleAssign = (staff) => {
+  const handleAssign = async (staff) => {
     const assignedStaff = {
       displayName: staff.displayName,
       email: staff.email,
       phone: staff.phone,
     };
-    axiosSecure
-      .patch(`/issues/${issue._id}`, {assignedStaff})
-      .then((data) => {
-        console.log(data.data);
-        toast.success("Assigned successful");
-        staffModalRef.current.close();
-        queryClient.invalidateQueries(["issues", "adminPage"]);
-      })
-      .catch((err) => {
-        toast.error("Updated failed");
-        console.log(err);
-      });
+    try {
+      const result = await axiosSecure.patch(`/issues/${issue._id}`, {assignedStaff});
+      
+      // Create timeline entry
+      const timelineInfo = {
+        issueId: issue._id,
+        message: `Issue assigned to Staff: ${staff.displayName}`,
+        updatedBy: "Admin"
+      };
+      await axiosSecure.post("/timelines", timelineInfo);
+      
+      toast.success("Staff assigned successfully");
+      staffModalRef.current.close();
+      queryClient.invalidateQueries(["issues", "adminPage"]);
+      queryClient.invalidateQueries(["timelines", issue._id]);
+    } catch (err) {
+      toast.error("Assignment failed");
+      console.error(err);
+    }
   };
   return (
     <Container>

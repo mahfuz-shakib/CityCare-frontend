@@ -24,7 +24,6 @@ const PaymentHistory = () => {
     const pageSize = 6; // Show 6 rows per page
 
     const { role, roleLoading } = useRole();
-    console.log(role)
     const { data, isLoading, refetch } = useQuery({
         queryKey: ['payments', role, user?.email],
         queryFn: async () => {
@@ -166,7 +165,7 @@ const PaymentHistory = () => {
                             </thead>
                             <tbody>
                                 {isLoading ? (
-                                    <tr><td colSpan={tableColSpan} className="text-center py-6">Loading...</td></tr>
+                                    <tr><td colSpan={tableColSpan} className="text-center py-6"><Loader /></td></tr>
                                 ) : filtered.length === 0 ? (
                                     <tr><td colSpan={tableColSpan} className="text-center py-6">No payments found</td></tr>
                                 ) : (

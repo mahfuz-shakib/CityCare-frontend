@@ -1,18 +1,24 @@
 import React from "react";
-import { Link } from "react-router";
 import Container from "../../container/Container";
-import { motion } from "framer-motion";
 import Banner from "./Banner/Banner";
 import LatestResolvedIssues from "./ResolvedIssues/LatestResolvedIssues";
+import Features from "./Features/Features";
+import HowItWorks from "./HowItWorks/HowItWorks";
+import Stats from "./Stats/Stats";
+import Testimonials from "./Testimonials/Testimonials";
+
 const Home = () => {
   return (
-    <div className="bg-gray-0">
-      <title>CityCare/Home</title>
+    <div className="bg-white">
+      <title>CityCare - Home</title>
+      <Banner />
       <Container>
-        <h1>hellow home</h1>
-        <Banner/>
-        <LatestResolvedIssues/>
+        <LatestResolvedIssues />
       </Container>
+      <Features />
+      <HowItWorks />
+      <Stats />
+      <Testimonials />
     </div>
   );
 };

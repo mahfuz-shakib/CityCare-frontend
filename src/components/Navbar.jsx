@@ -1,12 +1,13 @@
-import React, { use } from "react";
+import React, { use, memo } from "react";
 import { Link, NavLink, useNavigate } from "react-router";
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { FaUser } from "react-icons/fa6";
 import { toast } from "react-toastify";
 import { AuthContext } from "../providers/AuthContext";
 import Container from "../container/Container";
 // import logo from "../../public/assets/paw_logo.png";
-const Navbar = () => {
+const Navbar = memo(() => {
   const [openDropdown, setOpenDropdown] = useState(false);
   const { user, loading, logOut } = use(AuthContext);
   // console.log(user);
@@ -19,6 +20,12 @@ const Navbar = () => {
       <li>
         <NavLink to="/all-issues">All Issues</NavLink>
       </li>
+      <li>
+        <NavLink to="/about">About</NavLink>
+      </li>
+      <li>
+        <NavLink to="/contact">Contact</NavLink>
+      </li>
     </>
   );
 
@@ -29,10 +36,14 @@ const Navbar = () => {
     toast("Log out successfully");
   };
   return (
-    <div className={`shadow-sm sticky top-0 z-1000 bg-gray-100`}>
-      {/* sticky top-0 z-1000 */}
+    <motion.div
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ duration: 0.5 }}
+      className={`shadow-md sticky top-0 z-50 bg-white backdrop-blur-sm bg-opacity-95`}
+    >
       <Container>
-        <div className="navbar  flex justify-between items-center">
+        <div className="navbar flex justify-between items-center py-2">
           <div className="md:navbar-start flex items-center">
             <div className="dropdown">
               <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
@@ -68,12 +79,18 @@ const Navbar = () => {
                 )}
               </ul>
             </div>
-            <button className="w-32 sm:w-full relative -ml-2 flex items-center gap-1 hover:scale-102 ">
-              {/* <img src={logo} alt="pawmart" className="h-12 hidden sm:block" /> */}
-              <Link to="/" className={` text-[22px] md:text-[26px] absolute ml-9 font-semibold`}>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="w-32 sm:w-full relative -ml-2 flex items-center gap-1"
+            >
+              <Link
+                to="/"
+                className={`text-[22px] md:text-[26px] absolute ml-9 font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent`}
+              >
                 CityCare
               </Link>
-            </button>
+            </motion.button>
           </div>
           <div className="navbar-center hidden lg:flex">
             <ul className="menu menu-horizontal px-1">{links}</ul>
@@ -109,32 +126,50 @@ const Navbar = () => {
                 </Link>
               </>
             )}
-            {openDropdown && (
-              <div className="absolute w-48 right-0 bg-lime-200 flex flex-col text-center p-2 space-y-1 rounded mt-42 z-50">
-                <Link
-                  to="/dashboard/myProfile"
-                  onClick={() => setOpenDropdown(false)}
-                  className="rounded py-1 hover:bg-gray-100"
+            <AnimatePresence>
+              {openDropdown && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute w-48 right-0 bg-white shadow-xl border border-gray-200 flex flex-col text-center p-2 space-y-1 rounded-lg mt-12 z-50"
                 >
-                  {user.displayName}
-                </Link>
-                <Link
-                  to="/dashboard"
-                  onClick={() => setOpenDropdown(false)}
-                  className="rounded py-1 hover:bg-gray-100"
-                >
-                  Dashboard
-                </Link>
-                <button onClick={handdleLogOut} className="rounded py-1 hover:bg-gray-100">
-                  Log Out
-                </button>
-              </div>
-            )}
+                  <motion.div whileHover={{ backgroundColor: "#f3f4f6" }}>
+                    <Link
+                      to="/dashboard/myProfile"
+                      onClick={() => setOpenDropdown(false)}
+                      className="block rounded py-2 px-4 transition-colors"
+                    >
+                      {user.displayName}
+                    </Link>
+                  </motion.div>
+                  <motion.div whileHover={{ backgroundColor: "#f3f4f6" }}>
+                    <Link
+                      to="/dashboard"
+                      onClick={() => setOpenDropdown(false)}
+                      className="block rounded py-2 px-4 transition-colors"
+                    >
+                      Dashboard
+                    </Link>
+                  </motion.div>
+                  <motion.button
+                    whileHover={{ backgroundColor: "#fee2e2" }}
+                    onClick={handdleLogOut}
+                    className="rounded py-2 px-4 transition-colors text-red-600"
+                  >
+                    Log Out
+                  </motion.button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </Container>
-    </div>
+    </motion.div>
   );
-};
+});
+
+Navbar.displayName = "Navbar";
 
 export default Navbar;

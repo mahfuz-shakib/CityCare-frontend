@@ -9,10 +9,26 @@ const useRole = () => {
     const { isLoading: roleLoading, data: role = 'citizen' } = useQuery({
         queryKey: ['user-role', user?.email],
         queryFn: async () => {
-            const res = await axiosSecure.get(`/users/${user.email}`);
+            if (!user?.email) return 'citizen';
+            const res = await axiosSecure.get(`/users/?email=${user.email}`);
+            const userData = res.data?.[0];
             
-            return res.data?.role || 'citizen';
-        }
+            // Check if user is staff
+            if (!userData || userData.role !== 'staff') {
+                // Check staffs collection
+                try {
+                    const staffRes = await axiosSecure.get(`/staffs/?email=${user.email}`);
+                    if (staffRes.data?.[0]) {
+                        return 'staff';
+                    }
+                } catch (err) {
+                    // Ignore error
+                }
+            }
+            
+            return userData?.role || 'citizen';
+        },
+        enabled: !!user?.email,
     })
     return { role, roleLoading };
 };

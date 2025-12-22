@@ -22,7 +22,6 @@ const PaymentSuccess = () => {
         try {
             const { data } = await axiosSecure.get(`/payment-session-info?sessionId=${sessionId}`);
             setPaymentInfo(data);
-            console.log('Payment info:', data);
             
             // Save to database
             savePaymentToDatabase(data);
@@ -46,8 +45,22 @@ const PaymentSuccess = () => {
             };
             
             await axiosSecure.post('/payments', paymentData);
+            
+            // Create timeline entry for boost payment
+            if (data.metadata?.issueId) {
+                const timelineInfo = {
+                    issueId: data.metadata.issueId,
+                    message: "Issue priority boosted (Payment: ৳100)",
+                    updatedBy: "Citizen"
+                };
+                try {
+                    await axiosSecure.post("/timelines", timelineInfo);
+                } catch (err) {
+                    console.error('Error creating timeline entry:', err);
+                }
+            }
+            
             setSaved(true);
-            console.log('Payment saved to database');
         } catch (error) {
             console.error('Error saving payment to database:', error);
         }

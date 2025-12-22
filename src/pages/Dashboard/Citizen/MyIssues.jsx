@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import React, { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import Swal from "sweetalert2";
+import { toast } from "react-toastify";
 import useAuth from "../../../hooks/useAuth";
 import Loader from "../../../components/Loader";
 import Container from "../../../container/Container";
@@ -10,7 +11,6 @@ import UpdateIssueForm from "../../../components/Form/UpdateIssueForm";
 import { Link } from "react-router";
 const MyIssues = () => {
   const { user, loading } = useAuth();
-  console.log(user);
   const [filters, setFilters] = useState({ email: user?.email, category: "", status: "", priority: "", search: "" });
   const [updateItem, setUpdateItem] = useState({});
   const modalRef = useRef();
@@ -18,7 +18,7 @@ const MyIssues = () => {
   const queryClient = useQueryClient();
 
   const queryKey = ["issues", filters];
-  const { data: myIssues = [], isLoading } = useQuery({
+  const { data: issuesResponse, isLoading } = useQuery({
     queryKey,
     queryFn: async () => {
       const params = new URLSearchParams(filters).toString();
@@ -26,6 +26,7 @@ const MyIssues = () => {
       return res.data;
     },
   });
+  const myIssues = issuesResponse?.data || [];
 
   const handleUpdate = (item) => {
     setUpdateItem(item);
@@ -44,7 +45,6 @@ const MyIssues = () => {
       confirmButtonText: "Yes, delete it!",
     }).then((result) => {
       if (result.isConfirmed) {
-        console.log(item._id);
         axiosSecure
           .delete(`/issues/${item._id}`)
           .then(() => {
@@ -55,7 +55,10 @@ const MyIssues = () => {
             });
             queryClient.invalidateQueries({ queryKey });
           })
-          .catch((err) => console.log(err));
+          .catch((err) => {
+            toast.error("Failed to delete issue");
+            console.error(err);
+          });
       }
     });
   };
@@ -141,7 +144,13 @@ const MyIssues = () => {
           <tbody>
             {myIssues?.map((list, index) => {
               return (
-                <tr key={list._id} className={`${index % 2 ? "bg-gray-50" : "bg-violet-50"}`}>
+                <motion.tr
+                  key={list._id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                  className={`${index % 2 ? "bg-gray-50" : "bg-violet-50"} hover:bg-blue-50 transition-colors`}
+                >
                   <td>{index + 1}</td>
                   <td>
                     <div className="flex items-center gap-3">
@@ -157,7 +166,7 @@ const MyIssues = () => {
                     </div>
                   </td>
 
-                  <td>{list.createdAt}</td>
+                  <td>{new Date(list.createdAt).toLocaleDateString()}</td>
                   <td>
                     <button className="badge badge-secondary btn-xs">{list.status}</button>
                   </td>
@@ -187,7 +196,7 @@ const MyIssues = () => {
                       Details
                     </Link>
                   </td>
-                </tr>
+                </motion.tr>
               );
             })}
           </tbody>

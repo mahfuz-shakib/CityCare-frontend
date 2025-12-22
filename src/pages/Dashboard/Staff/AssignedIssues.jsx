@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Link } from "react-router";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import useAuth from "../../../hooks/useAuth";
 import Container from "../../../container/Container";
+import Loader from "../../../components/Loader";
 import { toast } from "react-toastify";
 
 const STATUS_ORDER = ["pending", "in-progress", "working", "resolved", "closed"];
@@ -18,9 +20,8 @@ const AssignedIssues = () => {
   const [filters, setFilters] = useState({ staffEmail: user?.email, status: "", priority: "" });
   const axiosSecure = useAxiosSecure();
   const queryClient = useQueryClient();
-  console.log(filters);
   const queryKey = ["issues", filters];
-  const { data: issues = [], isLoading } = useQuery({
+  const { data: issuesResponse, isLoading } = useQuery({
     queryKey,
     queryFn: async () => {
       const params = new URLSearchParams(filters).toString();
@@ -28,6 +29,8 @@ const AssignedIssues = () => {
       return res.data;
     },
   });
+  const issues = issuesResponse?.data || [];
+
   const handleStatus = async (issue, newStatus) => {
     if (!newStatus || newStatus !== getNextStatus(issue.status)) {
       toast.error("Invalid status change. You can only advance to the next status in order.");
@@ -35,14 +38,24 @@ const AssignedIssues = () => {
     }
     try {
       await axiosSecure.patch(`/issues/${issue._id}`, { status: newStatus });
+      
+      // Create timeline entry
+      const timelineInfo = {
+        issueId: issue._id,
+        message: `Status changed to ${newStatus}`,
+        updatedBy: "Staff"
+      };
+      await axiosSecure.post("/timelines", timelineInfo);
+      
       toast.success("Status changed successfully!");
       queryClient.invalidateQueries({ queryKey });
+      queryClient.invalidateQueries(["timelines", issue._id]);
     } catch (err) {
       toast.error("Status change failed. Please try again.");
-      console.log(err);
+      console.error(err);
     }
   };
-  if (isLoading) return <p>loading....</p>;
+  if (isLoading) return <Loader />;
   return (
     <Container>
       <div className="flex flex-col md:flex-row justify-center gap-5 md:gap-12 mb-12 mt-6 px-3 md:bg-primary/10 py-2 rounded-lg mx-4">
@@ -125,7 +138,7 @@ const AssignedIssues = () => {
                 <td>
                   <button className="btn badge badge-secondary btn-xs hover:scale-101">Details</button>
                 </td>
-              </tr>
+              </motion.tr>
             );
           })}
         </tbody>

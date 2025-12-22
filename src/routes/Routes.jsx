@@ -1,43 +1,101 @@
 import { createBrowserRouter } from "react-router";
-import Home from "../pages/Home/Home";
-import Login from "../pages/Login/Login";
-import Register from "../pages/Register/Register";
+import { lazy, Suspense } from "react";
+import Loader from "../components/Loader";
 import MainLayout from "../layout/MainLayout";
-import ReportIssue from "../pages/Dashboard/Citizen/ReportIssue";
 import PrivateRoute from "./PrivateRoute";
 import DashboardLayout from "../layout/DashboardLayout";
-import MyIssues from "../pages/Dashboard/Citizen/MyIssues";
-import Issues from "../pages/All-Issues/Issues";
-import IssueDetails from "../pages/IssueDetails/IssueDetails";
-import AllIssues from "../pages/Dashboard/Admin/AllIssues";
-import ManageStaffs from "../pages/Dashboard/Admin/ManageStaffs";
-import ManageUsers from "../pages/Dashboard/Admin/ManageUsers";
-import Payments from "../pages/Dashboard/Admin/Payments";
-import AssignedIssues from "../pages/Dashboard/Staff/AssignedIssues";
-import DashboardHomepage from "../pages/Dashboard/Common/DashboardHomepage";
-import MyProfile from "../pages/Dashboard/Common/MyProfile";
-import CitizenProfile from "../pages/Dashboard/Citizen/CitizenProfile";
-import PaymentSuccess from "../pages/Dashboard/Payments/PaymentSuccess";
-import PaymentCancelled from "../pages/Dashboard/Payments/PaymentCancelled";
-import PaymentHistory from "../pages/Dashboard/Payments/PaymentHistory";
+
+// Lazy load components for better performance
+const Home = lazy(() => import("../pages/Home/Home"));
+const Login = lazy(() => import("../pages/Login/Login"));
+const Register = lazy(() => import("../pages/Register/Register"));
+const Issues = lazy(() => import("../pages/All-Issues/Issues"));
+const IssueDetails = lazy(() => import("../pages/IssueDetails/IssueDetails"));
+const DashboardHomepage = lazy(() => import("../pages/Dashboard/Common/DashboardHomepage"));
+const ReportIssue = lazy(() => import("../pages/Dashboard/Citizen/ReportIssue"));
+const MyIssues = lazy(() => import("../pages/Dashboard/Citizen/MyIssues"));
+const AssignedIssues = lazy(() => import("../pages/Dashboard/Staff/AssignedIssues"));
+const AllIssues = lazy(() => import("../pages/Dashboard/Admin/AllIssues"));
+const ManageStaffs = lazy(() => import("../pages/Dashboard/Admin/ManageStaffs"));
+const ManageUsers = lazy(() => import("../pages/Dashboard/Admin/ManageUsers"));
+const Payments = lazy(() => import("../pages/Dashboard/Admin/Payments"));
+const PaymentSuccess = lazy(() => import("../pages/Dashboard/Payments/PaymentSuccess"));
+const PaymentCancelled = lazy(() => import("../pages/Dashboard/Payments/PaymentCancelled"));
+const PaymentHistory = lazy(() => import("../pages/Dashboard/Payments/PaymentHistory"));
+const MyProfile = lazy(() => import("../pages/Dashboard/Common/MyProfile"));
+const NotFound = lazy(() => import("../pages/NotFound/NotFound"));
+const About = lazy(() => import("../pages/About/About"));
+const Contact = lazy(() => import("../pages/Contact/Contact"));
+
+const LazyWrapper = ({ children }) => (
+  <Suspense fallback={<Loader />}>{children}</Suspense>
+);
+
 export const router = createBrowserRouter([
   {
     path: "/",
     Component: MainLayout,
-    // errorElement: <ErrorPage />,
+    errorElement: (
+      <Suspense fallback={<Loader />}>
+        <NotFound />
+      </Suspense>
+    ),
     children: [
       {
         path: "/",
-        Component: Home,
+        element: (
+          <LazyWrapper>
+            <Home />
+          </LazyWrapper>
+        ),
       },
-      { path: "/login", Component: Login },
-      { path: "/register", Component: Register },
-      { path: "all-issues", Component: Issues },
+      {
+        path: "/login",
+        element: (
+          <LazyWrapper>
+            <Login />
+          </LazyWrapper>
+        ),
+      },
+      {
+        path: "/register",
+        element: (
+          <LazyWrapper>
+            <Register />
+          </LazyWrapper>
+        ),
+      },
+      {
+        path: "/about",
+        element: (
+          <LazyWrapper>
+            <About />
+          </LazyWrapper>
+        ),
+      },
+      {
+        path: "/contact",
+        element: (
+          <LazyWrapper>
+            <Contact />
+          </LazyWrapper>
+        ),
+      },
+      {
+        path: "all-issues",
+        element: (
+          <LazyWrapper>
+            <Issues />
+          </LazyWrapper>
+        ),
+      },
       {
         path: "all-issues/:_id",
         element: (
           <PrivateRoute>
-            <IssueDetails />
+            <LazyWrapper>
+              <IssueDetails />
+            </LazyWrapper>
           </PrivateRoute>
         ),
       },
@@ -45,57 +103,124 @@ export const router = createBrowserRouter([
         path: "dashboard",
         element: (
           <PrivateRoute>
-            <DashboardLayout></DashboardLayout>
+            <DashboardLayout />
           </PrivateRoute>
         ),
         children: [
           {
             index: true,
+            element: (
+              <LazyWrapper>
+                <DashboardHomepage />
+              </LazyWrapper>
+            ),
+          },
+          {
             path: "/dashboard/homepage",
-            Component: DashboardHomepage,
+            element: (
+              <LazyWrapper>
+                <DashboardHomepage />
+              </LazyWrapper>
+            ),
           },
           {
             path: "/dashboard/report-issue",
-            Component: ReportIssue,
+            element: (
+              <LazyWrapper>
+                <ReportIssue />
+              </LazyWrapper>
+            ),
           },
           {
             path: "/dashboard/my-issues",
-            Component: MyIssues,
+            element: (
+              <LazyWrapper>
+                <MyIssues />
+              </LazyWrapper>
+            ),
           },
           {
             path: "/dashboard/assigned-issues",
-            Component: AssignedIssues,
+            element: (
+              <LazyWrapper>
+                <AssignedIssues />
+              </LazyWrapper>
+            ),
           },
           {
             path: "/dashboard/all-issues",
-            Component: AllIssues,
+            element: (
+              <LazyWrapper>
+                <AllIssues />
+              </LazyWrapper>
+            ),
           },
           {
             path: "/dashboard/manage-staffs",
-            Component: ManageStaffs,
+            element: (
+              <LazyWrapper>
+                <ManageStaffs />
+              </LazyWrapper>
+            ),
           },
           {
             path: "/dashboard/manage-users",
-            Component: ManageUsers,
+            element: (
+              <LazyWrapper>
+                <ManageUsers />
+              </LazyWrapper>
+            ),
+          },
+          {
+            path: "/dashboard/payments",
+            element: (
+              <LazyWrapper>
+                <Payments />
+              </LazyWrapper>
+            ),
           },
           {
             path: "/dashboard/payment-success",
-            Component: PaymentSuccess,
+            element: (
+              <LazyWrapper>
+                <PaymentSuccess />
+              </LazyWrapper>
+            ),
           },
           {
             path: "/dashboard/payment-cancelled",
-            Component: PaymentCancelled,
+            element: (
+              <LazyWrapper>
+                <PaymentCancelled />
+              </LazyWrapper>
+            ),
           },
           {
             path: "/dashboard/payment-history",
-            Component: PaymentHistory,
+            element: (
+              <LazyWrapper>
+                <PaymentHistory />
+              </LazyWrapper>
+            ),
           },
           {
             path: "/dashboard/myProfile",
-            Component: CitizenProfile,
+            element: (
+              <LazyWrapper>
+                <MyProfile />
+              </LazyWrapper>
+            ),
           },
         ],
       },
     ],
+  },
+  {
+    path: "*",
+    element: (
+      <Suspense fallback={<Loader />}>
+        <NotFound />
+      </Suspense>
+    ),
   },
 ]);
