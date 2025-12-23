@@ -82,70 +82,73 @@ const AssignedIssues = () => {
           <option value="normal">Normal</option>
         </select>
       </div>
-              <div className="overflow-x-auto">
-
-      <motion.table
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.5 }}
-        className="table"
-      >
-        {/* head */}
-        <thead>
-          <tr className="bg-green-50">
-            <th>SL. No. </th>
-            <th>Title</th>
-            <th>Priority</th>
-            <th>Status</th>
-            <th>Action</th>
-            {/* <th>View</th> */}
-          </tr>
-        </thead>
-        <tbody>
-          {issues?.map((list, index) => {
-            return (
-              <motion.tr key={list._id} className={`${index % 2 ? "bg-gray-50" : "bg-violet-50"}`}>
-                <td>{index + 1}</td>
-                <td>
-                  <div className="font-bold">{list.title}</div>
-                </td>
-                <td className="opacity-75">{list.priority}</td>
-                <td>
-                  <button className="badge badge-secondary btn-xs">{list.status}</button>
-                </td>
-                <td>
-                  <div className="dropdown dropdown-center">
-                    <button
-                      tabIndex={0}
-                      role="button"
-                      className="btn btn-sm m-1"
-                      disabled={!getNextStatus(list.status)}
-                    >
-                      Change Status ⬇️
-                    </button>
-                    {getNextStatus(list.status) && (
-                      <ul
-                        tabIndex="-1"
-                        className="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm"
+      <div className="overflow-x-auto">
+        <motion.table
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="table"
+        >
+          {/* head */}
+          <thead>
+            <tr className="bg-green-50">
+              <th>SL. No. </th>
+              <th>Title</th>
+              <th>Location</th>
+              <th>Priority</th>
+              <th>Status</th>
+              <th>Action</th>
+              {/* <th>View</th> */}
+            </tr>
+          </thead>
+          <tbody>
+            {issues?.map((list, index) => {
+              return (
+                <motion.tr key={list._id} className={` relative ${index % 2 ? "bg-gray-50" : "bg-violet-50"}`}>
+                  <td>{index + 1}</td>
+                  <td>
+                    <div className="font-bold">{list.title}</div>
+                  </td>
+                  <td>
+                    <div className="">{list.location}</div>
+                  </td>
+                  <td className="opacity-75">{list.priority}</td>
+                  <td>
+                    <button className="badge badge-secondary btn-xs">{list.status}</button>
+                  </td>
+                  <td>
+                    <div className="dropdown  dropdown-center">
+                      <button
+                        tabIndex={0}
+                        role="button"
+                        className="btn btn-sm m-1"
+                        disabled={!getNextStatus(list.status)}
                       >
-                        <li>
-                          <a onClick={() => handleStatus(list, getNextStatus(list.status))}>
-                            {getNextStatus(list.status)}
-                          </a>
-                        </li>
-                      </ul>
-                    )}
-                  </div>
-                </td>
-                {/* <td>
+                        Change Status ⬇️
+                      </button>
+                      {getNextStatus(list.status) && (
+                        <ul
+                          tabIndex="-1"
+                          className="dropdown-content  menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm"
+                        >
+                          <li>
+                            <a onClick={() => handleStatus(list, getNextStatus(list.status))}>
+                              {getNextStatus(list.status)}
+                            </a>
+                          </li>
+                        </ul>
+                      )}
+                    </div>
+                  </td>
+                  {/* <td>
                   <button className="btn badge badge-secondary btn-xs hover:scale-101">Details</button>
                 </td> */}
-              </motion.tr>
-            );
-          })}
-        </tbody>
-      </motion.table>
+                </motion.tr>
+              );
+            })}
+          </tbody>
+        </motion.table>
       </div>
     </Container>
   );

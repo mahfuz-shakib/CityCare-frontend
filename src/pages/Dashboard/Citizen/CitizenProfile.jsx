@@ -369,9 +369,9 @@ console.log(userData)
             <div className="card-body">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-xl font-semibold">Payment Summary</h3>
-                <Link to="/dashboard/payment-history" className="btn btn-sm btn-outline">
+                {/* <Link to="/dashboard/payment-history" className="btn btn-sm btn-outline">
                   View All
-                </Link>
+                </Link> */}
               </div>
               <div className="grid md:grid-cols-3 gap-4">
                 <div className="bg-blue-50 rounded-lg p-4">
