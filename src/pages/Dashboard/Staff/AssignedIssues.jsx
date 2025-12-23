@@ -37,15 +37,15 @@ const AssignedIssues = () => {
     }
     try {
       await axiosSecure.patch(`/issues/${issue._id}`, { status: newStatus });
-      
+
       // Create timeline entry
       const timelineInfo = {
         issueId: issue._id,
         message: `Status changed to ${newStatus}`,
-        updatedBy: "Staff"
+        updatedBy: "Staff",
       };
       await axiosSecure.post("/timelines", timelineInfo);
-      
+
       toast.success("Status changed successfully!");
       queryClient.invalidateQueries({ queryKey });
       queryClient.invalidateQueries(["timelines", issue._id]);
@@ -57,7 +57,7 @@ const AssignedIssues = () => {
   if (isLoading) return <Loader />;
   return (
     <Container>
-            <title>Assigned Issues</title>
+      <title>Assigned Issues</title>
 
       <div className="flex flex-col md:flex-row justify-center gap-5 md:gap-12 mb-12 mt-6 px-3 md:bg-primary/10 py-2 rounded-lg mx-4">
         <select
@@ -87,7 +87,7 @@ const AssignedIssues = () => {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.5 }}
-        className="table max-w-6xl mx-auto"
+        className="table"
       >
         {/* head */}
         <thead>

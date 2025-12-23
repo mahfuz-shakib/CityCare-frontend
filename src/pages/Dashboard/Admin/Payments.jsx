@@ -282,7 +282,7 @@ const Payments = () => {
                     className="bg-white rounded-lg shadow-md overflow-hidden"
                 >
                     <div className="overflow-x-auto">
-                        <table className="table w-full">
+                        <table className="table">
                             <thead className="bg-gray-100">
                                 <tr>
                                     <th>Date</th>

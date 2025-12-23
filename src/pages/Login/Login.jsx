@@ -31,26 +31,36 @@ const {role,roleLoading}=useRole();
   });
   console.log(errors);
   console.log(location.state)
-  const onSubmit = (data) => {
-    console.log(data);
-    const email = data?.email;
-    const password = data?.password;
-    signInUser(email, password)
-      .then((res) => {
-        console.log(res.user);
-        toast.success("Login Successfully");
-        navigate(location.state ? location.state : "/");
-      })
-      .catch((err) => {
-        if (err.code.slice(5) == "invalid-credential") {
-          setError("Invalid email or password");
-          toast.error("Invalid email or password");
-        } else {
-          setError(err.code.slice(5));
-          toast.error(err.code.slice(5));
-        }
-      });
-  };
+  const onSubmit = async (data) => {
+  try {
+    const { email, password } = data;
+
+    const res = await signInUser(email, password);
+    const user = res.user;
+
+    toast.success("Login Successfully");
+
+    // fetch role from server
+    const roleRes = await axiosSecure.get(`/staffs?email=${user.email}`);
+    const role = roleRes.data?.[0]?.role;
+
+    // conditional redirect
+    if (role === "staff" || roleRes.data?.[0]) {
+      navigate("/dashboard/homepage");
+    } else {
+      navigate(location.state || "/");
+    }
+  } catch (err) {
+    if (err.code?.includes("invalid-credential")) {
+      setError("Invalid email or password");
+      toast.error("Invalid email or password");
+    } else {
+      setError(err.message);
+      toast.error(err.message);
+    }
+  }
+};
+
 
   // login by google
   const handleGoogleAuth = () => {

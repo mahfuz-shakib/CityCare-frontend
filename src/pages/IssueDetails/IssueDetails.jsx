@@ -49,14 +49,14 @@ const IssueDetails = () => {
 
   return (
     <Container>
-            <title>{issue.title}</title>
 
       <motion.section
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         className="max-w-7xl mx-auto px-4 py-12"
-      >
+        >
+        <title>{issue.title}</title>
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}

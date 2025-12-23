@@ -135,7 +135,7 @@ const MyIssues = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="table max-w-6xl mx-auto"
+                className="table"
         >
           {/* head */}
           <thead>

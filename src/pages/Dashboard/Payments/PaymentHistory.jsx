@@ -155,7 +155,7 @@ const PaymentHistory = () => {
 
                 <div className="bg-white rounded-lg shadow overflow-hidden">
                     <div className="overflow-x-auto">
-                        <table className="table w-full">
+                        <table className="table">
                             <thead>
                                 <tr>
                                     <th>Date</th>
