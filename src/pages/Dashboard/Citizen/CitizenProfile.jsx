@@ -194,7 +194,7 @@ console.log(userData)
                       id="image"
                       accept="image/*"
                           {...register("image")}
-                      className=" file-input file:bg-lime-50 file:text-lime-700"
+                      className="file-input file:bg-lime-50 file:text-lime-700"
                         />
                         
                       </div>
