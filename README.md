@@ -4,12 +4,7 @@ A comprehensive digital platform that enables citizens to report public infrastr
 
 ## 🌐 Live Site URL
 
-[Add your live site URL here]
-
-## 👤 Admin Credentials
-
-**Email:** admin@citycare.com  
-**Password:** [Add admin password here]
+https://city-care0.netlify.app/
 
 ## ✨ Key Features
 
@@ -200,7 +195,7 @@ This project is licensed under the ISC License.
 
 ## 👨‍💻 Developer
 
-[Add your name/team name here]
+[Mahfuzur Rahman]
 
 ## 🙏 Acknowledgments
 
