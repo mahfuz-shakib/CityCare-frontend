@@ -189,10 +189,6 @@ FB_SERVICE_KEY=your_base64_encoded_firebase_service_account
 - Color-coded status badges
 - Interactive charts and statistics
 
-## 📝 License
-
-This project is licensed under the ISC License.
-
 ## 👨‍💻 Developer
 
 [Mahfuzur Rahman]
