@@ -59,7 +59,7 @@ const AssignedIssues = () => {
     <Container>
       <title>Assigned Issues</title>
 
-      <div className="flex flex-col md:flex-row justify-center gap-5 md:gap-12 mb-12 mt-6 px-3 md:bg-primary/10 py-2 rounded-lg mx-4">
+      <div className="flex flex-col md:flex-row justify-center gap-5 md:gap-12 my-8 px-3 md:bg-primary/10 py-2 rounded-lg mx-4">
         <select
           onChange={(e) => setFilters({ ...filters, status: e.target.value })}
           defaultValue="Select Status"
@@ -82,6 +82,8 @@ const AssignedIssues = () => {
           <option value="normal">Normal</option>
         </select>
       </div>
+            <h1 className="my-8 font-bold text-2xl">Assigned Issues:</h1>
+
       <div className="overflow-x-auto">
         <motion.table
           initial={{ opacity: 0, y: 20 }}

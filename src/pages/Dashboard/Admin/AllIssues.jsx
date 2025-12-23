@@ -122,7 +122,7 @@ const AllIssues = () => {
                   <button
                     onClick={() => handleAssignStaff(list)}
                     className="btn badge badge-primary btn-xs hover:scale-101"
-                    disabled={list.assignedStaff}
+                    disabled={list.assignedStaff || list.status==="rejected"}
                   >
                     Assign Staff
                   </button>
