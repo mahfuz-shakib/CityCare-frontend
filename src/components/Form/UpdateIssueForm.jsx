@@ -34,9 +34,15 @@ const UpdateIssueForm = ({ updateItem, modalRef }) => {
       console.log(issueInfo);
       axiosSecure
         .patch(`/issues/${updateItem._id}`, issueInfo)
-        .then((data) => {
+        .then(async (data) => {
           console.log(data.data);
           toast.success("Updated successfully");
+          const timelineInfo = {
+            issueId: updateItem._id,
+            message: "Issue information update",
+            updatedBy: "Citizen",
+          };
+          await axiosSecure.post("/timelines", timelineInfo);
           modalRef.current.close();
           queryClient.invalidateQueries(["issueDetails", updateItem._id]);
         })
@@ -147,17 +153,14 @@ const UpdateIssueForm = ({ updateItem, modalRef }) => {
               </div>
             </fieldset>
             <div className="flex justify-center gap-3 md:gap-8 items-center mt-4">
-<div className="w-fit text-right ">
-            <form method="dialog">
-              <button className="btn bg-primary/10">Cancel</button>
-            </form>
-          </div>
-            <button className={`btn w-fit  w-72    bg-lime-600 hover:bg-lime-700 text-white`}>
-              Update Issue
-            </button>
+              <div className="w-fit text-right ">
+                <form method="dialog">
+                  <button className="btn bg-primary/10">Cancel</button>
+                </form>
+              </div>
+              <button className={`btn w-fit  w-72    bg-lime-600 hover:bg-lime-700 text-white`}>Update Issue</button>
             </div>
           </form>
-          
         </div>
       </motion.div>
     </Container>
