@@ -8,6 +8,7 @@ import useAuth from "../../../hooks/useAuth";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import Container from "../../../container/Container";
 import Loader from "../../../components/Loader";
+import { imageUpload } from "../../../utils";
 
 const StaffProfile = () => {
   const { user, setUser } = useAuth();
@@ -50,10 +51,11 @@ const StaffProfile = () => {
 
   const onSubmit = async (formData) => {
     try {
-      const updatePayload = {
-        displayName: formData.displayName,
-        photoURL: formData.photoURL,
-      };
+       const photoURL = await imageUpload(formData?.image[0]);
+            const updatePayload = {
+              displayName: formData.displayName || staffData?.displayName,
+              photoURL: photoURL || staffData?.photoURL,
+            };
 
       const res = await axiosSecure.patch(`/staffs/${staffData?._id}`, updatePayload);
       if (res?.acknowledged || res?.data) {
@@ -134,16 +136,18 @@ const StaffProfile = () => {
                         <label className="block text-sm font-medium text-white mb-1">Display Name</label>
                         <input
                           {...register("displayName")}
-                          className="input input-bordered w-full bg-white"
-                          placeholder="Enter display name"
+                          className="input input-bordered w-full text-black"
+                          defaultValue={staffData?.displayName || user}
                         />
                       </div>
                       <div className="w-40">
-                        <label className="block text-sm font-medium text-white mb-1">Photo URL</label>
+                        <label className="label md:text-sm  text-black">Upload Image</label>
                         <input
-                          {...register("photoURL")}
-                          className="input input-bordered w-full bg-white"
-                          placeholder="Photo URL"
+                        type="file"
+                      id="image"
+                      accept="image/*"
+                          {...register("image")}
+                      className=" file-input file:bg-lime-50 file:text-lime-700"
                         />
                       </div>
                     </div>
