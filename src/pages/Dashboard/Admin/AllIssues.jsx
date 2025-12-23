@@ -76,6 +76,7 @@ const AllIssues = () => {
   return (
     <Container>
             <title>All Issues</title>
+            <h1 className="my-8 font-bold text-2xl">All Reported Issues:</h1>
         <div className="overflow-x-auto">
 
       <motion.table

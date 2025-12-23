@@ -12,14 +12,14 @@ const useRole = () => {
     queryFn: async () => {
       const res = await axiosSecure.get(`/users/?email=${user?.email}`);
 
-      return res.data || user;
+      return res.data?.[0] || user;
     },
   });
   const { isLoading: loading, data: Staff } = useQuery({
     queryKey: ["staffs", user?.email],
     queryFn: async () => {
       const res = await axiosSecure.get(`/staffs/?email=${user?.email}`);
-      return res.data || user;
+      return res.data?.[0] || user;
     },
   });
   return {User,Staff,isLoading,loading}

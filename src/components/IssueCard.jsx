@@ -5,11 +5,14 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 
 import useAuth from "../hooks/useAuth";
+import useAuthDB from "../hooks/useAuthDB";
 import { condition } from "../utils/DisableCondition";
 import useAxiosSecure from "../hooks/useAxiosSecure";
+import Loader from "./Loader";
 
 const IssueCard = ({ issue }) => {
   const { user } = useAuth();
+  const {User,Staff,isLoading,loading}=useAuthDB();
   const navigate = useNavigate();
   const axiosSecure = useAxiosSecure();
   const queryClient = useQueryClient();
@@ -102,7 +105,8 @@ const IssueCard = ({ issue }) => {
   const getPriorityBadgeClass = (priority) => {
     return priority === "high" ? "badge-error" : "badge-outline";
   };
-
+if(isLoading || loading) return <p>Loading...</p>
+// console.log(User,Staff)
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -162,9 +166,9 @@ const IssueCard = ({ issue }) => {
           >
             <motion.button
               onClick={handleUpvote}
-              disabled={isDisabled}
+              disabled={isDisabled || User?.isBlocked || Staff}
               className={`${
-                isDisabled
+                (isDisabled || User?.isBlocked || Staff)
                   ? "cursor-not-allowed text-gray-400"
                   : isLiked
                   ? "text-blue-600 cursor-pointer"
@@ -172,6 +176,7 @@ const IssueCard = ({ issue }) => {
               } transition-colors duration-200`}
               whileHover={!isDisabled ? { scale: 1.2 } : {}}
               whileTap={!isDisabled ? { scale: 0.9 } : {}}
+              title={User?.isBlocked ? "Account Blocked. Please contact with authorities." : isDisabled ? "You cannot upvote your own issue." : Staff ? "Staff members cannot upvote issues." : isLiked ? "Remove Upvote" : "Upvote this issue"}
             >
               <BiSolidLike className="text-[26px]" />
             </motion.button>

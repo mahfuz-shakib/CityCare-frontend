@@ -53,7 +53,8 @@ const ManageUsers = () => {
   return (
     <Container>
             <title>Manage Users</title>
-        <div className="overflow-x-auto">
+            <h1 className="my-8 text-lg md:text-2xl font-bold">Manage Citizens</h1>
+        <div className="overflow-x-auto mb-12">
 
       <motion.table
                 initial={{ opacity: 0, y: 20 }}

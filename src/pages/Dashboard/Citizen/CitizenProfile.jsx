@@ -337,11 +337,11 @@ console.log(userData)
                   <p className="font-medium">Citizen</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Account Status</p>
+                  <p className="text-sm text-gray-500 ">Account Status</p>
                   {userData?.isBlocked ? (
-                    <p className="font-medium text-error flex items-center gap-2">
+                    <p className="font-medium text-error flex items-center gap-2 border w-fit p-2 rounded border-red-500">
                       <FaBan />
-                      Account Blocked
+                      Account Blocked. Please contact with authorities.
                     </p>
                   ) : (
                     <p className="font-medium text-success">Active</p>

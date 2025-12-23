@@ -67,11 +67,14 @@ const ManageStaffs = () => {
             <title>Manage Staffs</title>
 
       <div>
-      <div className="text-right my-6">
+        <div className="my-8 flex flex-row flex-wrap justify-between items-center">
+        <h1 className="font-bold text-lg md:text-2xl">All Staffs</h1>
+      <div className="text-right  ">
         <button onClick={handleCreateStaff} className="btn btn-primary">
           Create New staff
         </button>
       </div>
+        </div>
       <dialog ref={modalRef} className="modal modal-bottom sm:modal-middle">
         <div className={`p-2 md:p-4 rounded scale-85 md:scale-100 mx-auto`}>
           <h1 className="text-center font-bold mb-2 md:mb-3">Staff Information</h1>

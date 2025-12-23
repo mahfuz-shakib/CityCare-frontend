@@ -3,14 +3,17 @@ import { useNavigate } from "react-router";
 import { motion } from "framer-motion";
 import { FaEdit, FaTrash, FaRocket, FaSpinner } from "react-icons/fa";
 import useAuth from "../../hooks/useAuth";
-import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { toast } from "react-toastify";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
+import useAuthDB from "../../hooks/useAuthDB";
 import Swal from "sweetalert2";
 import { useRef } from "react";
 import Container from "../../container/Container";
 import UpdateIssueForm from "../../components/Form/UpdateIssueForm";
+import Loader from "../../components/Loader";
 const IssueActions = ({ issue }) => {
   const { user } = useAuth();
+  const {User,Staff,isLoading,loading}=useAuthDB();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const axiosSecure = useAxiosSecure();
@@ -85,6 +88,8 @@ const handleBoost = async () => {
       Swal.fire("Payment Error", error.message, "error");
     }
   };
+if(isLoading || loading) return <Loader/>
+console.log(User,Staff)
   return (
     <Container>
       <motion.div
@@ -97,9 +102,11 @@ const handleBoost = async () => {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="btn bg-yellow-600/50 btn-lg pr-6 py-3 flex items-center gap-2 hover:bg-yellow-600/20 transition-colors"
+            className={`btn bg-yellow-600/50 btn-lg pr-6 py-3 flex items-center gap-2 hover:bg-yellow-600/20 transition-colors ${User?.isBlocked ? 'cursor-not-allowed' : 'cursor-pointer'}`}
             onClick={handleUpdate}
-            title="Edit this issue details"
+            // title="Edit this issue details"
+            disabled={User?.isBlocked }
+            title={User?.isBlocked ? "Account Blocked. Please contact with authorities." : "Edit this issue details"}
           >
             <FaEdit />
             Edit
@@ -124,9 +131,10 @@ const handleBoost = async () => {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="btn btn-primary btn-lg pl-6 py-3 flex items-center gap-2 hover:bg-blue-700 transition-colors"
+            className={`btn btn-primary btn-lg pl-6 py-3 flex items-center gap-2 hover:bg-blue-700 transition-colors ${User?.isBlocked || Staff ? 'cursor-not-allowed' : 'cursor-pointer'}`}
             onClick={handleBoost}
-            title="Boost priority to high for faster resolution (costs ৳100)"
+            disabled={User?.isBlocked || Staff}
+            title={User?.isBlocked ? "Account Blocked. Please contact with authorities." : Staff ? "Staff members cannot boost issues." : "Boost priority to high for faster resolution (costs ৳100)"}
           >
             {/* {boostMutation.isPending ? <FaSpinner className="animate-spin" /> : <FaRocket />}
             {boostMutation.isPending ? "Boosting..." : "Boost Now (৳100)"} */}

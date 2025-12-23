@@ -97,9 +97,9 @@ const Contact = () => {
 
                             <div className="bg-blue-50 p-6 rounded-lg">
                                 <h3 className="font-semibold text-gray-800 mb-2">Office Hours</h3>
-                                <p className="text-gray-600">Monday - Friday: 9:00 AM - 5:00 PM</p>
+                                <p className="text-gray-600">Sunday - Thursday: 9:00 AM - 5:00 PM</p>
                                 <p className="text-gray-600">Saturday: 10:00 AM - 2:00 PM</p>
-                                <p className="text-gray-600">Sunday: Closed</p>
+                                <p className="text-gray-600">Friday: Closed</p>
                             </div>
                         </motion.div>
 
