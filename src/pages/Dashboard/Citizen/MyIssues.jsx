@@ -130,6 +130,7 @@ const MyIssues = () => {
       {!user.email || loading || isLoading ? (
         <Loader />
       ) : myIssues.length ? (
+        <div className="overflow-x-auto pb-16">
         <motion.table
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -151,8 +152,7 @@ const MyIssues = () => {
             </tr>
           </thead>
           <tbody>
-            {myIssues?.map((list, index) => {
-              return (
+            {myIssues?.map((list, index) =>
                 <motion.tr
                   key={list._id}
                   initial={{ opacity: 0, x: -20 }}
@@ -206,10 +206,11 @@ const MyIssues = () => {
                     </Link>
                   </td>
                 </motion.tr>
-              );
-            })}
+              
+            )}
           </tbody>
         </motion.table>
+        </div>
       ) : (
         <p className="my-18 text-3xl font-bold">No reported issues found</p>
       )}

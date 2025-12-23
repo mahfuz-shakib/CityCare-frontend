@@ -82,6 +82,8 @@ const AssignedIssues = () => {
           <option value="normal">Normal</option>
         </select>
       </div>
+              <div className="overflow-x-auto">
+
       <motion.table
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -144,6 +146,7 @@ const AssignedIssues = () => {
           })}
         </tbody>
       </motion.table>
+      </div>
     </Container>
   );
 };

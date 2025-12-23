@@ -53,6 +53,7 @@ const ManageUsers = () => {
   return (
     <Container>
             <title>Manage Users</title>
+        <div className="overflow-x-auto">
 
       <motion.table
                 initial={{ opacity: 0, y: 20 }}
@@ -101,6 +102,7 @@ const ManageUsers = () => {
                   })}
                 </tbody>
               </motion.table>
+              </div>
     </Container>
   );
 };

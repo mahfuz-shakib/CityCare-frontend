@@ -76,6 +76,7 @@ const AllIssues = () => {
   return (
     <Container>
             <title>All Issues</title>
+        <div className="overflow-x-auto">
 
       <motion.table
         initial={{ opacity: 0, y: 20 }}
@@ -147,6 +148,7 @@ const AllIssues = () => {
           })}
         </tbody>
       </motion.table>
+      </div>
       <dialog ref={staffModalRef} className="modal modal-bottom sm:modal-middle">
         <div className={`p-2 md:p-4 rounded scale-85 md:scale-100 mx-auto`}>
           <AvailableStaffs issue={issue} staffModalRef={staffModalRef} />
