@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
@@ -10,15 +10,34 @@ import { useQueryClient } from "@tanstack/react-query";
 const UpdateIssueForm = ({ updateItem, modalRef }) => {
   const axiosSecure = useAxiosSecure();
   const queryClient = useQueryClient();
+
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+    reset,
+  } = useForm({
+    defaultValues: {
+      title: "",
+      category: "",
+      description: "",
+      location: "",
+    },
+  });
+
+  useEffect(() => {
+    if (updateItem) {
+      reset({
+        title: updateItem.title,
+        category: updateItem.category,
+        description: updateItem.description,
+        location: updateItem.location,
+      });
+    }
+  }, [updateItem, reset]);
 
   const onSubmit = async (data) => {
     const { title, category, description, location } = data;
-
     try {
       let imageURL = updateItem.image; // Default to existing image
       if (data?.image && data.image[0]) {
@@ -31,12 +50,12 @@ const UpdateIssueForm = ({ updateItem, modalRef }) => {
         location,
         image: imageURL,
       };
-      console.log(issueInfo);
+
       axiosSecure
         .patch(`/issues/${updateItem._id}`, issueInfo)
         .then(async (data) => {
-          console.log(data.data);
           toast.success("Updated successfully");
+          
           const timelineInfo = {
             issueId: updateItem._id,
             message: "Issue information update",
@@ -61,9 +80,9 @@ const UpdateIssueForm = ({ updateItem, modalRef }) => {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.5 }}
-        className=" max-w-76 md:max-w-[856px]  mx-auto card rounded-lg overflow-hidden my-16"
+        className=" max-w-76 md:max-w-214 mx-auto card rounded-lg overflow-hidden my-16"
       >
-        <div className={`card-body px-2 md:px-4 bg-gray-100`}>
+        <div className={`relative card-body px-2 md:px-4 bg-surface-container-low`}>
           <h1 className="text-center  md:text-xl font-bold text-wrap">Update issue Info.</h1>
 
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -99,7 +118,7 @@ const UpdateIssueForm = ({ updateItem, modalRef }) => {
                       },
                     })}
                   >
-                    <option value="">Select Category</option>
+                    {/* <option value="">Select Category</option> */}
                     <option value="road">Road</option>
                     <option value="water">Water</option>
                     <option value="electricity">Electricity</option>
@@ -130,9 +149,8 @@ const UpdateIssueForm = ({ updateItem, modalRef }) => {
                       type="file"
                       id="image"
                       accept="image/*"
-                      // defaultValue={updateItem.image}
                       {...register("image")}
-                      className=" file-input file:bg-lime-50 file:text-lime-700"
+                      className=" file-input file:bg-surface-container-high file:text-primary"
                     />
                     <p className="text-xs text-gray-500 mt-1">Leave empty to keep current image</p>
                   </div>
@@ -152,15 +170,15 @@ const UpdateIssueForm = ({ updateItem, modalRef }) => {
                 {errors.description && <p className="mt-1 text-xs text-red-500">{errors.description.message} </p>}
               </div>
             </fieldset>
-            <div className="flex justify-center gap-3 md:gap-8 items-center mt-4">
-              <div className="w-fit text-right ">
-                <form method="dialog">
-                  <button className="btn bg-primary/10">Cancel</button>
-                </form>
-              </div>
-              <button className={`btn w-fit  w-72    bg-lime-600 hover:bg-lime-700 text-white`}>Update Issue</button>
+            <div className="flex justify-end mt-4">
+              <button className="btn w-2/3 bg-primary hover:bg-primary/90 text-white">Update Issue</button>
             </div>
           </form>
+          <div className="absolute bottom-6 ">
+            <form method="dialog">
+              <button className="w-fit md:w-56 btn bg-primary/10">Cancel</button>
+            </form>
+          </div>
         </div>
       </motion.div>
     </Container>

@@ -1,26 +1,25 @@
-import React from "react";
-import Container from "../../container/Container";
 import Banner from "./Banner/Banner";
-import LatestResolvedIssues from "./ResolvedIssues/LatestResolvedIssues";
-import Features from "./Features/Features";
-import HowItWorks from "./HowItWorks/HowItWorks";
+import QuickActions from "./QuickActions/QuickActions";
 import Stats from "./Stats/Stats";
+import Categories from "./Categories/Categories";
+import Map from "./Map/Map";
+import IssueLifecycle from "./IssueLifecycle/IssueLifecycle";
+import Transparency_Analytics from "./Analytics/Transparency_Analytics";
 import Testimonials from "./Testimonials/Testimonials";
+import LatestResolvedIssues from "./ResolvedIssues/LatestResolvedIssues";
 
-const Home = () => {
+export default function Home() {
   return (
-    <div className="bg-white">
-      <title>CityCare - Home</title>
+    <>
       <Banner />
-      <Container>
-        <LatestResolvedIssues />
-      </Container>
-      <Features />
-      <HowItWorks />
+      <QuickActions />
       <Stats />
+      <Categories />
+      <LatestResolvedIssues />
+      <Map />
+      <IssueLifecycle />
+      <Transparency_Analytics />
       <Testimonials />
-    </div>
+    </>
   );
-};
-
-export default Home;
+}

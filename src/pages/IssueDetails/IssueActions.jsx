@@ -1,154 +1,197 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "react-router";
-import { motion } from "framer-motion";
-import { FaEdit, FaTrash, FaRocket, FaSpinner } from "react-icons/fa";
+import { useLocation, useNavigate } from "react-router";
+import { motion, AnimatePresence } from "framer-motion";
+import { Pencil, Trash2, Zap, Loader2, Download, ExternalLink } from "lucide-react";
+
 import useAuth from "../../hooks/useAuth";
-import { toast } from "react-toastify";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
-import useAuthDB from "../../hooks/useAuthDB";
+import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import { useRef } from "react";
-import Container from "../../container/Container";
 import UpdateIssueForm from "../../components/Form/UpdateIssueForm";
-import Loader from "../../components/Loader";
-const IssueActions = ({ issue }) => {
+
+/**
+ * IssueActions — redesigned sidebar-native action panel.
+ *
+ * When `sidebar` prop is passed (from IssueDetails col-3), renders compact
+ * vertical stacked buttons matching the Figma design.
+ * When rendered standalone (legacy usage), renders the original horizontal row.
+ */
+const IssueActions = ({ issue}) => {
   const { user } = useAuth();
-  const {User,Staff,isLoading,loading}=useAuthDB();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const axiosSecure = useAxiosSecure();
   const modalRef = useRef();
+  const location = useLocation();
 
   const isOwner = user?.email === issue.reporter;
   const canEdit = isOwner && issue.status === "pending";
+  const canBoost = issue.priority !== "high";
+  // const haveActions = canEdit || isOwner || canBoost;
 
-  const { mutateAsync:deleteMutation} = useMutation({
+  const { mutateAsync: deleteMutation, isPending: isDeleting } = useMutation({
     mutationFn: async () => {
       const res = await axiosSecure.delete(`/issues/${issue._id}`);
       return res.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries();
-      Swal.fire({
-        title: "Deleted!",
-        text: "Your issue item has been deleted.",
-        icon: "success",
-      });
+      Swal.fire({ title: "Deleted!", text: "Issue has been removed.", icon: "success" });
       navigate("/all-issues");
     },
-    onError: () => {
-      toast.error("Failed to delete issue. Please try again.");
-    },
+    onError: () => toast.error("Failed to delete issue. Please try again."),
   });
 
-  // const {mutateAsync:boostMutation} = useMutation({
-  //   mutationFn: async (issueInfo) => {
-  //     const res = await axiosSecure.post(`/issues/boost/${issue._id}`);
-  //     return res.data;
-  //   },
-  //   onSuccess: () => {
-  //     queryClient.invalidateQueries(["issueDetails", issue._id]);
-  //     toast.success("Issue priority boosted!");
-  //   },
-  //   onError: () => {
-  //     toast.error("Failed to boost priority.");
-  //   },
-  // });
   const handleUpdate = () => {
-    modalRef.current.showModal();
+    modalRef.current?.showModal();
     queryClient.invalidateQueries(["issueDetails", issue._id]);
   };
+
   const handleDelete = () => {
     Swal.fire({
       title: "Are you sure?",
-      text: "You won't be able to revert this!",
+      text: "This action cannot be undone.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
+      confirmButtonColor: "#ef4444",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Yes, delete it",
     }).then((result) => {
-      if (result.isConfirmed) {
-        console.log(issue._id);
-        deleteMutation();
-      }
+      if (result.isConfirmed) deleteMutation();
     });
   };
-const handleBoost = async () => {
+
+  const handleBoost = async () => {
+    if (!user) return navigate("/login", { state: location.pathname, replace: true });
     try {
       const issueInfo = {
-        issueId:issue._id,
-        issueTitle:issue.title,
-        issueImage:issue.image,
-        senderEmail:issue.reporter,
-      }
-      const res = await axiosSecure.post("/boost-payment-session",issueInfo);
-      window.location.replace(res.data.url); // Stripe Checkout URL
+        issueId: issue._id,
+        issueTitle: issue.title,
+        issueImage: issue.image,
+        senderEmail: issue.reporter,
+      };
+      const res = await axiosSecure.post("/boost-payment-session", issueInfo);
+      window.location.replace(res.data.url);
     } catch (error) {
       Swal.fire("Payment Error", error.message, "error");
     }
   };
-if(isLoading || loading) return <Loader/>
-console.log(User,Staff)
-  return (
-    <Container>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="flex flex-wrap gap-4"
-      >
-        {canEdit && (
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className={`btn bg-yellow-600/50 btn-lg pr-6 py-3 flex items-center gap-2 hover:bg-yellow-600/20 transition-colors ${User?.isBlocked ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-            onClick={handleUpdate}
-            // title="Edit this issue details"
-            disabled={User?.isBlocked }
-            title={User?.isBlocked ? "Account Blocked. Please contact with authorities." : "Edit this issue details"}
-          >
-            <FaEdit />
-            Edit
-          </motion.button>
-        )}
 
-        {isOwner && (
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="btn bg-red-300 btn-lg px-6 py-3 flex items-center gap-2 hover:bg-red-700/20 transition-colors"
-            onClick={handleDelete}
-            disabled={deleteMutation.isPending}
-            title="Permanently delete this issue"
-          >
-            {deleteMutation.isPending ? <FaSpinner className="animate-spin" /> : <FaTrash />}
-            {deleteMutation.isPending ? "Deleting..." : "Delete"}
-          </motion.button>
-        )}
+  // if (!haveActions) return null;
 
-        {issue.priority !== "high" && (
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className={`btn btn-primary btn-lg pl-6 py-3 flex items-center gap-2 hover:bg-blue-700 transition-colors ${User?.isBlocked || Staff ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-            onClick={handleBoost}
-            disabled={User?.isBlocked || Staff}
-            title={User?.isBlocked ? "Account Blocked. Please contact with authorities." : Staff ? "Staff members cannot boost issues." : "Boost priority to high for faster resolution (costs ৳100)"}
-          >
-            {/* {boostMutation.isPending ? <FaSpinner className="animate-spin" /> : <FaRocket />}
-            {boostMutation.isPending ? "Boosting..." : "Boost Now (৳100)"} */}
-            Boost Now (৳100)
-          </motion.button>
-        )}
-      </motion.div>
-      <dialog ref={modalRef} className="modal modal-bottom sm:modal-middle">
-        <div className={`p-2 md:p-4 rounded scale-85 md:scale-100 mx-auto`}>
-          <UpdateIssueForm updateItem={issue} modalRef={modalRef} />
+  /* ── Sidebar variant (used inside col-3 of IssueDetails) ── */
+    return (
+      <>
+        <div className="space-y-2.5">
+          {/* Boost button */}
+          {canBoost && (
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={handleBoost}
+              className="w-full flex items-center justify-between gap-3 bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded-xl px-4 py-3 transition-colors group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center shrink-0 shadow-sm">
+                  <Zap size={15} className="text-white fill-white" />
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-semibold text-slate-800 leading-none">
+                    Boost Priority
+                  </p>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    Move to front of queue
+                  </p>
+                </div>
+              </div>
+              <span className="text-sm font-bold text-orange-600 bg-orange-100 border border-orange-200 rounded-lg px-2.5 py-1 shrink-0">
+                ৳100
+              </span>
+            </motion.button>
+          )}
+
+          {/* Edit button */}
+          {canEdit && (
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={handleUpdate}
+              className="w-full flex items-center gap-3 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 transition-colors"
+            >
+              <Pencil size={15} className="text-slate-500" />
+              <span className="text-sm font-semibold text-slate-700">Edit Issue</span>
+            </motion.button>
+          )}
+
+          {/* Delete button */}
+          {isOwner && (
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="w-full flex items-center gap-3 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl px-4 py-3 transition-colors disabled:opacity-60"
+            >
+              {isDeleting ? (
+                <Loader2 size={15} className="text-red-500 animate-spin" />
+              ) : (
+                <Trash2 size={15} className="text-red-500" />
+              )}
+              <span className="text-sm font-semibold text-red-600">
+                {isDeleting ? "Removing…" : "Remove Report"}
+              </span>
+            </motion.button>
+          )}
+
+          {/* Divider + Download receipt
+          <div className="pt-1 border-t border-slate-100 mt-1">
+            <button className="w-full flex items-center justify-center gap-2 text-blue-600 hover:text-blue-700 text-sm font-semibold py-2.5 transition-colors">
+              <Download size={14} />
+              Download Official Receipt
+            </button>
+          </div> */}
+
+          {/* Community awareness */}
+          <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 mt-1">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">
+              Community Awareness
+            </p>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-slate-600">Verified Neighbors</span>
+                <span className="text-sm font-bold text-slate-800">24</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-slate-600">Similar Reports</span>
+                <span className="text-sm font-bold text-slate-800">03</span>
+              </div>
+              {/* Progress bar */}
+              <div className="mt-2">
+                <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: "65%" }}
+                    transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
+                    className="h-full bg-blue-500 rounded-full"
+                  />
+                </div>
+                <p className="text-[10px] text-slate-400 mt-1.5">
+                  65% Consensus reached for immediate repair
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
-      </dialog>
-    </Container>
-  );
-};
+
+        {/* Modal */}
+        <dialog ref={modalRef} className="modal modal-bottom sm:modal-middle">
+          <div className="p-2 md:p-4 rounded scale-90 md:scale-100 mx-auto">
+            <UpdateIssueForm updateItem={issue} modalRef={modalRef} />
+          </div>
+        </dialog>
+      </>
+    );
+  }
 
 export default IssueActions;

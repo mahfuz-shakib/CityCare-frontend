@@ -4,6 +4,9 @@ import Loader from "../components/Loader";
 import MainLayout from "../layout/MainLayout";
 import PrivateRoute from "./PrivateRoute";
 import DashboardLayout from "../layout/DashboardLayout";
+import MapView from "../pages/MapView/MapView";
+import ActivityHistory from "../pages/Dashboard/Common/ActivityHistory";
+import Settings from "../pages/Dashboard/Common/Settings";
 
 // Lazy load components for better performance
 const Home = lazy(() => import("../pages/Home/Home"));
@@ -27,9 +30,7 @@ const NotFound = lazy(() => import("../pages/NotFound/NotFound"));
 const About = lazy(() => import("../pages/About/About"));
 const Contact = lazy(() => import("../pages/Contact/Contact"));
 
-const LazyWrapper = ({ children }) => (
-  <Suspense fallback={<Loader />}>{children}</Suspense>
-);
+const LazyWrapper = ({ children }) => <Suspense fallback={<Loader />}>{children}</Suspense>;
 
 export const router = createBrowserRouter([
   {
@@ -82,6 +83,14 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: "/map-view",
+        element: (
+          <LazyWrapper>
+            <MapView />
+          </LazyWrapper>
+        ),
+      },
+      {
         path: "all-issues",
         element: (
           <LazyWrapper>
@@ -92,11 +101,11 @@ export const router = createBrowserRouter([
       {
         path: "all-issues/:_id",
         element: (
-          <PrivateRoute>
-            <LazyWrapper>
-              <IssueDetails />
-            </LazyWrapper>
-          </PrivateRoute>
+          // <PrivateRoute>
+          <LazyWrapper>
+            <IssueDetails />
+          </LazyWrapper>
+          // </PrivateRoute>
         ),
       },
       {
@@ -204,10 +213,26 @@ export const router = createBrowserRouter([
             ),
           },
           {
+            path: "/dashboard/activity-history",
+            element: (
+              <LazyWrapper>
+                <ActivityHistory />
+              </LazyWrapper>
+            ),
+          },
+          {
             path: "/dashboard/myProfile",
             element: (
               <LazyWrapper>
                 <MyProfile />
+              </LazyWrapper>
+            ),
+          },
+          {
+            path: "/dashboard/settings",
+            element: (
+              <LazyWrapper>
+                <Settings />
               </LazyWrapper>
             ),
           },

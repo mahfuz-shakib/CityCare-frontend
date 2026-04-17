@@ -6,9 +6,10 @@ import { imageUpload } from "../../utils";
 import useAuth from "../../hooks/useAuth";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router";
+import { FaSpinner } from "react-icons/fa";
+import { IoIosSend } from "react-icons/io";
 
 const ReportIssueForm = () => {
   const { user } = useAuth();
@@ -20,20 +21,27 @@ const ReportIssueForm = () => {
     handleSubmit,
     formState: { errors },
   } = useForm();
-  const { isPending:isPostPending, isError:isPostError, data:postData, mutateAsync:postIssue } = useMutation({
+
+  const {
+    data: reportData,
+    mutateAsync: reportIssue,
+    isPending: isReporting,
+  } = useMutation({
     mutationFn: async (issueData) => await axiosSecure.post("/issues", issueData),
-    onSettled:() => {
-       console.log("settled data: ", postData);
+    onSettled: () => {
+      console.log("settled data: ", reportData);
     },
     retry: 2,
   });
-  const { isPending, isError, data, mutateAsync:addTimeline } = useMutation({
+
+  const { data, mutateAsync: addTimeline } = useMutation({
     mutationFn: async (timelineInfo) => await axiosSecure.post("/timelines", timelineInfo),
-    onSettled:() => {
-       console.log("settled data: ",data);
+    onSettled: () => {
+      console.log("settled data: ", data);
     },
     retry: 2,
   });
+
   const onSubmit = async (data) => {
     const { title, category, description, location } = data;
 
@@ -45,22 +53,22 @@ const ReportIssueForm = () => {
         description,
         location,
         image: imageURL,
-        reporter: user.email,
+        reporter: user?.email,
       };
 
-      const result = await postIssue(issueInfo);
+      const result = await reportIssue(issueInfo);
       if (result.data.insertedId) {
         const timelineInfo = {
-          issueId:result.data.insertedId,
-          message:"Issue Creation",
-          updatedBy:"Citizen"
-        }
+          issueId: result.data.insertedId,
+          message: "Issue Creation",
+          updatedBy: "Citizen",
+        };
         await addTimeline(timelineInfo);
-        
+
         // Invalidate user query to refresh freeReport count
-        queryClient.invalidateQueries(['users', user?.email]);
-        queryClient.invalidateQueries(['issues']);
-        
+        queryClient.invalidateQueries(["users", user?.email]);
+        queryClient.invalidateQueries(["issues"]);
+
         toast.success("Issue reported successfully");
         navigate("/dashboard/my-issues");
       }
@@ -77,11 +85,11 @@ const ReportIssueForm = () => {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.5 }}
-        className=" max-w-76 md:max-w-[856px]  mx-auto card rounded-lg overflow-hidden my-16"
+        className=" max-w-76 md:max-w-214 border border-primary/15  mx-auto card rounded-lg overflow-hidden mb-16 mt-8"
       >
-        <div className={`card-body px-2 md:px-4 bg-gray-100`}>
+        <div className={`card-body px-2 md:px-4 bg-surface-container-low`}>
           <form onSubmit={handleSubmit(onSubmit)}>
-            <fieldset className="! fieldset space-y-2">
+            <fieldset className="! fieldset space-y-2 overflow-hidden">
               <div className="flex flex-col md:flex-row justify-between gap-5">
                 <div className="w-72 md:w-md">
                   <label htmlFor="name" className="label md:text-sm">
@@ -146,7 +154,7 @@ const ReportIssueForm = () => {
                       {...register("image", {
                         required: "Image must be required",
                       })}
-                      className=" file-input file:bg-lime-50 file:text-lime-700"
+                      className=" file-input file:bg-surface-container-high file:text-primary"
                     />
                     {errors.image && <p className="mt-1 text-xs text-red-500">{errors.image.message} </p>}
                   </div>
@@ -166,8 +174,9 @@ const ReportIssueForm = () => {
                 {errors.description && <p className="mt-1 text-xs text-red-500">{errors.description.message} </p>}
               </div>
 
-              <button className={`btn mx-auto w-72  md:w-sm  mt-4 bg-lime-600 "`}>
-                Report Issue
+              <button className="btn mx-auto w-72  md:w-full  mt-4 bg-primary hover:bg-primary/90 text-white">
+                {isReporting ? <FaSpinner className="animate-spin text-lg" /> : <IoIosSend className="text-lg" />}
+                {isReporting ? "Reporting..." : "Report Issue"}
               </button>
             </fieldset>
           </form>

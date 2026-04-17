@@ -49,4 +49,3 @@ const useAxiosSecure = () => {
   return axiosInstance
 }
 export default useAxiosSecure
-

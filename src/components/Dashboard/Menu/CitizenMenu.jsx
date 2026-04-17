@@ -34,7 +34,17 @@ const CitizenMenu = () => {
           <span className="is-drawer-close:hidde">My Issues</span>
         </NavLink>
       </li>
-    
+      {/* <li>
+        <NavLink
+          className="is-drawer-close:tooltip is-drawer-close:tooltip-right flex"
+          data-tip="Activity-History"
+          to="/dashboard/activity-history"
+        >
+          <FaClipboardList className="my-1.5 inline-block size-4" />
+          <span className="is-drawer-close:hidde">Activity History</span>
+        </NavLink>
+      </li>
+     */}
       <li>
         <NavLink
           className="is-drawer-close:tooltip is-drawer-close:tooltip-right flex"
@@ -50,11 +60,3 @@ const CitizenMenu = () => {
 };
 
 export default CitizenMenu;
-
-
-
-
-
-
-
-

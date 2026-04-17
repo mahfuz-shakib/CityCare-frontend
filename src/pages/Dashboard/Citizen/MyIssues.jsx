@@ -9,6 +9,11 @@ import Container from "../../../container/Container";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import UpdateIssueForm from "../../../components/Form/UpdateIssueForm";
 import { Link } from "react-router";
+import { FaPlus, FaRegEdit } from "react-icons/fa";
+import { MdDelete, MdNavigateBefore, MdNavigateNext } from "react-icons/md";
+import IssuePriorityBadge from "../../../components/IssuePriorityBadge";
+import IssueStatusBadge from "../../../components/IssueStatusBadge";
+
 const MyIssues = () => {
   const { user, loading } = useAuth();
   const [filters, setFilters] = useState({ email: user?.email, category: "", status: "", priority: "", search: "" });
@@ -62,21 +67,30 @@ const MyIssues = () => {
       }
     });
   };
-
   return (
     <Container>
-            <title>My Issues</title>
+      <title>My Issues</title>
 
-      <div className=" rounded-xl py-10 mb-8">
-        <h1 className="text-4xl font-bold text-slate-800 mb-3">
-          My Issues
-        </h1>
-        <p className="text-lg text-slate-600 leading-relaxed">
-          Track and manage all the issues you've reported. View their status, priority, and take action when needed.
-        </p>
+      <div className="  rounded-xl my-8">
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+          <div className="flex justify-between items-center">
+            <h1 className="text-4xl font-bold text-slate-800 mb-3">My Issues</h1>
+
+            <Link
+              to="/dashboard/report-issue"
+              className="btn bg-primary text-white hidden md:flex items-center gap-2 hover:shadow-2xl"
+            >
+              {" "}
+              <FaPlus /> Report New Issue
+            </Link>
+          </div>
+          <p className=" text-slate-600 leading-relaxed">
+            Track and manage all the issues you've reported. View their status, priority, and take action when needed.
+          </p>
+        </motion.div>
       </div>
-     
-      <div className="mt-12 mx-auto w-fit">
+
+      <div className="flex flex-col md:flex-row justify-center gap-5 md:gap-12 my-6 px-3 bg-surface-container-low py-2 rounded-lg ">
         <label className="input rounded-full w-full lg:w-md ">
           <svg className="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
             <g strokeLinejoin="round" strokeLinecap="round" strokeWidth="2.5" fill="none" stroke="currentColor">
@@ -91,8 +105,6 @@ const MyIssues = () => {
             placeholder="Search by title, category or location"
           />
         </label>
-      </div>
-      <div className="flex flex-col md:flex-row justify-center gap-5 md:gap-12 mb-12 mt-6 px-3 md:bg-primary/10 py-2 rounded-lg mx-4">
         <select
           onChange={(e) => setFilters({ ...filters, category: e.target.value })}
           defaultValue="Select Category"
@@ -130,86 +142,105 @@ const MyIssues = () => {
       {!user.email || loading || isLoading ? (
         <Loader />
       ) : myIssues.length ? (
-        <div className="overflow-x-auto pb-16">
-        <motion.table
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-                className="table"
-        >
-          {/* head */}
-          <thead>
-            <tr className="bg-green-50">
-              <th>SL. No. </th>
-              <th>Title</th>
-              <th>Reported At</th>
-              <th>Status</th>
-              <th>Priority</th>
-              <th>Edit</th>
-              <th>Delete</th>
-              <th>View Details</th>
-            </tr>
-          </thead>
-          <tbody>
-            {myIssues?.map((list, index) =>
-                <motion.tr
-                  key={list._id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.3, delay: index * 0.05 }}
-                  className={`${index % 2 ? "bg-gray-50" : "bg-violet-50"} hover:bg-blue-50 transition-colors`}
-                >
-                  <td>{index + 1}</td>
-                  <td>
-                    <div className="flex items-center gap-3">
-                      <div className="avatar">
-                        <div className="mask mask-squircle h-12 w-12">
-                          <img src={list.image} alt={list.title} />
+        <div>
+          <div className="overflow-x-auto mb-16">
+            <motion.table
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              className="table table-border overflow-hidden"
+            >
+              {/* head */}
+              <thead>
+                <tr className="table-header">
+                  {/* <th>SL. No. </th> */}
+                  <th>Title</th>
+                  <th>Category</th>
+                  <th>Reported At</th>
+                  <th>Status</th>
+                  <th>Priority</th>
+                  <th>Edit</th>
+                  <th>Delete</th>
+                  <th>View Details</th>
+                </tr>
+              </thead>
+              <tbody>
+                {myIssues?.map((list, index) => (
+                  <motion.tr
+                    key={list._id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                    // className={`${index % 2 ? "bg-gray-100" : "bg-white"} hover:bg-gray-50 transition-colors`}
+                    className={`table-row transition-colors`}
+                  >
+                    {/* <td>{index + 1}</td> */}
+                    <td>
+                      <div className="flex items-center gap-3">
+                        <div className="avatar">
+                          <div className="mask mask-squircle h-12 w-12">
+                            <img src={list.image} alt={list.title} />
+                          </div>
+                        </div>
+                        <div className="w-48">
+                          <h1 className="font-bold">{list.title}</h1>
+                          <p className="text-sm opacity-50">({list.location})</p>
                         </div>
                       </div>
+                    </td>
+                    <td>{list.category}</td>
+                    <td>
                       <div>
-                        <div className="font-bold">{list.title}</div>
-                        <div className="text-sm opacity-50">({list.location})</div>
+                        <p>{new Date(list.createdAt).toLocaleDateString()}</p>
+                        <p className="text-xs text-secondary mt-.5">
+                          ({new Date(list.createdAt).toLocaleTimeString()})
+                        </p>
                       </div>
-                    </div>
-                  </td>
-
-                  <td>{new Date(list.createdAt).toLocaleDateString()}</td>
-                  <td>
-                    <button className="badge badge-secondary btn-xs">{list.status}</button>
-                  </td>
-                  <td className="opacity-75">{list.priority}</td>
-                  <td>
-                    <button
-                      onClick={() => handleUpdate(list)}
-                      className="btn badge badge-primary btn-xs cursor-pointer hover:scale-101"
-                      disabled={list.status !== "pending"}
-                    >
-                      Edit
-                    </button>
-                  </td>
-                  <td>
-                    <button
-                      onClick={() => handleDelete(list)}
-                      className="btn badge badge-secondary btn-xs cursor-pointer hover:scale-101"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                  <td>
-                    <Link
-                      to={`/all-issues/${list._id}`}
-                      className="btn badge badge-primary btn-xs cursor-pointer hover:scale-101"
-                    >
-                      Details
-                    </Link>
-                  </td>
-                </motion.tr>
-              
-            )}
-          </tbody>
-        </motion.table>
+                    </td>
+                    <td>
+                      <IssueStatusBadge status={list.status} />
+                    </td>
+                    <td>
+                      <IssuePriorityBadge priority={list.priority}/>
+                    </td>
+                    <td>
+                      <button
+                        onClick={() => handleUpdate(list)}
+                        className="btn text-2xl cursor-pointer hover:scale-105"
+                        disabled={list.status !== "pending"}
+                      >
+                        <FaRegEdit />
+                      </button>
+                    </td>
+                    <td>
+                      <button
+                        onClick={() => handleDelete(list)}
+                        className="btn text-2xl cursor-pointer text-crimson hover:scale-105"
+                      >
+                        <MdDelete />
+                      </button>
+                    </td>
+                    <td>
+                      <Link
+                        to={`/all-issues/${list._id}`}
+                        className=" text-primary font-semibold cursor-pointer hover:scale-101 hover:underline"
+                      >
+                        View Details
+                      </Link>
+                    </td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </motion.table>
+          </div>
+          {/* <div className="flex justify-between items-center mb-10">
+            <p>Showing 5 of {myIssues.length}</p>
+            <div className="flex gap-5">
+              <span><MdNavigateBefore/></span>
+              <span><MdNavigateNext/></span>
+            </div>
+          </div> */}
         </div>
       ) : (
         <p className="my-18 text-3xl font-bold">No reported issues found</p>

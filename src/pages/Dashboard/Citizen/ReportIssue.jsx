@@ -7,13 +7,14 @@ import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import BlockedWarning from "../../../components/Modal/BlockedWarning";
 import PremiumSubscriptionWarning from "../../../components/Modal/PremiumSubscriptionWarning";
 import Loader from "../../../components/Loader";
+import { motion } from "framer-motion";
 
 const ReportIssue = () => {
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
 
   const { data: userData, isLoading } = useQuery({
-    queryKey: ['users', user?.email],
+    queryKey: ["users", user?.email],
     queryFn: async () => {
       const res = await axiosSecure.get(`/users/?email=${user?.email}`);
       return res.data?.[0];
@@ -35,15 +36,16 @@ const ReportIssue = () => {
 
   return (
     <Container>
-            <title>Report Issues</title>
+      <title>Report Issues</title>
 
-      <div className=" rounded-xl mt-10">
-        <h1 className="text-4xl font-bold text-slate-800 mb-3">
-          Report an Issue
-        </h1>
-        <p className="text-lg text-slate-600 leading-relaxed">
-          Help us improve your city by reporting issues. Share details about problems you've noticed in your community.
-        </p>
+      <div className=" rounded-xl mt-8">
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+          <h1 className="text-4xl font-bold text-slate-800 mb-3">Report an Issue</h1>
+          <p className="text-lg text-slate-600 leading-relaxed">
+            Help us improve your city by reporting issues. Share details about problems you've noticed in your
+            community.
+          </p>
+        </motion.div>
       </div>
       <ReportIssueForm />
     </Container>

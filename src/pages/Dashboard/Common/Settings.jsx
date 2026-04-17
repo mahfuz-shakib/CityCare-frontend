@@ -1,6 +1,4 @@
 import React from 'react';
-// import { useQuery } from '@tanstack/react-query';
-// import useAxiosSecure from '../../../hooks/useAxiosSecure';
 import useAuth from '../../../hooks/useAuth';
 import useRole from '../../../hooks/useRole';
 import AdminProfile from '../Admin/AdminProfile';
@@ -8,7 +6,7 @@ import StaffProfile from '../Staff/StaffProfile';
 import CitizenProfile from '../Citizen/CitizenProfile';
 import Loader from '../../../components/Loader';
 
-const MyProfile = () => {
+const Settings = () => {
     const { loading } = useAuth();
     // const axiosSecure = useAxiosSecure();
     const { role, roleLoading } = useRole();
@@ -26,4 +24,4 @@ const MyProfile = () => {
     }
 };
 
-export default MyProfile;
+export default Settings;

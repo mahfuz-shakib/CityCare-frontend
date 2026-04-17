@@ -1,97 +1,111 @@
 import React, { use, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
-import { FaEye } from "react-icons/fa6";
-import { FaEyeSlash } from "react-icons/fa6";
-import { toast } from "react-toastify";
+import { FaEye, FaEyeSlash } from "react-icons/fa6";
 import { FcGoogle } from "react-icons/fc";
 import { motion, easeInOut } from "framer-motion";
-import Container from "../../container/Container";
+import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+import Container from "../../container/Container";
 import { AuthContext } from "../../providers/AuthContext";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
-import useRole from "../../hooks/useRole";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+
 const Login = () => {
-  const { signInWithGoogle, signInUser } = use(AuthContext);
-  const [error, setError] = useState("");
+  const { signInUser, signInWithGoogle } = use(AuthContext);
+
   const [showPassword, setShowPassword] = useState(false);
+  const [authError, setAuthError] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const location = useLocation();
   const navigate = useNavigate();
   const axiosSecure = useAxiosSecure();
   const queryClient = useQueryClient();
-const {role,roleLoading}=useRole();
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
 
-  const { data, mutateAsync } = useMutation({
-    mutationFn: async (payload) => axiosSecure.post("/users", payload),
+  /* ---------------- GOOGLE USER SAVE ---------------- */
+  const saveUserMutation = useMutation({
+    mutationFn: (payload) => axiosSecure.post("/users", payload),
   });
-  console.log(errors);
-  console.log(location.state)
-  const onSubmit = async (data) => {
-  try {
-    const { email, password } = data;
 
-    const res = await signInUser(email, password);
-    const user = res.user;
+  /* ---------------- ROLE CHECK ---------------- */
+  const redirectByRole = async (email) => {
+    try {
+      const res = await axiosSecure.get(`/staffs?email=${email}`);
+      const isStaff = res.data?.length > 0;
 
-    toast.success("Login Successfully");
-
-    // fetch role from server
-    const roleRes = await axiosSecure.get(`/staffs?email=${user.email}`);
-    const role = roleRes.data?.[0]?.role;
-
-    // conditional redirect
-    if (role === "staff" || roleRes.data?.[0]) {
-      navigate("/dashboard/homepage");
-    } else {
-      navigate(location.state || "/");
+      if (isStaff) {
+        navigate("/dashboard/homepage", { replace: true });
+      } else {
+        navigate(location.state || "/", { replace: true });
+      }
+    } catch {
+      navigate("/", { replace: true });
     }
-  } catch (err) {
-    if (err.code?.includes("invalid-credential")) {
-      setError("Invalid email or password");
-      toast.error("Invalid email or password");
-    } else {
-      setError(err.message);
-      toast.error(err.message);
+  };
+
+  /* ---------------- EMAIL LOGIN ---------------- */
+  const onSubmit = async ({ email, password }) => {
+    setLoading(true);
+    setAuthError("");
+
+    try {
+      const res = await signInUser(email, password);
+      toast.success("Login successful");
+
+      await redirectByRole(res.user.email);
+    } catch (err) {
+      const message = err.code?.includes("invalid-credential")
+        ? "Invalid email or password"
+        : "Login failed. Try again.";
+
+      setAuthError(message);
+      toast.error(message);
+    } finally {
+      setLoading(false);
     }
-  }
-};
+  };
 
+  /* ---------------- GOOGLE LOGIN ---------------- */
+  const handleGoogleAuth = async () => {
+    setLoading(true);
+    setAuthError("");
 
-  // login by google
-  const handleGoogleAuth = () => {
-    signInWithGoogle()
-      .then(async (res) => {
-        const userInfo = { displayName: res.user.displayName, email: res.user.email, image: res.user.photoURL };
-        console.log(res.user);
-        toast.success("Login Successful");
+    try {
+      const res = await signInWithGoogle();
+      const user = res.user;
 
-        await mutateAsync(userInfo);
-      queryClient.invalidateQueries();
-        
-        navigate(location.state ? location.state : "/");
-      })
-      .catch((err) => {
-        toast.error(err.code);
+      await saveUserMutation.mutateAsync({
+        displayName: user.displayName,
+        email: user.email,
+        image: user.photoURL,
       });
+
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+
+      toast.success("Login successful");
+      await redirectByRole(user.email);
+    } catch {
+      toast.error("Google login failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-  <div className="min-h-screen flex justify-center items-center bg-slate-50">
-    <title>Login</title>
-
-    <Container>
-      <div className="md:flex justify-center items-center">
+    <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <Container>
         <motion.div
           initial={{ x: 150, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
-          transition={{ duration: 1, ease: easeInOut }}
-          viewport={{ once: true }}
-          className="md:w-1/2"
+          transition={{ duration: 0.8, ease: easeInOut }}
+          className="w-full max-w-sm mx-auto"
         >
           {/* Header */}
           <div className="text-center mb-6">
@@ -104,99 +118,92 @@ const {role,roleLoading}=useRole();
           </div>
 
           {/* Card */}
-          <div className="card w-full max-w-sm mx-auto bg-white shadow-lg">
-            <div className="card-body">
+          <div className="card bg-white shadow-xl">
+            <div className="card-body space-y-4">
 
-              <form onSubmit={handleSubmit(onSubmit)}>
-                <fieldset className="fieldset space-y-4">
+              {/* Form */}
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
 
-                  {/* Email */}
-                  <div>
-                    <label className="label text-slate-700">Email</label>
+                {/* Email */}
+                <div>
+                  <label className="label text-slate-700">Email</label>
+                  <input
+                    type="email"
+                    {...register("email", { required: "Email is required" })}
+                    className="input input-bordered w-full"
+                    placeholder="Enter your email"
+                  />
+                  {errors.email && (
+                    <p className="text-xs text-red-500 mt-1">
+                      {errors.email.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* Password */}
+                <div>
+                  <label className="label text-slate-700">Password</label>
+                  <div className="relative">
                     <input
-                      type="email"
-                      {...register("email", {
-                        required: "Email is required",
-                      })}
-                      className="input input-bordered w-full border-slate-300 focus:border-sky-500"
-                      placeholder="Enter your email"
+                      type={showPassword ? "text" : "password"}
+                      {...register("password", { required: "Password is required" })}
+                      className="input input-bordered w-full"
+                      placeholder="Enter password"
                     />
-                    {errors.email && (
-                      <p className="mt-1 text-xs text-red-500">
-                        {errors.email.message}
-                      </p>
-                    )}
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-3 text-slate-500"
+                    >
+                      {showPassword ? <FaEyeSlash /> : <FaEye />}
+                    </button>
                   </div>
+                  {errors.password && (
+                    <p className="text-xs text-red-500 mt-1">
+                      {errors.password.message}
+                    </p>
+                  )}
+                </div>
 
-                  {/* Password */}
-                  <div>
-                    <label className="label text-slate-700">
-                      Password
-                    </label>
-
-                    <div className="relative">
-                      <input
-                        type={showPassword ? "text" : "password"}
-                        {...register("password", {
-                          required: "Password is required",
-                        })}
-                        className="input input-bordered w-full border-slate-300 focus:border-sky-500"
-                        placeholder="Enter password"
-                      />
-
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute top-3 right-4 text-slate-500 hover:text-slate-700"
-                      >
-                        {showPassword ? <FaEyeSlash /> : <FaEye />}
-                      </button>
-                    </div>
-
-                    {errors.password && (
-                      <p className="mt-1 text-xs text-red-500">
-                        {errors.password.message}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Submit */}
-                  <button className="btn w-full bg-sky-600 hover:bg-sky-700 text-white">
-                    Sign In
-                  </button>
-                </fieldset>
+                <button
+                  disabled={loading}
+                  className="btn w-full bg-sky-600 hover:bg-sky-700 text-white disabled:opacity-60"
+                >
+                  {loading ? "Signing in..." : "Sign In"}
+                </button>
               </form>
 
-              {error && (
-                <p className="text-red-500 text-sm mt-2">
-                  {error}
+              {authError && (
+                <p className="text-sm text-red-500 text-center">
+                  {authError}
                 </p>
               )}
 
               {/* Divider */}
-              <div className="flex justify-center items-center gap-2 my-4">
-                <span className="h-px w-24 bg-slate-300"></span>
+              <div className="flex items-center gap-2">
+                <span className="flex-1 h-px bg-slate-300" />
                 <span className="text-sm text-slate-500">
                   Or continue with
                 </span>
-                <span className="h-px w-24 bg-slate-300"></span>
+                <span className="flex-1 h-px bg-slate-300" />
               </div>
 
-              {/* Google Login */}
+              {/* Google */}
               <button
                 onClick={handleGoogleAuth}
-                className="btn w-full border border-slate-300 bg-white hover:bg-slate-100"
+                disabled={loading}
+                className="btn w-full border bg-white hover:bg-slate-100"
               >
                 <FcGoogle className="text-xl" />
-                Sign in with Google
+                Continue with Google
               </button>
 
               {/* Footer */}
-              <p className="text-center text-slate-600 mt-4">
+              <p className="text-center text-slate-600 text-sm">
                 New here?{" "}
                 <Link
                   to="/register"
-                  className="text-sky-600 hover:text-sky-700 underline"
+                  className="text-sky-600 hover:underline"
                 >
                   Create an account
                 </Link>
@@ -205,11 +212,9 @@ const {role,roleLoading}=useRole();
             </div>
           </div>
         </motion.div>
-      </div>
-    </Container>
-  </div>
-);
-
+      </Container>
+    </div>
+  );
 };
 
 export default Login;

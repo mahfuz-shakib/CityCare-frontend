@@ -5,20 +5,16 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 
 import useAuth from "../hooks/useAuth";
-import useAuthDB from "../hooks/useAuthDB";
 import { condition } from "../utils/DisableCondition";
 import useAxiosSecure from "../hooks/useAxiosSecure";
-import Loader from "./Loader";
 
 const IssueCard = ({ issue }) => {
   const { user } = useAuth();
-  const {User,Staff,isLoading,loading}=useAuthDB();
   const navigate = useNavigate();
   const axiosSecure = useAxiosSecure();
   const queryClient = useQueryClient();
 
-  const { _id, title, category, image, location, priority, status, reporter } =
-    issue;
+  const { _id, title, category, image, location, priority, status, reporter } = issue;
 
   const isDisabled = condition(user?.email, reporter);
 
@@ -36,11 +32,10 @@ const IssueCard = ({ issue }) => {
       const res = await axiosSecure.get(`/upvotes/?${params}`);
       return res.data; // { allVotes: [], myVote: boolean }
     },
-    
   });
-  const isLiked =user && !!data?.myVote;
+  const isLiked = user && !!data?.myVote;
   const voteCount = data?.allVotes?.length || 0;
-  
+
   const addUpvote = useMutation({
     mutationFn: async () => {
       const res = await axiosSecure.post("/upvotes", queries);
@@ -55,7 +50,6 @@ const IssueCard = ({ issue }) => {
     },
   });
 
- 
   const removeUpvote = useMutation({
     mutationFn: async () => {
       const res = await axiosSecure.delete(`/upvotes?${params}`);
@@ -71,9 +65,6 @@ const IssueCard = ({ issue }) => {
     },
   });
 
-  /* =======================
-     HANDLE CLICK
-  ======================= */
   const handleUpvote = async () => {
     if (!user) {
       navigate("/login");
@@ -87,9 +78,6 @@ const IssueCard = ({ issue }) => {
     }
   };
 
-  /* =======================
-     UI
-  ======================= */
   const getStatusBadgeClass = (status) => {
     const statusMap = {
       pending: "badge-warning",
@@ -105,8 +93,7 @@ const IssueCard = ({ issue }) => {
   const getPriorityBadgeClass = (priority) => {
     return priority === "high" ? "badge-error" : "badge-outline";
   };
-if(isLoading || loading) return <p>Loading...</p>
-// console.log(User,Staff)
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -114,7 +101,7 @@ if(isLoading || loading) return <p>Loading...</p>
       viewport={{ once: true }}
       transition={{ duration: 0.4 }}
       whileHover={{ y: -5, transition: { duration: 0.2 } }}
-      className="card bg-base-100 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group"
+      className="card min-h- bg-base-100 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group"
     >
       <figure className="relative overflow-hidden">
         <motion.img
@@ -123,20 +110,19 @@ if(isLoading || loading) return <p>Loading...</p>
           className="h-48 w-full object-cover group-hover:scale-110 transition-transform duration-500"
           loading="lazy"
         />
-        {priority === "high" && (
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg"
-          >
-            BOOSTED
-          </motion.div>
-        )}
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          className="flex flex-col gap-2 absolute top-2 left-3 text-xs font-bold "
+        >
+          {priority === "high" && <span className=" bg-red-700 text-white px-2 py-1 rounded shadow-lg">BOOSTED</span>}
+          <span className={`badge text-white ${getStatusBadgeClass(status)}`}>{status}</span>
+        </motion.div>
       </figure>
 
       <div className="card-body p-4">
         <motion.h3
-          className="card-title text-lg font-bold line-clamp-2 min-h-[3rem]"
+          className="card-title text-lg font-bold line-clamp-2 min-h-8"
           whileHover={{ color: "#3b82f6" }}
           transition={{ duration: 0.2 }}
         >
@@ -148,15 +134,8 @@ if(isLoading || loading) return <p>Loading...</p>
           <span className="truncate">{location}</span>
         </p>
 
-        <div className="flex flex-wrap gap-2 mb-3">
-          <span className={`badge ${getStatusBadgeClass(status)}`}>
-            {status}
-          </span>
-          <span className="badge badge-outline">{category}</span>
-          <span className={`badge ${getPriorityBadgeClass(priority)}`}>
-            {priority}
-          </span>
-        </div>
+          <i className="badge outline outline-gray-300 mb-3">{category}</i>
+          {/* <span className={`badge ${getPriorityBadgeClass(priority)}`}>{priority}</span> */}
 
         <div className="flex justify-between items-center mt-auto pt-2 border-t border-gray-200">
           <motion.span
@@ -166,17 +145,16 @@ if(isLoading || loading) return <p>Loading...</p>
           >
             <motion.button
               onClick={handleUpvote}
-              disabled={isDisabled || User?.isBlocked || Staff}
+              disabled={isDisabled}
               className={`${
-                (isDisabled || User?.isBlocked || Staff)
+                isDisabled
                   ? "cursor-not-allowed text-gray-400"
                   : isLiked
-                  ? "text-blue-600 cursor-pointer"
-                  : "text-gray-700 cursor-pointer hover:text-blue-600"
+                    ? "text-blue-600 cursor-pointer"
+                    : "text-gray-700 cursor-pointer hover:text-blue-600"
               } transition-colors duration-200`}
               whileHover={!isDisabled ? { scale: 1.2 } : {}}
               whileTap={!isDisabled ? { scale: 0.9 } : {}}
-              title={User?.isBlocked ? "Account Blocked. Please contact with authorities." : isDisabled ? "You cannot upvote your own issue." : Staff ? "Staff members cannot upvote issues." : isLiked ? "Remove Upvote" : "Upvote this issue"}
             >
               <BiSolidLike className="text-[26px]" />
             </motion.button>
