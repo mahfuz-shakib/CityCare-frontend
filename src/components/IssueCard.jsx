@@ -116,6 +116,8 @@ const IssueCard = ({ issue }) => {
           className="flex flex-col gap-2 absolute top-2 left-3 text-xs font-bold "
         >
           {priority === "high" && <span className=" bg-red-700 text-white px-2 py-1 rounded shadow-lg">BOOSTED</span>}
+          
+          
           <span className={`badge text-white ${getStatusBadgeClass(status)}`}>{status}</span>
         </motion.div>
       </figure>

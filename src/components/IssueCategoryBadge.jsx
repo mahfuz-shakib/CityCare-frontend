@@ -2,7 +2,7 @@ import React from "react";
 
 const IssueCategoryBadge = ({ category }) => {
   return (
-    <button className="badge badge-lg px-3 py-1 text-sm font-medium badge-outline bg-cyan-50 text-cyan-800">
+    <button className="w-18 badge badge-lg px-3 py-1 text-sm font-medium bg-sky-100 text-sky-800">
       {category}
     </button>
   );

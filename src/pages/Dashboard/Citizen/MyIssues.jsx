@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useMemo } from "react";
 import { motion } from "framer-motion";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
@@ -9,29 +9,54 @@ import Container from "../../../container/Container";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import UpdateIssueForm from "../../../components/Form/UpdateIssueForm";
 import { Link } from "react-router";
-import { FaPlus, FaRegEdit } from "react-icons/fa";
-import { MdDelete, MdNavigateBefore, MdNavigateNext } from "react-icons/md";
+import { FaClock, FaPlus, FaRegEdit } from "react-icons/fa";
+import { MdDelete, MdLocationPin, MdNavigateBefore, MdNavigateNext } from "react-icons/md";
 import IssuePriorityBadge from "../../../components/IssuePriorityBadge";
 import IssueStatusBadge from "../../../components/IssueStatusBadge";
+import IssueCategoryBadge from "../../../components/IssueCategoryBadge";
 
 const MyIssues = () => {
   const { user, loading } = useAuth();
   const [filters, setFilters] = useState({ email: user?.email, category: "", status: "", priority: "", search: "" });
   const [updateItem, setUpdateItem] = useState({});
+  const [currentPage, setCurrentPage] = useState(1);
+
   const modalRef = useRef();
   const axiosSecure = useAxiosSecure();
   const queryClient = useQueryClient();
 
-  const queryKey = ["issues", filters];
+  const pageSize = 6; // 9 items per page (3 columns x 3 rows)
+  const queryKey = ["issues", filters, currentPage, "citizenPage"];
   const { data: issuesResponse, isLoading } = useQuery({
     queryKey,
     queryFn: async () => {
-      const params = new URLSearchParams(filters).toString();
+      const params = new URLSearchParams({
+        ...filters,
+        page: currentPage.toString(),
+        limit: pageSize.toString(),
+      }).toString();
       const res = await axiosSecure.get(`/issues/?${params}`);
       return res.data;
     },
   });
   const myIssues = issuesResponse?.data || [];
+
+  const pagination = issuesResponse?.pagination || { page: 1, limit: pageSize, total: 0, totalPages: 1 };
+
+  const activeFilters = Object.entries(filters).filter(([_, value]) => value);
+
+  // Reset to page 1 when filters change
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [filters.category, filters.status, filters.priority, filters.search]);
+
+  const paginationButtons = useMemo(() => {
+    if (pagination.totalPages <= 1) return [];
+    const pages = Array.from({ length: pagination.totalPages }, (_, i) => i + 1);
+    return pages.filter((page) => {
+      return page === 1 || page === pagination.totalPages || (page >= currentPage - 1 && page <= currentPage + 1);
+    });
+  }, [pagination.totalPages, currentPage]);
 
   const handleUpdate = (item) => {
     setUpdateItem(item);
@@ -138,6 +163,27 @@ const MyIssues = () => {
           <option value="normal">Normal</option>
         </select>
       </div>
+      {/* Active Filters Pills */}
+      {activeFilters.length > 0 && (
+        <motion.div className="flex flex-wrap gap-2 mb-6 justify-center">
+          {activeFilters.map(([key, value]) => (
+            <motion.div
+              key={key}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="flex items-center gap-2 bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm font-medium"
+            >
+              {key.charAt(0).toUpperCase() + key.slice(1)}: {value}
+              <button
+                onClick={() => setFilters({ ...filters, [key]: "" })}
+                className="ml-1 text-indigo-600 hover:text-indigo-800"
+              >
+                ✕
+              </button>
+            </motion.div>
+          ))}
+        </motion.div>
+      )}
 
       {!user.email || loading || isLoading ? (
         <Loader />
@@ -154,10 +200,10 @@ const MyIssues = () => {
               {/* head */}
               <thead>
                 <tr className="table-header">
-                  {/* <th>SL. No. </th> */}
+                  <th>SL.</th>
                   <th>Title</th>
                   <th>Category</th>
-                  <th>Reported At</th>
+                  <th>Assigned Staff</th>
                   <th>Status</th>
                   <th>Priority</th>
                   <th>Edit</th>
@@ -175,34 +221,39 @@ const MyIssues = () => {
                     // className={`${index % 2 ? "bg-gray-100" : "bg-white"} hover:bg-gray-50 transition-colors`}
                     className={`table-row transition-colors`}
                   >
-                    {/* <td>{index + 1}</td> */}
+                    <td>{index + 1}</td>
                     <td>
-                      <div className="flex items-center gap-3">
-                        <div className="avatar">
-                          <div className="mask mask-squircle h-12 w-12">
-                            <img src={list.image} alt={list.title} />
-                          </div>
-                        </div>
-                        <div className="w-48">
+                      <div className="flex items-center gap-2">
+                        <img src={list.image} alt={list.title} className="size-12 rounded" />
+                        <div className="w-52">
                           <h1 className="font-bold">{list.title}</h1>
-                          <p className="text-sm opacity-50">({list.location})</p>
+                          <span className="flex items-center text-secondary text-xs">
+                            <MdLocationPin /> {list.location}
+                          </span>
+                          <span className="text-[10px] flex items-center text-secondary gap-1">
+                            <FaClock /> {new Date(list.createdAt).toLocaleString()}
+                          </span>
                         </div>
                       </div>
                     </td>
-                    <td>{list.category}</td>
                     <td>
-                      <div>
-                        <p>{new Date(list.createdAt).toLocaleDateString()}</p>
-                        <p className="text-xs text-secondary mt-.5">
-                          ({new Date(list.createdAt).toLocaleTimeString()})
-                        </p>
-                      </div>
+                      <IssueCategoryBadge category={list.category} />
+                    </td>
+                    <td>
+                      {list.assignedStaff ? (
+                        <div className="flex items-center text-pretty">
+                          <img src={list.assignedStaff.photoURL} />
+                          <h1>{list.assignedStaff.displayName}</h1>
+                        </div>
+                      ) : (
+                        <span className="flex items-center text-secondary opacity-80">Unassigned</span>
+                      )}
                     </td>
                     <td>
                       <IssueStatusBadge status={list.status} />
                     </td>
                     <td>
-                      <IssuePriorityBadge priority={list.priority}/>
+                      <IssuePriorityBadge priority={list.priority} />
                     </td>
                     <td>
                       <button
@@ -234,13 +285,54 @@ const MyIssues = () => {
               </tbody>
             </motion.table>
           </div>
-          {/* <div className="flex justify-between items-center mb-10">
-            <p>Showing 5 of {myIssues.length}</p>
-            <div className="flex gap-5">
-              <span><MdNavigateBefore/></span>
-              <span><MdNavigateNext/></span>
-            </div>
-          </div> */}
+          {pagination.totalPages > 1 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="flex flex-wrap justify-end items-center gap-3  mb-8"
+            >
+              <motion.button
+                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                className="btn btn-outline"
+                whileHover={{ scale: currentPage === 1 ? 1 : 1.05 }}
+                whileTap={{ scale: currentPage === 1 ? 1 : 0.95 }}
+              >
+                Previous
+              </motion.button>
+              <div className="flex gap-2">
+                {paginationButtons.map((page, index, array) => {
+                  const showEllipsisBefore = index > 0 && array[index - 1] !== page - 1;
+                  return (
+                    <React.Fragment key={page}>
+                      {showEllipsisBefore && <span className="px-2 text-gray-500">...</span>}
+                      <motion.button
+                        onClick={() => setCurrentPage(page)}
+                        className={`btn ${currentPage === page ? "btn-primary" : "btn-outline"}`}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                      >
+                        {page}
+                      </motion.button>
+                    </React.Fragment>
+                  );
+                })}
+              </div>
+              <motion.button
+                onClick={() => setCurrentPage((prev) => Math.min(pagination.totalPages, prev + 1))}
+                disabled={currentPage === pagination.totalPages}
+                className="btn btn-outline"
+                whileHover={{ scale: currentPage === pagination.totalPages ? 1 : 1.05 }}
+                whileTap={{ scale: currentPage === pagination.totalPages ? 1 : 0.95 }}
+              >
+                Next
+              </motion.button>
+              <span className="text-sm text-gray-600 px-4">
+                Page {pagination.page} of {pagination.totalPages} ({pagination.total} total)
+              </span>
+            </motion.div>
+          )}
         </div>
       ) : (
         <p className="my-18 text-3xl font-bold">No reported issues found</p>

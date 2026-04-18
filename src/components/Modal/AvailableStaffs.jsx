@@ -21,7 +21,7 @@ const AvailableStaffs = ({ issue, staffModalRef }) => {
       phone: staff.phone,
     };
     try {
-      const result = await axiosSecure.patch(`/issues/${issue._id}`, { assignedStaff });
+      const result = await axiosSecure.patch(`/issues/admin/${issue._id}`, { assignedStaff });
 
       // Create timeline entry
       const timelineInfo = {

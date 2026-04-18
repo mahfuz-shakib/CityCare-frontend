@@ -13,6 +13,7 @@ import { IoIosSend } from "react-icons/io";
 
 const ReportIssueForm = () => {
   const { user } = useAuth();
+  console.log(user);
   const axiosSecure = useAxiosSecure();
   const navigate = useNavigate();
   const queryClient = useQueryClient();

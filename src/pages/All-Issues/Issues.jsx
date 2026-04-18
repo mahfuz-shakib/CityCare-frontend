@@ -49,10 +49,9 @@ const Issues = () => {
   return (
     <Container>
       <title>All Issues</title>
-      <FaArrowLeft onClick={() => navigate(-1)} className="btn btn-sm text-sm mt-3 " />
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
         {/* <h2 className="text-3xl md:text-5xl font-bold text-center mb-4 text-gray-800 mt-8 md:mt-12">All <span className="text-sky-600">Issues</span></h2> */}
-        <p className="text-center text-xl mt- font-semibold text-gra-600 mb-8">
+        <p className="text-center text-xl mt- font-semibold text-gra-600 my-8">
           Browse and filter through all reported issues
         </p>
       </motion.div>
