@@ -26,7 +26,7 @@ const AllIssues = () => {
   const staffModalRef = useRef();
   const axiosSecure = useAxiosSecure();
   const queryClient = useQueryClient();
-  
+
   const pageSize = 6; // 9 items per page (3 columns x 3 rows)
   const { data: issuesResponse, isLoading } = useQuery({
     queryKey: ["issues", filters, currentPage, "adminPage"],
@@ -43,8 +43,6 @@ const AllIssues = () => {
 
   const issues = issuesResponse?.data || [];
   const pagination = issuesResponse?.pagination || { page: 1, limit: pageSize, total: 0, totalPages: 1 };
-
-  const activeFilters = Object.entries(filters).filter(([_, value]) => value);
 
   // Reset to page 1 when filters change
   React.useEffect(() => {
@@ -102,17 +100,16 @@ const AllIssues = () => {
   };
 
   return (
-    <Container>
+    <Container className="px-10">
       <title>All Issues</title>
-
       <motion.div
         initial={{ opacity: 0, y: 0 }}
         whileInView={{ opacity: 1, y: 20 }}
         viewport={{ once: true }}
         transition={{ duration: 0.5 }}
-        className="mt-3 mb-12"
+        className="mb-10 mt-3"
       >
-        <p className="text-xs text-primary font-medium">CITY CARE AUTHORITY</p>
+        <p className="text-[11px] font-bold uppercase tracking-widest text-blue-600 mb-1">CITY CARE AUTHORITY</p>
         <h1 className="text-3xl font-bold text-slate-800 mt-1 mb-2">All Issues Management</h1>
         <div className="flex justify-between">
           <p className="text-secondary max-w-xl">
@@ -124,194 +121,182 @@ const AllIssues = () => {
           </button>
         </div>
       </motion.div>
-      <div>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.2 }}
-          className="flex flex-col md:flex-row justify-center gap-4 md:gap-6 my-8 px-4 md:bg-gradient-to-r md:from-blue-50 md:to-indigo-50 py-2 rounded-md shadow-sm"
-        >
-          <label className="input mx-auto rounded-full w-full lg:w-md ">
-            <svg className="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-              <g strokeLinejoin="round" strokeLinecap="round" strokeWidth="2.5" fill="none" stroke="currentColor">
-                <circle cx="11" cy="11" r="8"></circle>
-                <path d="m21 21-4.3-4.3"></path>
-              </g>
-            </svg>
-            <input
-              onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-              type="search"
-              required
-              placeholder="Search by title, category or location"
-            />
-          </label>
-          <select
-            onChange={(e) => setFilters({ ...filters, category: e.target.value })}
-            defaultValue="Filter By Category"
-            className="w-full md:w-64 select select-bordered "
-          >
-            <option value="">Filter By Category</option>
-            <option value="road">Road</option>
-            <option value="water">Water</option>
-            <option value="electricity">Electricity</option>
-            <option value="garbage">Garbage</option>
-          </select>
-          <select
-            onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-            defaultValue="Filter By Status"
-            className="w-full md:w-64 select select-bordered "
-          >
-            <option value="">Filter By Status</option>
-            <option value="pending">Pending</option>
-            <option value="in-progress">In-progress</option>
-            <option value="working">Working</option>
-            <option value="resolved">Resolved</option>
-            <option value="closed">Closed</option>
-            <option value="rejected">Rejected</option>
-          </select>
-          <select
-            onChange={(e) => setFilters({ ...filters, priority: e.target.value })}
-            defaultValue="Filter By Priority"
-            className="w-full md:w-64 select select-bordered "
-          >
-            <option value="">Filter By Priority</option>
-            <option value="high">High</option>
-            <option value="normal">Normal</option>
-          </select>
-        </motion.div>
-
-        {/* Active Filters Pills */}
-        {activeFilters.length > 0 && (
-          <motion.div className="flex flex-wrap gap-2 mb-6 justify-center">
-            {activeFilters.map(([key, value]) => (
-              <motion.div
-                key={key}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="flex items-center gap-2 bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm font-medium"
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.2 }}
+      >
+        <div className="flex justify-between items-center  bg-white px-4 border-b border-b-slate-200  py-2 rounded-t-xl ">
+          <div className="flex flex-col md:flex-row justify-center gap-4 md:gap-2">
+            <label className="input mx-auto rounded-full w-full lg:w-64 ">
+              <svg className="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <g strokeLinejoin="round" strokeLinecap="round" strokeWidth="2.5" fill="none" stroke="currentColor">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <path d="m21 21-4.3-4.3"></path>
+                </g>
+              </svg>
+              <input
+                onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+                type="search"
+                required
+                placeholder="Search by title, category or location"
+              />
+            </label>
+            <div className="w-full md:w-32 ">
+              <select
+                onChange={(e) => setFilters({ ...filters, category: e.target.value })}
+                defaultValue="Filter By Category"
+                className="select select-bordered "
               >
-                {key.charAt(0).toUpperCase() + key.slice(1)}: {value}
-                <button
-                  onClick={() => setFilters({ ...filters, [key]: "" })}
-                  className="ml-1 text-indigo-600 hover:text-indigo-800"
-                >
-                  ✕
-                </button>
-              </motion.div>
-            ))}
-          </motion.div>
-        )}
-      </div>
-      {isLoading ? (
-        <Loader />
-      ) : (
-        <div className="overflow-x-auto mb-16">
-          <motion.table
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="table table-border overflow-hidden"
-          >
-            {/* head */}
-            <thead>
-              <tr className="table-header">
-                <th>SL. </th>
-                <th>Issue</th>
-                <th>Category</th>
-                <th>Priority</th>
-                <th>Assigned Staff</th>
-                <th>Status</th>
-                <th>Reject</th>
-                <th>Details</th>
-                <th>Assign</th>
-              </tr>
-            </thead>
-            <tbody>
-              {issues?.map((list, index) => {
-                return (
-                  <motion.tr
-                    key={list._id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.3, delay: index * 0.05 }}
-                    // className={`${index % 2 ? "bg-gray-50" : "bg-violet-50"} hover:bg-blue-50 transition-colors`}
-                    className={`table-row transition-colors`}
-                  >
-                    <td>{index + 1}</td>
-                    <td>
-                      <div className="flex items-center gap-2">
-                        <img src={list.image} alt={list.title} className="size-12 rounded" />
-                        <div className="w-52">
-                          <h1 className="font-bold">{list.title}</h1>
-                          <span className="flex items-center text-secondary text-xs">
-                            <MdLocationPin /> {list.location}
-                          </span>
-                          <span className="text-[10px] flex items-center text-secondary gap-1">
-                            <FaClock /> {new Date(list.createdAt).toLocaleString()}
-                          </span>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <IssueCategoryBadge category={list.category} />
-                    </td>
-                    <td className="opacity-75">
-                      <IssuePriorityBadge priority={list.priority} />
-                    </td>
-                    <td>
-                      {list.assignedStaff ? (
-                        <div className="flex items-center">
-                          <img src={list.assignedStaff.photoURL} />
-                          <h1>{list.assignedStaff.displayName}</h1>
-                        </div>
-                      ) : (
-                        <span className="flex items-center text-primary">
-                          <IoMdPersonAdd />
-                          Unassigned
-                        </span>
-                      )}
-                    </td>
-                    <td>
-                      <IssueStatusBadge status={list.status} />
-                    </td>
-                    <td>
-                      <button
-                        onClick={() => handleReject(list)}
-                        disabled={list.status !== "pending" || list.assignedStaff}
-                        className="btn badge badge-secondary btn-sm hover:scale-101"
-                      >
-                        Reject
-                      </button>
-                    </td>
-                    <td>
-                      <Link to={`/all-issues/${list._id}`} className="text-3xl text-secondary hover:scale-101">
-                        <IoEyeOutline />
-                      </Link>
-                    </td>
-                    <td>
-                      <button
-                        onClick={() => handleAssignStaff(list)}
-                        className="btn badge badge-primary btn-sm hover:scale-101"
-                        disabled={list.assignedStaff || list.status === "rejected"}
-                      >
-                        Assign Staff
-                      </button>
-                    </td>
-                  </motion.tr>
-                );
-              })}
-            </tbody>
-          </motion.table>
+                <option value="">Category: All</option>
+                <option value="road">Road</option>
+                <option value="water">Water</option>
+                <option value="electricity">Electricity</option>
+                <option value="garbage">Garbage</option>
+              </select>
+            </div>
+            <div className="w-full md:w-32 ">
+              <select
+                onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+                defaultValue="Status All"
+                className="select select-bordered "
+              >
+                <option value="">Status: All</option>
+                <option value="pending">Pending</option>
+                <option value="in-progress">In-progress</option>
+                <option value="working">Working</option>
+                <option value="resolved">Resolved</option>
+                <option value="closed">Closed</option>
+                <option value="rejected">Rejected</option>
+              </select>
+            </div>
+            <div className="w-full md:w-32 ">
+              <select
+                onChange={(e) => setFilters({ ...filters, priority: e.target.value })}
+                defaultValue="Priority All"
+                className="select select-bordered "
+              >
+                <option value="">Priority: All</option>
+                <option value="high">High</option>
+                <option value="normal">Normal</option>
+              </select>
+            </div>
+          </div>
+          <span className="text-sm text-gray-600 px-4">
+            Page {pagination.page} of {pagination.totalPages} ({pagination.total} total)
+          </span>
         </div>
-      )}
+        {isLoading ? (
+          <Loader />
+        ) : (
+          <div className="overflow-x-auto mb-">
+            <motion.table
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              className="table bg-white rounded-t-none overflow-hidden"
+            >
+              {/* head */}
+              <thead>
+                <tr className="">
+                  <th>SL. </th>
+                  <th>Issue</th>
+                  <th>Category</th>
+                  <th>Priority</th>
+                  <th>Assigned Staff</th>
+                  <th>Status</th>
+                  <th>Reject</th>
+                  <th>Details</th>
+                  <th>Assign</th>
+                </tr>
+              </thead>
+              <tbody>
+                {issues?.map((list, index) => {
+                  return (
+                    <motion.tr
+                      key={list._id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.3, delay: index * 0.05 }}
+                      // className={`${index % 2 ? "bg-gray-50" : "bg-violet-50"} hover:bg-blue-50 transition-colors`}
+                      className={`table-row transition-colors`}
+                    >
+                      <td>{index + 1}</td>
+                      <td>
+                        <div className="flex items-center gap-2">
+                          <img src={list.image} alt={list.title} className="size-12 rounded" />
+                          <div className="w-52">
+                            <h1 className="font-bold">{list.title}</h1>
+                            <span className="flex items-center text-secondary text-xs">
+                              <MdLocationPin /> {list.location}
+                            </span>
+                            <span className="text-[10px] flex items-center text-secondary gap-1">
+                              <FaClock /> {new Date(list.createdAt).toLocaleString()}
+                            </span>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <IssueCategoryBadge category={list.category} />
+                      </td>
+                      <td className="opacity-75">
+                        <IssuePriorityBadge priority={list.priority} />
+                      </td>
+                      <td>
+                        {list.assignedStaff ? (
+                          <div className="flex items-center">
+                            <img src={list.assignedStaff.photoURL} />
+                            <h1>{list.assignedStaff.displayName}</h1>
+                          </div>
+                        ) : (
+                          <span className="flex items-center text-primary">
+                            <IoMdPersonAdd />
+                            Unassigned
+                          </span>
+                        )}
+                      </td>
+                      <td>
+                        <IssueStatusBadge status={list.status} />
+                      </td>
+                      <td>
+                        <button
+                          onClick={() => handleReject(list)}
+                          disabled={list.status !== "pending" || list.assignedStaff}
+                          className="btn badge badge-secondary btn-xs hover:scale-101 w-20"
+                        >
+                          {list.status === "rejected" ? "Rejected" : "Reject"}
+                        </button>
+                      </td>
+                      <td>
+                        <Link to={`/all-issues/${list._id}`} className="text-2xl text-secondary hover:scale-101">
+                          <IoEyeOutline />
+                        </Link>
+                      </td>
+                      <td>
+                        <button
+                          onClick={() => handleAssignStaff(list)}
+                          className="btn badge badge-primary btn-xs hover:scale-101 w-28"
+                          disabled={list.assignedStaff || list.status === "rejected"}
+                        >
+                          {list.assignedStaff ? "Assigned" : "Assign Staff"}
+                        </button>
+                      </td>
+                    </motion.tr>
+                  );
+                })}
+              </tbody>
+            </motion.table>
+          </div>
+        )}
+      </motion.div>
 
       {pagination.totalPages > 1 && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="flex flex-wrap justify-center items-center gap-3  mb-8"
+          className="flex flex-wrap justify-center items-center gap-3 my-10"
         >
           <motion.button
             onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
@@ -349,7 +334,7 @@ const AllIssues = () => {
           >
             Next
           </motion.button>
-          <span className="text-sm text-gray-600 px-4">
+          <span className="text-sm text-gray-600 px-4 md:hidden">
             Page {pagination.page} of {pagination.totalPages} ({pagination.total} total)
           </span>
         </motion.div>
