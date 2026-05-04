@@ -96,10 +96,10 @@ const ManageStaffs = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#f7f8fc]">
+    <div>
       <title>Manage Staffs</title>
-      <Container>
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+      <Container className="px-10">
+        <div className=" space-y-6">
 
           {/* ── Header ── */}
           <motion.div {...fadeUp(0)} className="flex flex-wrap items-start justify-between gap-4">
@@ -116,6 +116,26 @@ const ManageStaffs = () => {
               <UserPlus size={16} /> Add Staff Member
             </motion.button>
           </motion.div>
+              <motion.div
+                  initial={{ opacity: 0, y: 0 }}
+                  whileInView={{ opacity: 1, y: 20 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5 }}
+                  className="mb-10 mt-3"
+                >
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-blue-600 mb-1">Field Workforce</p>
+                  <h1 className="text-3xl font-bold text-slate-800 mt-1 mb-2">Manage Staff</h1>
+                  <div className="flex justify-between">
+                    <p className="text-secondary max-w-xl">
+                                      Supervise municipal personnel, track operational performance metrics, and optimize field assignments across city departments.
+
+                    </p>
+                    <button 
+                    className="btn bg-surface-container-high p-5">
+                      <FaDownload /> Export CSV
+                    </button>
+                  </div>
+                </motion.div>
 
           {/* ── 3 KPI summary cards ── */}
           <motion.div {...fadeUp(0.1)} className="grid grid-cols-1 md:grid-cols-3 gap-4">
