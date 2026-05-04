@@ -116,9 +116,13 @@ const AllIssues = () => {
             Oversee and triage public service requests across all municipal departments. Assign technical staff and
             ensure service level agreements are met.
           </p>
-          <button className="btn bg-surface-container-high p-5">
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.97 }}
+            className="btn bg-surface-container-high p-5"
+          >
             <FaDownload /> Export CSV
-          </button>
+          </motion.button>
         </div>
       </motion.div>
       <motion.div
