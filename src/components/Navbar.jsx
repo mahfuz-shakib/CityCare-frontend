@@ -1,5 +1,5 @@
 import React, { memo, use, useEffect, useRef, useState } from "react";
-import { Link, NavLink, useNavigate } from "react-router";
+import { Link, NavLink, useLocation, useNavigate } from "react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaUser } from "react-icons/fa6";
 import { toast } from "react-toastify";
@@ -12,7 +12,8 @@ const Navbar = memo(() => {
   // const [activeLabel, setActiveLabel] = useState("/");
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
-
+  const location = useLocation();
+  console.log(location);
   // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -38,7 +39,7 @@ const Navbar = memo(() => {
     { to: "/about", label: "About" },
     { to: "/contact", label: "Contact" },
   ];
-
+  if (location.pathname.startsWith("/dashboard")) return;
   return (
     <motion.nav
       initial={{ y: -80 }}
@@ -131,19 +132,19 @@ const Navbar = memo(() => {
                   initial={{ opacity: 0, y: -8 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -8 }}
-                  className="absolute right-0 mt-12 w-48 bg-white border rounded-lg shadow-lg"
+                  className="absolute right-0 mt-42 w-48 bg-white border border-blue-300 rounded-lg shadow-lg overflow-hidden"
                 >
                   <Link
                     to="/dashboard/myProfile"
                     onClick={() => setOpenDropdown(false)}
-                    className="block px-4 py-2 hover:bg-slate-100"
+                    className="block px-4 py-2 hover:bg-blue-100"
                   >
                     {user.displayName}
                   </Link>
                   <Link
                     to="/dashboard"
                     onClick={() => setOpenDropdown(false)}
-                    className="block px-4 py-2 hover:bg-slate-100"
+                    className="block px-4 py-2 hover:bg-blue-100"
                   >
                     Dashboard
                   </Link>

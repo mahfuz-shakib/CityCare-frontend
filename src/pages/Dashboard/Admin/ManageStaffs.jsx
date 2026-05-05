@@ -201,7 +201,7 @@ const ManageStaffs = () => {
           {/* ── Staff table ── */}
           <motion.div
             {...fadeUp(0.2)}
-            className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden"
+            className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden mb-16"
           >
             <div className="overflow-x-auto">
               <table className="w-full text-sm">

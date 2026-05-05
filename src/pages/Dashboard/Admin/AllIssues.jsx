@@ -127,8 +127,9 @@ const AllIssues = () => {
       </motion.div>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.2 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
       >
         <div className="flex justify-between items-center  bg-white px-4 border-b border-b-slate-200  py-2 rounded-t-xl ">
           <div className="flex flex-col md:flex-row justify-center gap-4 md:gap-2">
@@ -194,7 +195,7 @@ const AllIssues = () => {
           <Loader />
         ) : (
           <div className="overflow-x-auto mb-">
-            <motion.table
+            <table
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -290,7 +291,7 @@ const AllIssues = () => {
                   );
                 })}
               </tbody>
-            </motion.table>
+            </table>
           </div>
         )}
       </motion.div>
