@@ -181,10 +181,10 @@ const Payments = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#f7f8fc]">
+    <div >
       <title>Payments Dashboard</title>
-      <Container>
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+      <Container className="px-10">
+        <div className="pt-8 pb-16 space-y-6">
 
           {/* ── Header ── */}
           <motion.div {...fadeUp(0)} className="flex flex-wrap items-end justify-between gap-4">
