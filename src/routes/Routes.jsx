@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, Navigate } from "react-router";
 import { lazy, Suspense } from "react";
 import Loader from "../components/Loader";
 import MainLayout from "../layout/MainLayout";
@@ -118,14 +118,10 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: (
-              <LazyWrapper>
-                <DashboardHomepage />
-              </LazyWrapper>
-            ),
+            element: <Navigate to="overview" replace />,
           },
           {
-            path: "/dashboard/homepage",
+            path: "overview",
             element: (
               <LazyWrapper>
                 <DashboardHomepage />
@@ -165,7 +161,7 @@ export const router = createBrowserRouter([
             ),
           },
           {
-            path: "/dashboard/manage-staffs",
+            path: "manage-staffs",
             element: (
               <LazyWrapper>
                 <ManageStaffs />

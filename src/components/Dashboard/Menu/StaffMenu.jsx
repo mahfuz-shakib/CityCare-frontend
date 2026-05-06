@@ -6,12 +6,12 @@ const StaffMenu = () => {
     <>
       <li>
         <NavLink
-          to="/dashboard/homepage"
+          to="/dashboard/overview"
           className="is-drawer-close:tooltip is-drawer-close:tooltip-right flex"
-          data-tip="Homepage"
+          data-tip="Overview"
         >
           <FaHome className="my-1.5 inline-block size-4" />
-          <span className="is-drawer-close:hidde">Home page</span>
+          <span className="is-drawer-close:hidde">Overview</span>
         </NavLink>
       </li>
       <li>
@@ -39,11 +39,3 @@ const StaffMenu = () => {
 };
 
 export default StaffMenu;
-
-
-
-
-
-
-
-

@@ -112,7 +112,7 @@ const AdminHome = () => {
       return res.data;
     },
   });
-console.log(payments);
+  console.log(payments);
   const { data: users = [], isLoading: usersLoading } = useQuery({
     queryKey: ["users", "citizen"],
     queryFn: async () => {
@@ -120,14 +120,14 @@ console.log(payments);
       return res.data;
     },
   });
-
-  const { data: staffs = [], isLoading: staffsLoading } = useQuery({
+  const { data: staffResult, isLoading: staffsLoading } = useQuery({
     queryKey: ["staffs"],
     queryFn: async () => {
       const res = await axiosSecure.get("/staffs");
       return res.data;
     },
   });
+  const staffs = staffResult?.data || [];
 
   const isLoading = issuesLoading || paymentsLoading || usersLoading || staffsLoading;
 
@@ -142,11 +142,9 @@ console.log(payments);
       </div>
     );
   }
-console.log(issues);
-console.log(users);
+
   /* ── computed stats ── */
-  const totalRevenue = payments.reduce((s, p) => s + (p.amount || 0), 0);
-  console.log(totalRevenue);
+  const totalRevenue = payments?.reduce((s, p) => s + (p.amount || 0), 0);
   const pending = issues.filter((i) => i.status === "pending").length;
   const resolved = issues.filter((i) => i.status === "resolved" || i.status === "closed").length;
   const rejected = issues.filter((i) => i.status === "rejected").length;

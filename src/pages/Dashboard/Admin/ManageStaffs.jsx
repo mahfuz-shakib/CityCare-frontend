@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Container from "../../../container/Container";
 import CreateStaffForm from "../../../components/Form/CreateStaffForm";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
@@ -19,22 +19,29 @@ import {
   Users,
   Award,
 } from "lucide-react";
+import Loader from "../../../components/Loader";
+import { FaCircle } from "react-icons/fa";
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
   transition: { duration: 0.45, delay, ease: [0.22, 1, 0.36, 1] },
 });
-
-const DEPARTMENTS = ["All Staff", "Infrastructure", "Public Safety", "Environment", "Sanitation", "Transport"];
-
+const DEPARTMENTS = [
+  "All Staff",
+  "Infrastructure",
+  "Public Safety",
+  "Environment",
+  "Sanitation",
+  "Transport",
+  "Construction",
+];
 /* workload color */
 const workloadColor = (pct) => {
   if (pct >= 90) return "bg-red-500";
   if (pct >= 60) return "bg-amber-500";
   return "bg-blue-500";
 };
-
 /* avatar */
 const avatarColor = (name = "") => {
   const palette = ["bg-blue-500", "bg-violet-500", "bg-emerald-500", "bg-amber-500", "bg-rose-500"];
@@ -45,21 +52,32 @@ const ManageStaffs = () => {
   const [editStaff, setEditStaff] = useState({});
   const [activeDept, setActiveDept] = useState("All Staff");
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 10;
-  const modalRef = useRef();
+  const pageSize = 6;
+  const createModalRef = useRef();
   const updateModalRef = useRef();
   const queryClient = useQueryClient();
   const axiosSecure = useAxiosSecure();
 
-  const { data: staffs = [], isLoading } = useQuery({
-    queryKey: ["staffs"],
+  const {
+    data: staffsResult,
+    isLoading,
+    isPending,
+  } = useQuery({
+    queryKey: ["staffs", "admin"],
     queryFn: async () => {
-      const res = await axiosSecure.get("/staffs");
+      const params = new URLSearchParams({
+        department: activeDept === "Al Staff" ? "" : activeDept,
+        page: currentPage.toString(),
+        limit: pageSize.toString(),
+      }).toString();
+      const res = await axiosSecure.get(`/staffs/?${params}`);
       return res.data;
     },
   });
-
-  const handleCreateStaff = () => modalRef.current?.showModal();
+  useEffect(() => {
+    queryClient.invalidateQueries({ queryKey: ["staffs", "admin"] });
+  }, [currentPage, queryClient, activeDept]);
+  const handleCreateStaff = () => createModalRef.current?.showModal();
   const handleUpdate = (s) => {
     setEditStaff(s);
     updateModalRef.current?.showModal();
@@ -85,33 +103,13 @@ const ManageStaffs = () => {
       }
     });
   };
-
   /* ── derived ── */
-  const filtered =
-    activeDept === "All Staff"
-      ? staffs
-      : staffs.filter((s) => (s.department || "").toLowerCase() === activeDept.toLowerCase());
-
-  const totalPages = Math.ceil(filtered.length / pageSize);
-  const paginated = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-
-  /* ── aggregate stats ── */
+  const staffs = staffsResult?.data || [];
+  const pagination = staffsResult?.pagination || { page: 1, limit: pageSize, total: 0, totalPages: 1 };
   const avgRating =
     staffs.length > 0 ? (staffs.reduce((s, st) => s + (st.rating || 4.5), 0) / staffs.length).toFixed(2) : "—";
   const activeTasks = staffs.reduce((s, st) => s + (st.activeTasks || 0), 0);
   const completionRate = 94.2; // can be derived from real data if available
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen bg-slate-50">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className="w-10 h-10 border-[3px] border-blue-600 border-t-transparent rounded-full"
-        />
-      </div>
-    );
-  }
 
   return (
     <div>
@@ -138,6 +136,7 @@ const ManageStaffs = () => {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.97 }}
                 className="btn bg-surface-container-high p-5"
+                onClick={handleCreateStaff}
               >
                 <UserPlus size={16} /> Add Staff Member
               </motion.button>
@@ -150,7 +149,7 @@ const ManageStaffs = () => {
               <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Total Workforce</p>
               <div className="flex items-end justify-between">
                 <div>
-                  <p className="text-4xl font-bold text-slate-900">{staffs.length.toLocaleString()}</p>
+                  <p className="text-4xl font-bold text-slate-900">{staffs.length}</p>
                   <p className="text-xs text-emerald-600 font-semibold mt-1 flex items-center gap-1">
                     <TrendingUp size={11} /> +12% vs last month
                   </p>
@@ -218,14 +217,20 @@ const ManageStaffs = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {paginated.length === 0 ? (
+                  {isLoading || isPending ? (
+                    <tr>
+                      <td colSpan={5} className="text-center py-14 text-slate-400">
+                        <FaCircle className="flex justify-center items-center animate-spin text-4xl" />
+                      </td>
+                    </tr>
+                  ) : staffs.length === 0 ? (
                     <tr>
                       <td colSpan={5} className="text-center py-14 text-slate-400">
                         No staff found for this department
                       </td>
                     </tr>
                   ) : (
-                    paginated.map((s, index) => {
+                    staffs.map((s, index) => {
                       const workload = s.workloadPct || Math.floor(Math.random() * 60 + 30);
                       const tasks = s.activeTasks || Math.floor(Math.random() * 20 + 3);
                       const rating = s.rating || (4.5 + Math.random() * 0.5).toFixed(1);
@@ -325,7 +330,7 @@ const ManageStaffs = () => {
             {/* Pagination */}
             <div className="flex items-center justify-between px-6 py-4 border-t border-slate-100">
               <p className="text-xs text-slate-400">
-                Showing 1 to {paginated.length} of {filtered.length.toLocaleString()} staff members
+                Showing 1 to {staffs.length} of {pagination.total} staff members
               </p>
               <div className="flex items-center gap-1.5">
                 <button
@@ -335,7 +340,7 @@ const ManageStaffs = () => {
                 >
                   <ChevronLeft size={14} className="text-slate-600" />
                 </button>
-                {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => i + 1).map((pg) => (
+                {Array.from({ length: Math.min(pagination.totalPages, 5) }, (_, i) => i + 1).map((pg) => (
                   <button
                     key={pg}
                     onClick={() => setCurrentPage(pg)}
@@ -346,8 +351,8 @@ const ManageStaffs = () => {
                   </button>
                 ))}
                 <button
-                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                  disabled={currentPage >= totalPages}
+                  onClick={() => setCurrentPage((p) => Math.min(pagination.totalPages, p + 1))}
+                  disabled={currentPage >= pagination.totalPages}
                   className="w-7 h-7 flex items-center justify-center rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-40 transition-colors"
                 >
                   <ChevronRight size={14} className="text-slate-600" />
@@ -359,10 +364,9 @@ const ManageStaffs = () => {
       </Container>
 
       {/* Create modal */}
-      <dialog ref={modalRef} className="modal modal-bottom sm:modal-middle">
+      <dialog ref={createModalRef} className="modal modal-bottom sm:modal-middle">
         <div className="p-2 md:p-4 rounded mx-auto">
-          <h2 className="text-center font-bold mb-3 text-slate-800">Staff Information</h2>
-          <CreateStaffForm modalRef={modalRef} />
+          <CreateStaffForm createModalRef={createModalRef} />
         </div>
       </dialog>
 
@@ -370,11 +374,6 @@ const ManageStaffs = () => {
       <dialog ref={updateModalRef} className="modal modal-bottom sm:modal-middle">
         <div className="p-2 md:p-4 rounded mx-auto">
           <UpdateStaffForm staff={editStaff} updateModalRef={updateModalRef} />
-          <div className="w-fit mx-auto mt-3">
-            <form method="dialog">
-              <button className="btn bg-slate-100 hover:bg-slate-200 border-none text-slate-600 text-sm">Cancel</button>
-            </form>
-          </div>
         </div>
       </dialog>
     </div>

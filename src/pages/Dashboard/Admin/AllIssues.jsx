@@ -197,8 +197,7 @@ const AllIssues = () => {
           <div className="overflow-x-auto mb-">
             <table
               initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
               className="table bg-white rounded-t-none overflow-hidden"
             >

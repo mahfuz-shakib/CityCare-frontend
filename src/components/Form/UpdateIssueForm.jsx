@@ -55,7 +55,7 @@ const UpdateIssueForm = ({ updateItem, modalRef }) => {
         .patch(`/issues/${updateItem._id}`, issueInfo)
         .then(async (data) => {
           toast.success("Updated successfully");
-          
+
           const timelineInfo = {
             issueId: updateItem._id,
             message: "Issue information update",
@@ -96,7 +96,6 @@ const UpdateIssueForm = ({ updateItem, modalRef }) => {
                     type="text"
                     id="name"
                     className="input-field"
-                    defaultValue={updateItem.title}
                     {...register("title", {
                       required: "Title must be required",
                       minLength: { value: 3, message: "Title atleast 3 character" },
@@ -108,7 +107,6 @@ const UpdateIssueForm = ({ updateItem, modalRef }) => {
                   <label className="label md:text-sm">Select Category</label>
                   <br />
                   <select
-                    defaultValue={updateItem.category}
                     className="select select-bordered"
                     {...register("category", {
                       required: true,
@@ -117,8 +115,8 @@ const UpdateIssueForm = ({ updateItem, modalRef }) => {
                         message: "Please Select category",
                       },
                     })}
+                    key={updateItem._id}
                   >
-                    {/* <option value="">Select Category</option> */}
                     <option value="road">Road</option>
                     <option value="water">Water</option>
                     <option value="electricity">Electricity</option>
@@ -134,7 +132,6 @@ const UpdateIssueForm = ({ updateItem, modalRef }) => {
                   <input
                     type="text"
                     className="input-field"
-                    defaultValue={updateItem.location}
                     {...register("location", {
                       required: "Location must be required",
                       minLength: { value: 3, message: "Location atleast 3 character" },
@@ -161,7 +158,6 @@ const UpdateIssueForm = ({ updateItem, modalRef }) => {
                 <br />
                 <textarea
                   className="textarea textarea-bordered h-24 md:h-8 md:w-full"
-                  defaultValue={updateItem.description}
                   {...register("description", {
                     required: "Description must be required",
                     minLength: { value: 10, message: "Description atleast 10 character" },

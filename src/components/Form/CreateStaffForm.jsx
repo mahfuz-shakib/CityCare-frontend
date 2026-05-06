@@ -8,43 +8,42 @@ import Container from "../../container/Container";
 import { imageUpload } from "../../utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
-const CreateStaffForm = ({ modalRef }) => {
+const CreateStaffForm = ({ createModalRef }) => {
   const [showPassword, setShowPassword] = useState(false);
   const axiosSecure = useAxiosSecure();
-  const queryClient=useQueryClient()
+  const queryClient = useQueryClient();
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
 
-  const {data,mutateAsync} =useMutation({
-    mutationFn:async(payload)=>axiosSecure.post("/staffs",payload),
+  const { data, mutateAsync } = useMutation({
+    mutationFn: async (payload) => axiosSecure.post("/staffs", payload),
     // onSettled:()=>{
     //   toast.success("New staff has been created!")
     //   queryClient.invalidateQueries(["staffs"])
     //   modalRef.curent.close();
     // }
-  }) 
+  });
 
   const onSubmit = async (data) => {
     const photoURL = await imageUpload(data?.image[0]);
-    console.log(data);
-    console.log("create-staff");
+   
     const staffInfo = {
-      displayName:data.name,
+      displayName: data.name,
       photoURL,
-      email:data.email,
-      password:data.password,
-      phone:data.phone
-    }
-    const res= await mutateAsync(staffInfo);
+      email: data.email,
+      password: data.password,
+      phone: data.phone,
+      department: data.department,
+    };
+    const res = await mutateAsync(staffInfo);
     console.log(res.data);
-    if(res.data.currentStaff.insertedId)
-    {
-      toast.success("Staff creation successful")
-      queryClient.invalidateQueries(["staffs"])
-      modalRef.current.close();
+    if (res.data.currentStaff.insertedId) {
+      toast.success("Staff creation successful");
+      queryClient.invalidateQueries(["staffs"]);
+      createModalRef.current.close();
     }
   };
   return (
@@ -58,9 +57,9 @@ const CreateStaffForm = ({ modalRef }) => {
           className={`card w-full max-w-lg md:!min-w-md  mx-auto shrink-0 shadow-2xl`}
         >
           <div className="card-body bg-white rounded">
+            <h1 className="text-center text-lg font-bold">Add New Staff Member</h1>
             <form onSubmit={handleSubmit(onSubmit)}>
               <fieldset className="fieldset">
-
                 <div>
                   <label className="label">Name</label>
                   <input
@@ -92,20 +91,41 @@ const CreateStaffForm = ({ modalRef }) => {
                   {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message} </p>}
                 </div>
 
-                <div>
-                  <label className="label">Phone Number</label>
-                  <input
-                    type="text"
-                    id="text"
-                    {...register("phone", {
-                      required: "phone number must be required",
-                      minLength: { value: 11, message: "Number must be 11 digits" },
-                      maxLength: { value: 11, message: "Number must be 11 digits" },
-                    })}
-                    className="input-field md:w-full"
-                    placeholder="017xxxxxxx"
-                  />
-                  {errors.phone && <p className="mt-1 text-xs text-red-500">{errors.phone.message} </p>}
+                <div className="grid  grid-cols-1 md:grid-cols-2 gap-5">
+                  <div>
+                    <label className="label">Phone Number</label>
+                    <input
+                      type="text"
+                      id="text"
+                      {...register("phone", {
+                        required: "phone number must be required",
+                        minLength: { value: 11, message: "Number must be 11 digits" },
+                        maxLength: { value: 11, message: "Number must be 11 digits" },
+                      })}
+                      className="input-field md:w-full"
+                      placeholder="017xxxxxxx"
+                    />
+                    {errors.phone && <p className="mt-1 text-xs text-red-500">{errors.phone.message} </p>}
+                  </div>
+                  <div>
+                    <label className="label">Department</label>
+                    <select
+                      name="department"
+                      id=""
+                      {...register("department", { required: "department must be required" })}
+                      className="w-full py-3 text-gray-500 select rounded scroll-auto"
+                    >
+                      <option value="" className="">
+                        Select Department
+                      </option>
+                      <option value="infrastructure">Infrastructure</option>
+                      <option value="publicsafety">Public Safety</option>
+                      <option value="environment">Environment</option>
+                      <option value="sanitation">Sanitation</option>
+                      <option value="transport">Transport</option>
+                      <option value="construction">Construction</option>
+                    </select>
+                  </div>
                 </div>
 
                 <div>
@@ -115,17 +135,9 @@ const CreateStaffForm = ({ modalRef }) => {
                     id="image"
                     accept="image/*"
                     {...register("image")}
-                    className="block w-full text-sm text-gray-500
-                      file:mr-4 file:py-2 file:px-4
-                      file:rounded-md file:border-0
-                      file:text-sm file:font-semibold
-                    file:bg-lime-50 file:text-lime-700
-                    hover:file:bg-lime-100
-                    bg-gray-100 border border-dashed border-lime-300 rounded-md cursor-pointer
-                      focus:outline-none focus:ring-2 focus:ring-lime-400 focus:border-lime-400
-                      py-2"
+                    className="block w-full file-input file:bg-surface-container-high file:text-primary"
                   />
-                  {/* <p className="mt-1 text-xs text-gray-400">PNG, JPG or JPEG (max 2MB)</p> */}
+                  <p className="mt-1 text-[10px] text-gray-400">PNG, JPG or JPEG (max 2MB)</p>
                 </div>
 
                 <div>
@@ -152,19 +164,23 @@ const CreateStaffForm = ({ modalRef }) => {
                       {showPassword ? <FaEyeSlash /> : <FaEye />}
                     </button>
                   </div>
-                  {errors.password && <p className="mt-1 w-full text-xs text-red-500 text-wrap">{errors.password.message} </p>}
+                  {errors.password && (
+                    <p className="mt-1 w-full text-xs text-red-500 text-wrap">{errors.password.message} </p>
+                  )}
                 </div>
 
-                <div className="flex gap-2 mt-4 justify-between">
-                  <div className="w-fit">
-                    <form method="dialog">
-                      <button className="btn bg-primary/10">Cancel</button>
-                    </form>
-                  </div>
-                  <button className={`btn  hover:scale-101`}>Create Staff</button>
+                <div className="mt-4">
+                  <button className="btn w-full bg-primary hover:bg-primary/90 text-white">Create New Staff</button>
                 </div>
               </fieldset>
             </form>
+            <div className="absolute top-6 -right-8">
+              <form method="dialog">
+                <button className="w-fit md:w-32 text-red-500 text-2xl cursor-pointer hover:scale-102 hover:text-red-600">
+                  X
+                </button>
+              </form>
+            </div>
           </div>
         </motion.div>
       </div>

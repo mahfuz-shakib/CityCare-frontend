@@ -7,13 +7,14 @@ import useAxiosSecure from "../../hooks/useAxiosSecure";
 const AvailableStaffs = ({ issue, staffModalRef }) => {
   const queryClient = useQueryClient();
   const axiosSecure = useAxiosSecure();
-  const { data: staffs, isLoading } = useQuery({
+  const { data: staffsResult, isLoading } = useQuery({
     queryKey: ["staffs"],
     queryFn: async () => {
       const res = await axiosSecure.get("/staffs");
       return res.data;
     },
   });
+  const staffs = staffsResult?.data;
   const handleAssign = async (staff) => {
     const assignedStaff = {
       displayName: staff.displayName,

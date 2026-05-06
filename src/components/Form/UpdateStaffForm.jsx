@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { easeInOut, motion } from "framer-motion";
@@ -13,9 +13,22 @@ const UpdateStaffForm = ({ staff, updateModalRef }) => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+    reset,
+  } = useForm({
+    defaultValues: {
+      name: staff?.displayName || "",
+      email: staff?.email || "",
+      phone: staff?.phone || "",
+      department: staff?.department || "",
+    },
+  });
 
-  const { data, mutateAsync } = useMutation({
+  useEffect(() => {
+    if (staff._id) {
+      reset({ name: staff.displayName, email: staff.email, phone: staff.phone, department: staff.department });
+    }
+  }, [reset, staff]);
+  const { data, mutateAsync, } = useMutation({
     mutationFn: async (payload) => axiosSecure.patch(`/staffs/${staff._id}`, payload),
   });
   const onSubmit = async (data) => {
@@ -23,13 +36,11 @@ const UpdateStaffForm = ({ staff, updateModalRef }) => {
     if (data?.image && data.image[0]) {
       imageURL = await imageUpload(data.image[0]);
     }
-    console.log(data);
-    console.log("create-staff");
     const staffInfo = {
       displayName: data.name,
       photoURL: imageURL,
       email: data.email,
-      password: data.password,
+      department: data.department,
       phone: data.phone,
     };
     const res = await mutateAsync(staffInfo);
@@ -50,7 +61,7 @@ const UpdateStaffForm = ({ staff, updateModalRef }) => {
         className={`card w-full max-w-lg md:!min-w-md  mx-auto shrink-0 shadow-2xl`}
       >
         <div className="card-body bg-white rounded">
-        <h1 className="text-center  md:text-xl font-bold text-wrap">Update Staff Info.</h1>
+          <h1 className="text-center  md:text-xl font-bold text-wrap">Update Staff Information</h1>
           <form onSubmit={handleSubmit(onSubmit)}>
             <fieldset className="fieldset">
               <div>
@@ -63,7 +74,6 @@ const UpdateStaffForm = ({ staff, updateModalRef }) => {
                     minLength: { value: 3, message: "Name atleast 3 character" },
                     maxLength: { value: 25, message: "Name atmost 25 character" },
                   })}
-                  defaultValue={staff.displayName}
                   className="input-field md:w-full"
                 />
                 {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name.message} </p>}
@@ -79,26 +89,43 @@ const UpdateStaffForm = ({ staff, updateModalRef }) => {
                     pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Please enter a valid email" },
                   })}
                   className="input-field md:w-full"
-                  defaultValue={staff.email}
                   readOnly
                 />
                 {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message} </p>}
               </div>
 
-              <div>
-                <label className="label">Phone Number</label>
-                <input
-                  type="text"
-                  id="text"
-                  {...register("phone", {
-                    required: "phone number must be required",
-                    minLength: { value: 11, message: "Number must be 11 digits" },
-                    maxLength: { value: 11, message: "Number must be 11 digits" },
-                  })}
-                  className="input-field md:w-full"
-                  defaultValue={staff.phone}
-                />
-                {errors.phone && <p className="mt-1 text-xs text-red-500">{errors.phone.message} </p>}
+              <div className="grid  grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label className="label">Phone Number</label>
+                  <input
+                    type="text"
+                    id="text"
+                    {...register("phone", {
+                      required: "phone number must be required",
+                      minLength: { value: 11, message: "Number must be 11 digits" },
+                      maxLength: { value: 11, message: "Number must be 11 digits" },
+                    })}
+                    className="input-field md:w-full"
+                  />
+                  {errors.phone && <p className="mt-1 text-xs text-red-500">{errors.phone.message} </p>}
+                </div>
+                <div>
+                  <label className="label">Department</label>
+                  <select
+                    name="department"
+                    id=""
+                    {...register("department", { required: "department must be required" })}
+                    className="w-full py-3 text-gray-500 select rounded scroll-auto"
+                    key={staff?._id}
+                  >
+                    <option value="Infrastructure">Infrastructure</option>
+                    <option value="Public Safety">Public Safety</option>
+                    <option value="Environment">Environment</option>
+                    <option value="Sanitation">Sanitation</option>
+                    <option value="Transport">Transport</option>
+                    <option value="Construction">Construction</option>
+                  </select>
+                </div>
               </div>
 
               <div>
@@ -108,29 +135,23 @@ const UpdateStaffForm = ({ staff, updateModalRef }) => {
                   id="image"
                   accept="image/*"
                   {...register("image")}
-                  className="block w-full text-sm text-gray-500
-                                  file:mr-4 file:py-2 file:px-4
-                                  file:rounded-md file:border-0
-                                  file:text-sm file:font-semibold
-                                file:bg-lime-50 file:text-lime-700
-                                hover:file:bg-lime-100
-                                bg-gray-100 border border-dashed border-lime-300 rounded-md cursor-pointer
-                                  focus:outline-none focus:ring-2 focus:ring-lime-400 focus:border-lime-400
-                                  py-2"
+                  className="block w-full file-input file:bg-surface-container-high file:text-primary"
                 />
-                {/* <p className="mt-1 text-xs text-gray-400">PNG, JPG or JPEG (max 2MB)</p> */}
+                <p className="mt-1 text-[10px] text-gray-400">PNG, JPG or JPEG (max 2MB)</p>
               </div>
 
-              <div className="flex gap-2 mt-4 justify-between">
-                <div className="w-fit">
-                  <form method="dialog">
-                    <button className="btn bg-primary/10">Cancel</button>
-                  </form>
-                </div>
-                <button className={`btn  hover:scale-101`}>Update Staff</button>
+              <div className="mt-4">
+                <button className="btn w-full bg-primary hover:bg-primary/90 text-white">Update Staff info.</button>
               </div>
             </fieldset>
           </form>
+          <div className="absolute top-6 -right-8">
+            <form method="dialog">
+              <button className="w-fit md:w-32 text-red-500 text-2xl cursor-pointer hover:scale-102 hover:text-red-600">
+                X
+              </button>
+            </form>
+          </div>
         </div>
       </motion.div>
     </Container>

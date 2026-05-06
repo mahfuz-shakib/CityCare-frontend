@@ -25,7 +25,7 @@ const MyIssues = () => {
   const axiosSecure = useAxiosSecure();
   const queryClient = useQueryClient();
 
-  const pageSize = 6; // 9 items per page (3 columns x 3 rows)
+  const pageSize = 6;
   const queryKey = ["issues", filters, currentPage, "citizenPage"];
   const { data: issuesResponse, isLoading } = useQuery({
     queryKey,

@@ -13,7 +13,6 @@ const Navbar = memo(() => {
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
-  console.log(location);
   // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -142,7 +141,7 @@ const Navbar = memo(() => {
                     {user.displayName}
                   </Link>
                   <Link
-                    to="/dashboard"
+                    to="/dashboard/overview"
                     onClick={() => setOpenDropdown(false)}
                     className="block px-4 py-2 hover:bg-blue-100"
                   >

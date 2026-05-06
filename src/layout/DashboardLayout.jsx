@@ -17,7 +17,6 @@ const DashboardLayout = () => {
   const { user, logOut } = use(AuthContext);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
-  console.log(location);
   // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -117,7 +116,7 @@ const DashboardLayout = () => {
                       {user.displayName}
                     </Link>
                     <Link
-                      to="/dashboard"
+                      to="/dashboard/overview"
                       onClick={() => setOpenDropdown(false)}
                       className="block px-4 py-2 hover:bg-blue-100"
                     >
