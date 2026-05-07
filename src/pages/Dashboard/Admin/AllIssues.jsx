@@ -251,7 +251,10 @@ const AllIssues = () => {
                         {list.assignedStaff ? (
                           <div className="flex items-center">
                             <img src={list.assignedStaff.photoURL} />
-                            <h1>{list.assignedStaff.displayName}</h1>
+                            <div>
+                              <h1>{list.assignedStaff.displayName}</h1>
+                              <p className="text-xs text-secondary">{list.assignedStaff.department}</p>
+                            </div>
                           </div>
                         ) : (
                           <span className="flex items-center text-primary">

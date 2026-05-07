@@ -20,16 +20,11 @@ const CreateStaffForm = ({ createModalRef }) => {
 
   const { data, mutateAsync } = useMutation({
     mutationFn: async (payload) => axiosSecure.post("/staffs", payload),
-    // onSettled:()=>{
-    //   toast.success("New staff has been created!")
-    //   queryClient.invalidateQueries(["staffs"])
-    //   modalRef.curent.close();
-    // }
   });
 
   const onSubmit = async (data) => {
     const photoURL = await imageUpload(data?.image[0]);
-   
+
     const staffInfo = {
       displayName: data.name,
       photoURL,
@@ -38,9 +33,10 @@ const CreateStaffForm = ({ createModalRef }) => {
       phone: data.phone,
       department: data.department,
     };
+    console.log(staffInfo);
     const res = await mutateAsync(staffInfo);
     console.log(res.data);
-    if (res.data.currentStaff.insertedId) {
+    if (res.data.currentStaff?.insertedId) {
       toast.success("Staff creation successful");
       queryClient.invalidateQueries(["staffs"]);
       createModalRef.current.close();
@@ -118,12 +114,12 @@ const CreateStaffForm = ({ createModalRef }) => {
                       <option value="" className="">
                         Select Department
                       </option>
-                      <option value="infrastructure">Infrastructure</option>
-                      <option value="publicsafety">Public Safety</option>
-                      <option value="environment">Environment</option>
-                      <option value="sanitation">Sanitation</option>
-                      <option value="transport">Transport</option>
-                      <option value="construction">Construction</option>
+                      <option value="Infrastructure">Infrastructure</option>
+                      <option value="Public Safety">Public Safety</option>
+                      <option value="Environment">Environment</option>
+                      <option value="Sanitation">Sanitation</option>
+                      <option value="Transport">Transport</option>
+                      <option value="Construction">Construction</option>
                     </select>
                   </div>
                 </div>

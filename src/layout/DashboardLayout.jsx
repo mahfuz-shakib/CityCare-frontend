@@ -106,7 +106,7 @@ const DashboardLayout = () => {
                     initial={{ opacity: 0, y: -8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -8 }}
-                    className="absolute right-0 mt- w-48 bg-white border border-blue-200 rounded-lg shadow-lg overflow-hidden"
+                    className="absolute right-0 mt- w-48 bg-white border border-blue-200 rounded-lg shadow-lg overflow-hidden z-10"
                   >
                     <Link
                       to="/dashboard/myProfile"

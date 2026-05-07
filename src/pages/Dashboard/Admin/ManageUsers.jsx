@@ -21,6 +21,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { FaDownload } from "react-icons/fa";
+import { monthlyDataResolution } from "../../../utils/monthlyDataResolution";
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 20 },
@@ -91,7 +92,7 @@ const ManageUsers = () => {
   const premiumUsers = users.filter((u) => u.isPremium);
   const pendingReports = users.reduce((s, u) => s + (u.pendingReports || 0), 0);
   const solvedIssues = users.reduce((s, u) => s + (u.solvedIssues || 0), 0);
-
+  const usersChartData = monthlyDataResolution(users);
   const filtered = useMemo(() => {
     return users.filter((u) => {
       if (subFilter === "premium" && !u.isPremium) return false;
@@ -151,10 +152,26 @@ const ManageUsers = () => {
       <motion.div {...fadeUp(0.1)} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
           <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Total Citizens</p>
-          <p className="text-4xl font-bold text-slate-900">{users.length.toLocaleString()}</p>
-          <p className="text-xs text-emerald-600 font-semibold mt-1.5 flex items-center gap-1">
-            <TrendingUp size={11} /> +14% this month
-          </p>
+          <div className="flex flex-col md:flex-row items-end justify-between">
+            <div>
+              <p className="text-4xl font-bold text-slate-900">{users.length.toLocaleString()}</p>
+              <p className="text-xs text-emerald-600 font-semibold mt-1.5 flex items-center gap-1">
+                <TrendingUp size={11} /> +14% this month
+              </p>
+            </div>
+            {/* mini bar chart visual */}
+            <div className="flex items-end gap-1 h-10">
+              {Object.values(usersChartData)
+                .reverse()
+                .map((v, i) => (
+                  <div
+                    key={i}
+                    className={`w-2 rounded ${i === 5 ? "bg-blue-600" : "bg-blue-200"}`}
+                    style={{ height: `${v * 10}%`, minHeight: "4px" }}
+                  />
+                ))}
+            </div>
+          </div>
         </div>
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
           <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Premium Users</p>

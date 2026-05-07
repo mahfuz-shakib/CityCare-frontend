@@ -10,14 +10,14 @@ const useRole = () => {
         queryKey: ['user-role', user?.email],
         queryFn: async () => {
             if (!user?.email) return 'citizen';
-            const res = await axiosSecure.get(`/users/?email=${user.email}`);
+            const res = await axiosSecure.get(`/users/?email=${user?.email}`);
             const userData = res.data?.[0];
             
             // Check if user is staff
             if (!userData || userData.role !== 'staff') {
                 // Check staffs collection
                 try {
-                    const staffRes = await axiosSecure.get(`/staffs/?email=${user.email}`);
+                    const staffRes = await axiosSecure.get(`/staffs/?email=${user?.email}`);
                     if (staffRes.data?.[0]) {
                         return 'staff';
                     }

@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import Loader from "../../../components/Loader";
 import { FaCircle } from "react-icons/fa";
+import { monthlyDataResolution } from "../../../utils/monthlyDataResolution";
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 20 },
@@ -66,7 +67,7 @@ const ManageStaffs = () => {
     queryKey: ["staffs", "admin"],
     queryFn: async () => {
       const params = new URLSearchParams({
-        department: activeDept === "Al Staff" ? "" : activeDept,
+        department: activeDept === "All Staff" ? "" : activeDept,
         page: currentPage.toString(),
         limit: pageSize.toString(),
       }).toString();
@@ -105,6 +106,9 @@ const ManageStaffs = () => {
   };
   /* ── derived ── */
   const staffs = staffsResult?.data || [];
+const staffChartData=monthlyDataResolution(staffs);
+// console.log(staffChartData);
+  const newStaffsInThisMonth= staffs.map(s=>new Date(s.createdAt).toISOString().slice(0,7)).filter(s=>s===new Date().toISOString().slice(0,7)).length;
   const pagination = staffsResult?.pagination || { page: 1, limit: pageSize, total: 0, totalPages: 1 };
   const avgRating =
     staffs.length > 0 ? (staffs.reduce((s, st) => s + (st.rating || 4.5), 0) / staffs.length).toFixed(2) : "—";
@@ -114,7 +118,7 @@ const ManageStaffs = () => {
   return (
     <div>
       <title>Manage Staffs</title>
-      <Container className="px-10">
+      <Container className=" px-4 md:px-10">
         <div className=" space-y-6">
           {/* ── Header ── */}
 
@@ -125,41 +129,43 @@ const ManageStaffs = () => {
             transition={{ duration: 0.5 }}
             className="mb-10 mt-3"
           >
-            <p className="text-[11px] font-bold uppercase tracking-widest text-blue-600 mb-1">Field Workforce</p>
-            <h1 className="text-3xl font-bold text-slate-800 mt-1 mb-2">Manage Staff</h1>
+            <p className="text-[8px] md:text-[11px] font-bold uppercase tracking-widest text-blue-600 mb-1">
+              Field Workforce
+            </p>
             <div className="flex justify-between">
-              <p className="text-secondary max-w-xl">
-                Supervise municipal personnel, track operational performance metrics, and optimize field assignments
-                across city departments.
-              </p>
+              <h1 className="text-2xl md:text-3xl font-bold text-slate-800 mt-1 mb-2">Manage Staff</h1>
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.97 }}
-                className="btn bg-surface-container-high p-5"
+                className="btn bg-surface-container-high px-3 md:p-5 hover:bg-surface-container-highest"
                 onClick={handleCreateStaff}
               >
-                <UserPlus size={16} /> Add Staff Member
+                <UserPlus size={16} /> <span className="hidden md:block">Add Staff Member</span>
               </motion.button>
             </div>
+            <p className="text-secondary max-w-xl">
+              Supervise municipal personnel, track operational performance metrics, and optimize field assignments
+              across city departments.
+            </p>
           </motion.div>
 
           {/* ── 3 KPI summary cards ── */}
           <motion.div {...fadeUp(0.1)} className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
               <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Total Workforce</p>
-              <div className="flex items-end justify-between">
+              <div className="flex flex-col md:flex-row items-end justify-between">
                 <div>
                   <p className="text-4xl font-bold text-slate-900">{staffs.length}</p>
                   <p className="text-xs text-emerald-600 font-semibold mt-1 flex items-center gap-1">
-                    <TrendingUp size={11} /> +12% vs last month
+                    <TrendingUp size={11} /> +{newStaffsInThisMonth}% vs last month
                   </p>
                 </div>
                 {/* mini bar chart visual */}
                 <div className="flex items-end gap-1 h-10">
-                  {[3, 5, 4, 7, 6, 8, 9].map((v, i) => (
+                  {Object.values(staffChartData).reverse().map((v, i) => (
                     <div
                       key={i}
-                      className={`w-2 rounded-sm ${i === 6 ? "bg-blue-600" : "bg-blue-200"}`}
+                      className={`w-2 rounded ${i === 5 ? "bg-blue-600" : "bg-blue-200"}`}
                       style={{ height: `${v * 10}%`, minHeight: "4px" }}
                     />
                   ))}

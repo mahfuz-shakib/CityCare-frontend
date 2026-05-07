@@ -54,10 +54,9 @@ const UpdateStaffForm = ({ staff, updateModalRef }) => {
   return (
     <Container>
       <motion.div
-        initial={{ x: 150, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
         transition={{ duration: 1, ease: easeInOut }}
-        viewport={{ once: true }}
         className={`card w-full max-w-lg md:!min-w-md  mx-auto shrink-0 shadow-2xl`}
       >
         <div className="card-body bg-white rounded">
