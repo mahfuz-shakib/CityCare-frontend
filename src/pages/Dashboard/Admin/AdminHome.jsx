@@ -112,7 +112,6 @@ const AdminHome = () => {
       return res.data;
     },
   });
-  console.log(payments);
   const { data: users = [], isLoading: usersLoading } = useQuery({
     queryKey: ["users", "citizen"],
     queryFn: async () => {

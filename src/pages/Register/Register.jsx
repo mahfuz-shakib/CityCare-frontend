@@ -188,7 +188,7 @@ const Register = () => {
                           pattern: {
                             value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/,
                             message:
-                              "Min 6 chars, uppercase, lowercase & number",
+                              "Min 6 chars, atleast uppercase, lowercase & number",
                           },
                         })}
                         className="input input-bordered w-full"

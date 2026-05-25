@@ -75,9 +75,11 @@ const ManageStaffs = () => {
       return res.data;
     },
   });
+
   useEffect(() => {
     queryClient.invalidateQueries({ queryKey: ["staffs", "admin"] });
   }, [currentPage, queryClient, activeDept]);
+
   const handleCreateStaff = () => createModalRef.current?.showModal();
   const handleUpdate = (s) => {
     setEditStaff(s);
@@ -106,14 +108,14 @@ const ManageStaffs = () => {
   };
   /* ── derived ── */
   const staffs = staffsResult?.data || [];
-const staffChartData=monthlyDataResolution(staffs);
-// console.log(staffChartData);
-  const newStaffsInThisMonth= staffs.map(s=>new Date(s.createdAt).toISOString().slice(0,7)).filter(s=>s===new Date().toISOString().slice(0,7)).length;
+  const staffChartData = monthlyDataResolution(staffs);
+  const newStaffsInThisMonth = staffChartData[new Date().toISOString().slice(0, 7)];
   const pagination = staffsResult?.pagination || { page: 1, limit: pageSize, total: 0, totalPages: 1 };
-  const avgRating =
-    staffs.length > 0 ? (staffs.reduce((s, st) => s + (st.rating || 4.5), 0) / staffs.length).toFixed(2) : "—";
+  const avgRating = staffs.length > 0 ? (staffs.reduce((s, st) => s + (st.rating || 4.5), 0) / staffs.length).toFixed(2) : 0;
   const activeTasks = staffs.reduce((s, st) => s + (st.activeTasks || 0), 0);
-  const completionRate = 94.2; // can be derived from real data if available
+  const resolvedTasks = staffs.reduce((s, st) => s + (st.resolvedTasks || 0), 0);
+  const completionRate = ((resolvedTasks / activeTasks) * 100).toPrecision(2); // can be derived from real data if available
+  console.log(resolvedTasks);
 
   return (
     <div>
@@ -162,26 +164,36 @@ const staffChartData=monthlyDataResolution(staffs);
                 </div>
                 {/* mini bar chart visual */}
                 <div className="flex items-end gap-1 h-10">
-                  {Object.values(staffChartData).reverse().map((v, i) => (
-                    <div
-                      key={i}
-                      className={`w-2 rounded ${i === 5 ? "bg-blue-600" : "bg-blue-200"}`}
-                      style={{ height: `${v * 10}%`, minHeight: "4px" }}
-                    />
-                  ))}
+                  {Object.values(staffChartData)
+                    .reverse()
+                    .map((v, i) => (
+                      <div
+                        key={i}
+                        className={`w-2 rounded ${i === 5 ? "bg-blue-600" : "bg-blue-200"}`}
+                        style={{ height: `${v * 10}%`, minHeight: "4px" }}
+                      />
+                    ))}
                 </div>
               </div>
             </div>
 
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 border-l-4 border-l-blue-500">
               <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Active Tasks</p>
-              <p className="text-4xl font-bold text-blue-600">{activeTasks || 482}</p>
-              <p className="text-xs text-slate-400 mt-1">{completionRate}% completion rate</p>
+              <div className="flex flex-col md:flex-row items-end justify-between">
+                <div>
+                  <p className="text-4xl font-bold text-blue-600">{activeTasks || 0}</p>
+                  <p className="text-xs text-slate-400 mt-1">{completionRate}% completion rate</p>
+                </div>
+                <div className="flex items-end gap-1 h-10">
+                  <div className="w-6 rounded bg-blue-300" style={{ height: `${resolvedTasks * 10}%`, minHeight: "6px" }} />
+                  <div className="w-6 rounded bg-blue-600" style={{ height: `${activeTasks * 10}%`, minHeight: "6px" }} />
+                </div>
+              </div>
             </div>
 
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 border-l-4 border-l-amber-500">
               <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Avg. Rating</p>
-              <p className="text-4xl font-bold text-amber-500">{avgRating}</p>
+              <p className="text-4xl font-bold text-amber-500">{avgRating || 0}</p>
               <p className="text-xs text-slate-400 mt-1">Top rated municipality</p>
             </div>
           </motion.div>
@@ -195,7 +207,7 @@ const staffChartData=monthlyDataResolution(staffs);
                   setActiveDept(dept);
                   setCurrentPage(1);
                 }}
-                className={`text-sm font-semibold px-4 py-2 rounded-full transition-all
+                className={`text-sm font-semibold px-4 py-2 rounded-full transition-all cursor-pointer
                   ${activeDept === dept ? "bg-blue-600 text-white shadow-sm" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"}`}
               >
                 {dept}
@@ -237,8 +249,8 @@ const staffChartData=monthlyDataResolution(staffs);
                     </tr>
                   ) : (
                     staffs.map((s, index) => {
-                      const workload = s.workloadPct || Math.floor(Math.random() * 60 + 30);
-                      const tasks = s.activeTasks || Math.floor(Math.random() * 20 + 3);
+                      const workload = s.workloadPct || s.activeTasks*10;
+                      const tasks = s.activeTasks || 0;
                       const rating = s.rating || (4.5 + Math.random() * 0.5).toFixed(1);
                       const role = s.role || s.designation || "Field Staff";
                       const dept = s.department || "General";
@@ -311,7 +323,7 @@ const staffChartData=monthlyDataResolution(staffs);
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                                 onClick={() => handleUpdate(s)}
-                                className="flex items-center gap-1.5 text-xs font-semibold bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-1.5 rounded-lg transition-colors"
+                                className="flex items-center gap-1.5 text-xs font-semibold bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
                               >
                                 <Pencil size={12} /> Edit
                               </motion.button>
@@ -319,7 +331,7 @@ const staffChartData=monthlyDataResolution(staffs);
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                                 onClick={() => handleDelete(s)}
-                                className="flex items-center gap-1.5 text-xs font-semibold bg-red-50 hover:bg-red-100 text-red-600 px-3 py-1.5 rounded-lg transition-colors"
+                                className="flex items-center gap-1.5 text-xs font-semibold bg-red-50 hover:bg-red-100 text-red-600 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
                               >
                                 <Trash2 size={12} /> Delete
                               </motion.button>
@@ -342,7 +354,7 @@ const staffChartData=monthlyDataResolution(staffs);
                 <button
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className="w-7 h-7 flex items-center justify-center rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-40 transition-colors"
+                  className="w-7 h-7 flex items-center justify-center rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-40 transition-colors cursor-pointer"
                 >
                   <ChevronLeft size={14} className="text-slate-600" />
                 </button>
@@ -359,7 +371,7 @@ const staffChartData=monthlyDataResolution(staffs);
                 <button
                   onClick={() => setCurrentPage((p) => Math.min(pagination.totalPages, p + 1))}
                   disabled={currentPage >= pagination.totalPages}
-                  className="w-7 h-7 flex items-center justify-center rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-40 transition-colors"
+                  className="w-7 h-7 flex items-center justify-center rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-40 transition-colors cursor-pointer"
                 >
                   <ChevronRight size={14} className="text-slate-600" />
                 </button>

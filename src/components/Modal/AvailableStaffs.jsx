@@ -7,7 +7,11 @@ import useAxiosSecure from "../../hooks/useAxiosSecure";
 const AvailableStaffs = ({ issue, staffModalRef }) => {
   const queryClient = useQueryClient();
   const axiosSecure = useAxiosSecure();
-  const { data: staffsResult, isLoading } = useQuery({
+  const {
+    data: staffsResult,
+    isPending,
+    isLoading,
+  } = useQuery({
     queryKey: ["staffs"],
     queryFn: async () => {
       const res = await axiosSecure.get("/staffs");
@@ -16,26 +20,11 @@ const AvailableStaffs = ({ issue, staffModalRef }) => {
   });
   const staffs = staffsResult?.data;
   const handleAssign = async (staff) => {
-    const assignedStaff = {
-      displayName: staff.displayName,
-      email: staff.email,
-      phone: staff.phone,
-      department: staff.department,
-    };
     try {
-      const result = await axiosSecure.patch(`/issues/admin/${issue._id}`, { assignedStaff });
-      // Create timeline entry
-      const timelineInfo = {
-        issueId: issue._id,
-        message: `Issue assigned to Staff: ${staff.displayName}`,
-        updatedBy: "Admin",
-      };
-      await axiosSecure.post("/timelines", timelineInfo);
-
+      await axiosSecure.patch(`/issues/admin/${issue._id}`, { staffEmail: staff.email });
       toast.success("Staff assigned successfully");
       staffModalRef.current.close();
       queryClient.invalidateQueries(["issues", "adminPage"]);
-      queryClient.invalidateQueries(["timelines", issue._id]);
     } catch (err) {
       toast.error("Assignment failed");
       console.error(err);
@@ -84,7 +73,14 @@ const AvailableStaffs = ({ issue, staffModalRef }) => {
                           onClick={() => handleAssign(list)}
                           className="btn badge badge-primary btn-xs hover:scale-101"
                         >
-                          Assign
+                          {isPending || isLoading ? (
+                            <span className="flex gap-2 justify-between item">
+                              <span className="w-3 h-3 rounded-full border-2 border-current border-t-transparent animate-spin" />
+                              Assigning...
+                            </span>
+                          ) : (
+                            "Assign"
+                          )}
                         </button>
                       </td>
                     </tr>

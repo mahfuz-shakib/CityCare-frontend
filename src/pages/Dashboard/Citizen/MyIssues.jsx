@@ -43,7 +43,6 @@ const MyIssues = () => {
 
   const pagination = issuesResponse?.pagination || { page: 1, limit: pageSize, total: 0, totalPages: 1 };
 
-  const activeFilters = Object.entries(filters).filter(([_, value]) => value);
 
   // Reset to page 1 when filters change
   React.useEffect(() => {
@@ -163,28 +162,7 @@ const MyIssues = () => {
           <option value="normal">Normal</option>
         </select>
       </div>
-      {/* Active Filters Pills */}
-      {activeFilters.length > 0 && (
-        <motion.div className="flex flex-wrap gap-2 mb-6 justify-center">
-          {activeFilters.map(([key, value]) => (
-            <motion.div
-              key={key}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="flex items-center gap-2 bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm font-medium"
-            >
-              {key.charAt(0).toUpperCase() + key.slice(1)}: {value}
-              <button
-                onClick={() => setFilters({ ...filters, [key]: "" })}
-                className="ml-1 text-indigo-600 hover:text-indigo-800"
-              >
-                ✕
-              </button>
-            </motion.div>
-          ))}
-        </motion.div>
-      )}
-
+   
       {!user.email || loading || isLoading ? (
         <Loader />
       ) : myIssues.length ? (

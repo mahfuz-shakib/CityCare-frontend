@@ -62,7 +62,6 @@ const AllIssues = () => {
     staffModalRef.current.showModal();
   };
   const handleReject = (issue) => {
-    const status = "rejected";
     Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -74,23 +73,13 @@ const AllIssues = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axiosSecure.patch(`/issues/admin/${issue._id}`, { status });
-
-          // Create timeline entry
-          const timelineInfo = {
-            issueId: issue._id,
-            message: "Issue rejected by Admin",
-            updatedBy: "Admin",
-          };
-          await axiosSecure.post("/timelines", timelineInfo);
-
+          await axiosSecure.patch(`/issues/admin/${issue._id}`, { status: "rejected" });
           Swal.fire({
             title: "Reject",
             text: `Your issue item has been rejected`,
             icon: "success",
           });
           queryClient.invalidateQueries(["issues", "adminPage"]);
-          queryClient.invalidateQueries(["timelines", issue._id]);
         } catch (err) {
           toast.error("Update failed");
           console.error(err);

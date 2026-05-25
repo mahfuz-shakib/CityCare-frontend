@@ -22,6 +22,8 @@ import {
 } from "lucide-react";
 import { FaDownload } from "react-icons/fa";
 import { monthlyDataResolution } from "../../../utils/monthlyDataResolution";
+import jsPDF from "jspdf";
+import autoTable from 'jspdf-autotable'
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 20 },
@@ -34,22 +36,11 @@ const avatarColor = (name = "") => {
   return colors[(name.charCodeAt(0) || 0) % colors.length];
 };
 
-const relTime = (ts) => {
-  if (!ts) return "—";
-  const diff = Date.now() - new Date(ts).getTime();
-  const m = Math.floor(diff / 60000);
-  if (m < 1) return "Just now";
-  if (m < 60) return `${m}m ago`;
-  const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h ago`;
-  return `${Math.floor(h / 24)}d ago`;
-};
-
 const ManageUsers = () => {
   const [accountFilter, setAccountFilter] = useState("all");
   const [subFilter, setSubFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 10;
+  const pageSize = 8;
   const queryClient = useQueryClient();
   const axiosSecure = useAxiosSecure();
 
@@ -90,9 +81,12 @@ const ManageUsers = () => {
 
   /* ── computed ── */
   const premiumUsers = users.filter((u) => u.isPremium);
-  const pendingReports = users.reduce((s, u) => s + (u.pendingReports || 0), 0);
-  const solvedIssues = users.reduce((s, u) => s + (u.solvedIssues || 0), 0);
+  const reportIssues = users.reduce((s, u) => s + (u.reports || 0), 0);
+  const solvedIssues = users.reduce((s, u) => s + (u.solved || 0), 0);
+  const pendingReports = reportIssues - solvedIssues;
   const usersChartData = monthlyDataResolution(users);
+  const currentMonthsNewUsers = users?.length - (users?.length - usersChartData[new Date().toISOString().slice(0, 7)]);
+
   const filtered = useMemo(() => {
     return users.filter((u) => {
       if (subFilter === "premium" && !u.isPremium) return false;
@@ -119,7 +113,28 @@ const ManageUsers = () => {
       </div>
     );
   }
+ const handleDownloadData = ()=>{
+  const doc = new jsPDF();
+  doc.text("All Citizens --  CityCare", 13,15);
+  doc.text(`Generated on - ${new Date().toLocaleDateString()}`,13,23);
+  doc.text(`Total users - ${users?.length}`,13,31);
 
+  autoTable(doc,{
+    startY:40,
+    head:[['SL. No', 'Citizen Name', 'Email', 'Account Type', 'Reports', 'Solved', 'Account Status' ]],
+    body: users.map((u,i)=>[
+      i+1,
+      u.displayName,
+      u.email,
+      `${u.isPremium ? "Premium":"Basic"}`,
+      u.reports || 0,
+      u.solved ||0 ,
+      `${u.isBlocked?"Blocked":"Active"}` 
+    ])
+  })
+  doc.save("All_Citizens_CityCare.pdf");
+    toast.success("PDF Downloaded Successfully");
+ }
   return (
     <Container className="px-10">
       <title>Manage Citizens</title>
@@ -142,6 +157,7 @@ const ManageUsers = () => {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.97 }}
             className="btn bg-surface-container-high p-5"
+            onClick={handleDownloadData}
           >
             <FaDownload /> Export Directory
           </motion.button>
@@ -156,7 +172,7 @@ const ManageUsers = () => {
             <div>
               <p className="text-4xl font-bold text-slate-900">{users.length.toLocaleString()}</p>
               <p className="text-xs text-emerald-600 font-semibold mt-1.5 flex items-center gap-1">
-                <TrendingUp size={11} /> +14% this month
+                <TrendingUp size={11} /> +{((currentMonthsNewUsers / users.length) * 100).toFixed(1)}% this month
               </p>
             </div>
             {/* mini bar chart visual */}
@@ -191,9 +207,7 @@ const ManageUsers = () => {
         </div>
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
           <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Solved Issues</p>
-          <p className="text-4xl font-bold text-slate-900">
-            {solvedIssues || users.filter((u) => u.isPremium).length * 3}
-          </p>
+          <p className="text-4xl font-bold text-slate-900">{solvedIssues || users.filter((u) => u.isPremium).length}</p>
           <p className="text-xs text-slate-400 mt-1.5 flex items-center gap-1">
             <CheckCircle2 size={11} className="text-emerald-500" /> Last updated 2h ago
           </p>
@@ -245,16 +259,14 @@ const ManageUsers = () => {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-slate-100">
-                {["CITIZEN NAME", "ACCOUNT TYPE", "REPORTS", "SOLVED", "SUBSCRIPTION", "LAST LOGIN", "ACTIONS"].map(
-                  (h) => (
-                    <th
-                      key={h}
-                      className="text-left text-[10px] font-bold uppercase tracking-wider text-slate-400 px-5 py-3"
-                    >
-                      {h}
-                    </th>
-                  ),
-                )}
+                {["CITIZEN NAME", "ACCOUNT TYPE", "REPORTS", "SOLVED", "Account Status", "ACTIONS"].map((h) => (
+                  <th
+                    key={h}
+                    className="text-left text-[10px] font-bold uppercase tracking-wider text-slate-400 px-5 py-3"
+                  >
+                    {h}
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
@@ -268,9 +280,8 @@ const ManageUsers = () => {
                 paginated.map((u, index) => {
                   const isBlocked = u.isBlocked;
                   const isPremium = u.isPremium;
-                  const lastLogin = u.lastLogin || u.updatedAt;
-                  const reports = u.reports || u.totalReports || 0;
-                  const solved = u.solved || u.solvedReports || 0;
+                  const reports = u.reports || 0;
+                  const solved = u.solved || 0;
                   const isActive = !isBlocked;
 
                   return (
@@ -308,7 +319,7 @@ const ManageUsers = () => {
                       {/* Account type */}
                       <td className="px-5 py-4">
                         <span
-                          className={`text-xs font-semibold px-2.5 py-1 rounded-lg
+                          className={` w-16 text-xs font-semibold px-2.5 py-1 rounded-lg
                             ${isPremium ? "bg-violet-100 text-violet-700" : "bg-slate-100 text-slate-600"}`}
                         >
                           {isPremium ? "PREMIUM" : "BASIC"}
@@ -321,7 +332,7 @@ const ManageUsers = () => {
                       {/* Solved */}
                       <td className="px-5 py-4 font-semibold text-slate-800">{solved}</td>
 
-                      {/* Subscription status */}
+                      {/* Account status */}
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-1.5">
                           <div className={`w-2 h-2 rounded-full ${isActive ? "bg-emerald-500" : "bg-slate-300"}`} />
@@ -331,31 +342,25 @@ const ManageUsers = () => {
                         </div>
                       </td>
 
-                      {/* Last login */}
-                      <td className="px-5 py-4">
-                        <p className="text-xs text-slate-600">{relTime(lastLogin)}</p>
-                        {u.lastIp && <p className="text-[10px] text-slate-400">IP: {u.lastIp}</p>}
-                      </td>
-
                       {/* Actions */}
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-1.5">
                           {/* View */}
-                          <button
+                          {/* <button
                             className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
                             title="View user details"
                           >
                             <Eye size={13} className="text-slate-600" />
-                          </button>
+                          </button> */}
                           {/* Subscription */}
-                          <button
+                          {/* <button
                             className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors
                               ${isBlocked ? "bg-slate-100 opacity-40 cursor-not-allowed" : "bg-slate-100 hover:bg-slate-200"}`}
                             title="Manage subscription"
                             disabled={isBlocked}
                           >
                             <CreditCard size={13} className="text-slate-600" />
-                          </button>
+                          </button> */}
                           {/* Block / Unblock */}
                           <button
                             onClick={() => handleToggleBlock(u)}

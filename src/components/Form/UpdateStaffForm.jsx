@@ -56,8 +56,9 @@ const UpdateStaffForm = ({ staff, updateModalRef }) => {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
         transition={{ duration: 1, ease: easeInOut }}
-        className={`card w-full max-w-lg md:!min-w-md  mx-auto shrink-0 shadow-2xl`}
+        className={`card w-full max-w-lg md:!min-w-md mx-auto shrink-0 shadow-2xl `}
       >
         <div className="card-body bg-white rounded">
           <h1 className="text-center  md:text-xl font-bold text-wrap">Update Staff Information</h1>

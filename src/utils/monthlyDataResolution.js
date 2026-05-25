@@ -23,13 +23,6 @@ export const monthlyDataResolution = (items) => {
   final6Months.forEach((m) => {
     data[m] = (data[m] || 0) + getMonthlyItems(m, items);
   });
-  const keys = Object.keys(data).reverse();
-  const values = Object.values(data).reverse();
-  console.log(keys, values);
-  for (let i = 1; i <= 5; i++) {
-    values[i] += values[i - 1];
-    data[keys[i]] = values[i];
-  }
-  console.log(data);
+  console.log("utils: ", data);
   return data;
 };
