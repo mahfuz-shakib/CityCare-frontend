@@ -29,11 +29,9 @@ const TaskDetails = () => {
     { id: 5, label: "Closed", value: "closed", color: "bg-slate-200" },
   ];
   const handleStatus = async (newStatus) => {
-    console.log(newStatus);
     if (!newStatus) return;
     const currentIndex = statuses.findIndex((s) => s.value === issue.status);
     const allowedNext = currentIndex === -1 ? null : statuses[currentIndex + 1]?.value;
-    console.log(allowedNext);
     if (newStatus !== allowedNext) {
       toast.error("Invalid status change. You can only advance to the next status in order.");
       return;
