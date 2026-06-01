@@ -12,17 +12,16 @@ const useRole = () => {
             if (!user?.email) return 'citizen';
             const res = await axiosSecure.get(`/users/?email=${user?.email}`);
             const userData = res.data?.[0];
-            
             // Check if user is staff
             if (!userData || userData.role !== 'staff') {
                 // Check staffs collection
                 try {
                     const staffRes = await axiosSecure.get(`/staffs/?email=${user?.email}`);
-                    if (staffRes.data?.[0]) {
+                    if (staffRes?.data?.data[0]) {
                         return 'staff';
                     }
                 } catch (err) {
-                    // Ignore error
+                    console.log(err);
                 }
             }
             

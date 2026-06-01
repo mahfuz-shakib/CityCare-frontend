@@ -9,7 +9,7 @@ import Container from "../../../container/Container";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import UpdateIssueForm from "../../../components/Form/UpdateIssueForm";
 import { Link } from "react-router";
-import { FaClock, FaPlus, FaRegEdit } from "react-icons/fa";
+import { FaClock, FaEye, FaFilter, FaPlus, FaRegEdit } from "react-icons/fa";
 import { MdDelete, MdLocationPin, MdNavigateBefore, MdNavigateNext } from "react-icons/md";
 import IssuePriorityBadge from "../../../components/IssuePriorityBadge";
 import IssueStatusBadge from "../../../components/IssueStatusBadge";
@@ -42,7 +42,6 @@ const MyIssues = () => {
   const myIssues = issuesResponse?.data || [];
 
   const pagination = issuesResponse?.pagination || { page: 1, limit: pageSize, total: 0, totalPages: 1 };
-
 
   // Reset to page 1 when filters change
   React.useEffect(() => {
@@ -97,25 +96,29 @@ const MyIssues = () => {
 
       <div className="  rounded-xl my-8">
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+          <h1 className="text-4xl font-bold text-slate-800 mb-3">My Issues</h1>
           <div className="flex justify-between items-center">
-            <h1 className="text-4xl font-bold text-slate-800 mb-3">My Issues</h1>
-
+            <p className=" text-slate-600 leading-relaxed">
+              Track and manage all the issues you've reported. View their status, priority, and take action when needed.
+            </p>
             <Link
               to="/dashboard/report-issue"
               className="btn bg-primary text-white hidden md:flex items-center gap-2 hover:shadow-2xl"
             >
-              {" "}
               <FaPlus /> Report New Issue
             </Link>
           </div>
-          <p className=" text-slate-600 leading-relaxed">
-            Track and manage all the issues you've reported. View their status, priority, and take action when needed.
-          </p>
         </motion.div>
       </div>
 
-      <div className="flex flex-col md:flex-row justify-center gap-5 md:gap-12 my-6 px-3 bg-surface-container-low py-2 rounded-lg ">
-        <label className="input rounded-full w-full lg:w-md ">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+        className="flex flex-col md:flex-row gap-5 mt-6 px-3 bg-surface-container-low py-2 rounded-t-lg "
+      >
+        <label className="input rounded-full w-full lg:w-60 ">
           <svg className="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
             <g strokeLinejoin="round" strokeLinecap="round" strokeWidth="2.5" fill="none" stroke="currentColor">
               <circle cx="11" cy="11" r="8"></circle>
@@ -129,40 +132,49 @@ const MyIssues = () => {
             placeholder="Search by title, category or location"
           />
         </label>
-        <select
-          onChange={(e) => setFilters({ ...filters, category: e.target.value })}
-          defaultValue="Select Category"
-          className="w-full md:w-64 select select-bordered "
-        >
-          <option value="">Select Category</option>
-          <option value="road">Road</option>
-          <option value="water">Water</option>
-          <option value="electricity">Electricity</option>
-          <option value="garbage">Garbage</option>
-        </select>
-        <select
-          onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-          defaultValue="Select Status"
-          className="w-full md:w-64 select select-bordered "
-        >
-          <option value="">Select Status</option>
-          <option value="pending">Pending</option>
-          <option value="in-progress">In-progress</option>
-          <option value="resolved">Resolved</option>
-          <option value="closed">Closed</option>
-          <option value="rejected">Rejected</option>
-        </select>
-        <select
-          onChange={(e) => setFilters({ ...filters, priority: e.target.value })}
-          defaultValue="Select Priority"
-          className="w-full md:w-64 select select-bordered "
-        >
-          <option value="">Select Priority</option>
-          <option value="high">High</option>
-          <option value="normal">Normal</option>
-        </select>
-      </div>
-   
+        <div className="relative">
+          <FaFilter className="absolute text-sm text-gray-600 left-2 top-1/2 -translate-y-1/2 z-1" />
+          <select
+            onChange={(e) => setFilters({ ...filters, category: e.target.value })}
+            defaultValue="Select Category"
+            className="pl-7 w-full md:w-42 select select-bordered rounded-2xl"
+          >
+            <option value="">Select Category</option>
+            <option value="road">Road</option>
+            <option value="water">Water</option>
+            <option value="electricity">Electricity</option>
+            <option value="garbage">Garbage</option>
+          </select>
+        </div>
+        <div className="relative">
+          <FaFilter className="absolute text-sm text-gray-600 left-2 top-1/2 -translate-y-1/2 z-1" />
+          <select
+            onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+            defaultValue="Select Status"
+            className="pl-7 w-full md:w-42 select select-bordered rounded-2xl"
+          >
+            <option value="">Select Status</option>
+            <option value="pending">Pending</option>
+            <option value="in-progress">In-progress</option>
+            <option value="resolved">Resolved</option>
+            <option value="closed">Closed</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
+        <div className="relative">
+          <FaFilter className="absolute text-sm text-gray-600 left-2 top-1/2 -translate-y-1/2 z-1" />
+          <select
+            onChange={(e) => setFilters({ ...filters, priority: e.target.value })}
+            defaultValue="Select Priority"
+            className="pl-7 w-full md:w-42 select select-bordered rounded-2xl"
+          >
+            <option value="">Select Priority</option>
+            <option value="high">High</option>
+            <option value="normal">Normal</option>
+          </select>
+        </div>
+      </motion.div>
+
       {!user.email || loading || isLoading ? (
         <Loader />
       ) : myIssues.length ? (
@@ -184,9 +196,7 @@ const MyIssues = () => {
                   <th>Assigned Staff</th>
                   <th>Status</th>
                   <th>Priority</th>
-                  <th>Edit</th>
-                  <th>Delete</th>
-                  <th>View Details</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -200,10 +210,10 @@ const MyIssues = () => {
                     className={`table-row transition-colors`}
                   >
                     <td>{index + 1}</td>
-                    <td>
-                      <div className="flex items-center gap-2">
+                    <td className="w-96">
+                      <div className="w-52 md:w-76 flex items-center gap-2">
                         <img src={list.image} alt={list.title} className="size-12 rounded" />
-                        <div className="w-52">
+                        <div className="">
                           <h1 className="font-bold">{list.title}</h1>
                           <span className="flex items-center text-secondary text-xs">
                             <MdLocationPin /> {list.location}
@@ -234,29 +244,32 @@ const MyIssues = () => {
                       <IssuePriorityBadge priority={list.priority} />
                     </td>
                     <td>
-                      <button
-                        onClick={() => handleUpdate(list)}
-                        className="btn text-2xl cursor-pointer hover:scale-105"
-                        disabled={list.status !== "pending"}
-                      >
-                        <FaRegEdit />
-                      </button>
-                    </td>
-                    <td>
-                      <button
-                        onClick={() => handleDelete(list)}
-                        className="btn text-2xl cursor-pointer text-crimson hover:scale-105"
-                      >
-                        <MdDelete />
-                      </button>
-                    </td>
-                    <td>
-                      <Link
-                        to={`/all-issues/${list._id}`}
-                        className=" text-primary font-semibold cursor-pointer hover:scale-101 hover:underline"
-                      >
-                        View Details
-                      </Link>
+                      <div className="flex items-center gap-6">
+                        <button
+                          title="Edit Issue"
+                          onClick={() => handleUpdate(list)}
+                          className={`text-2xl ${list.status === "pending" ? "cursor-pointer hover:scale-105" : "cursor-not-allowed"}`}
+                          disabled={list.status !== "pending"}
+                        >
+                          <FaRegEdit />
+                        </button>
+
+                        <button
+                          title="Delete Issue"
+                          onClick={() => handleDelete(list)}
+                          className="text-2xl cursor-pointer text-red-700 hover:scale-105"
+                        >
+                          <MdDelete />
+                        </button>
+
+                        <Link
+                          title="View Details"
+                          to={`/all-issues/${list._id}`}
+                          className="text-2xl cursor-pointer hover:scale-105 hover:underline"
+                        >
+                          <FaEye />
+                        </Link>
+                      </div>
                     </td>
                   </motion.tr>
                 ))}

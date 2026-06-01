@@ -39,6 +39,7 @@ const Navbar = memo(() => {
     { to: "/contact", label: "Contact" },
   ];
   if (location.pathname.startsWith("/dashboard")) return;
+  
   return (
     <motion.nav
       initial={{ y: -80 }}

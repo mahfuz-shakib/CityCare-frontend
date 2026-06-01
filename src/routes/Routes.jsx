@@ -7,6 +7,7 @@ import DashboardLayout from "../layout/DashboardLayout";
 import MapView from "../pages/MapView/MapView";
 import ActivityHistory from "../pages/Dashboard/Common/ActivityHistory";
 import Settings from "../pages/Dashboard/Common/Settings";
+import TaskDetails from "../pages/Dashboard/Staff/TaskDetails";
 
 // Lazy load components for better performance
 const Home = lazy(() => import("../pages/Home/Home"));
@@ -149,6 +150,14 @@ export const router = createBrowserRouter([
             element: (
               <LazyWrapper>
                 <AssignedIssues />
+              </LazyWrapper>
+            ),
+          },
+          {
+            path: "/dashboard/assigned-issues/:_id",
+            element: (
+              <LazyWrapper>
+                <TaskDetails />
               </LazyWrapper>
             ),
           },

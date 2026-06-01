@@ -103,7 +103,7 @@ const CitizenHome = () => {
     },
     {
       title: "TOTAL PAYMENTS",
-      value: `৳${boostedPayments * 100 + (payments.length - boostedPayments) * 1000} `,
+      value: `৳ ${boostedPayments * 100 + (payments.length - boostedPayments) * 1000} `,
       icon: FaCreditCard,
       color: "bg-indigo-500",
       analytics: "",
@@ -111,6 +111,7 @@ const CitizenHome = () => {
     },
   ];
   const data = getChartData(issues);
+  
   return (
     <Container>
       <title>Dashboard</title>
@@ -118,14 +119,13 @@ const CitizenHome = () => {
       <div className="space-y-8 py-8">
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
           <div className="flex justify-between items-center">
-            <h1 className="text-4xl font-bold text-gray-800 mb-2">
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">
               Welcome back, {userData?.displayName || user?.displayName}!
             </h1>
             <Link
               to="/dashboard/report-issue"
               className="btn bg-primary text-white hidden md:flex items-center gap-2 hover:shadow-2xl"
             >
-              {" "}
               <FaPlus /> Report New Issue
             </Link>
           </div>
@@ -141,7 +141,7 @@ const CitizenHome = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
             >
-              <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer">
+              <div className={`bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer`}>
                 <div className="space-y-4">
                   <div className="flex justify-between">
                     <div className={`${stat.color} p-2 rounded-lg text-white`}>
@@ -202,18 +202,21 @@ const CitizenHome = () => {
           >
             <h3 className="text-xl font-bold text-gray-800 mb-4">Payment Summary</h3>
             <div className="space-y-4">
-              <div className="flex justify-between items-center p-4 bg-blue-50 rounded-lg">
-                <span className="font-medium text-gray-700">Total Payments</span>
-                <span className="text-2xl font-bold text-blue-600">{stats.totalPayments}</span>
-              </div>
-              <div className="flex justify-between items-center p-4 bg-green-50 rounded-lg">
-                <span className="font-medium text-gray-700">Boost Payments</span>
-                <span className="text-xl font-bold text-green-600">{boostedPayments} </span>
-              </div>
-              <div className="flex justify-between items-center p-4 bg-purple-50 rounded-lg">
-                <span className="font-medium text-gray-700">Subscription</span>
-                <span className="text-xl font-bold text-purple-600">{payments.length - boostedPayments}</span>
-              </div>
+              {[
+                { title: "Total Payments", value: stats.totalPayments, textColor: "text-blue-600", bg: "bg-blue-50" },
+                { title: "Boost Payments", value: boostedPayments, textColor: "text-green-600", bg: "bg-green-50" },
+                {
+                  title: "Subscription",
+                  value: payments.length - boostedPayments,
+                  textColor: "text-purple-600",
+                  bg: "bg-purple-50",
+                },
+              ].map((p, i) => (
+                <div key={i} className={`flex justify-between items-center p-4 rounded-lg ${p.bg}`}>
+                  <span className="font-medium text-gray-700">{p.title}</span>
+                  <span className={`text-2xl font-bold ${p.textColor}`}>{p.value}</span>
+                </div>
+              ))}
             </div>
           </motion.div>
         </div>
@@ -292,9 +295,7 @@ const CitizenHome = () => {
                     </p>
                   </div>
                   <div>
-                    <p className="font-bold text-gray-800 flex items-center gap-1">
-                      <MdOutlineReportProblem /> {payment.metadata.issueTitle}
-                    </p>
+                    <p className="font-bold text-gray-800 flex items-center gap-1">{payment.metadata.issueTitle}</p>
                     <p>{payment.metadata.issueId}</p>
                   </div>
                   <span className="text-lg font-bold text-green-600">

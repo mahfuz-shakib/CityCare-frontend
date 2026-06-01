@@ -85,13 +85,12 @@ const ReportIssueForm = () => {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.5 }}
-        className=" max-w-76 md:max-w-214 border border-primary/15  mx-auto card rounded-lg overflow-hidden mb-16 mt-8"
+        className=" max-w-76 md:max-w-fit border border-primary/15  mx-auto card rounded-lg overflow-hidden mb-16 mt-8"
       >
         <div className={`card-body px-2 md:px-4 bg-surface-container-low`}>
           <form onSubmit={handleSubmit(onSubmit)}>
             <fieldset className="! fieldset space-y-2 overflow-hidden">
-              <div className="flex flex-col md:flex-row justify-between gap-5">
-                <div className="w-72 md:w-md">
+                <div className="w-72 md:w-xl">
                   <label htmlFor="name" className="label md:text-sm">
                     Issue Title
                   </label>
@@ -107,7 +106,22 @@ const ReportIssueForm = () => {
                   />
                   {errors.title && <p className="mt-1 text-xs text-red-500">{errors.title.message} </p>}
                 </div>
-                <div className="w-72 md:w-xs">
+                <div className="w-72 md:w-xl">
+                  <label className="label md:text-sm">Location</label>
+                  <br />
+                  <input
+                    type="text"
+                    className="input-field"
+                    placeholder="e.g. Jashore"
+                    {...register("location", {
+                      required: "Location must be required",
+                      minLength: { value: 3, message: "Location atleast 3 character" },
+                    })}
+                  />
+                  {errors.location && <p className="mt-1 text-xs text-red-500">{errors.location.message} </p>}
+                </div>
+              <div className="flex flex-col md:flex-row justify-between gap-5">
+                <div className="w-72 md:w-1/2">
                   <label className="label md:text-sm">Select Category</label>
                   <br />
                   <select
@@ -128,24 +142,7 @@ const ReportIssueForm = () => {
                   </select>
                   {errors.category && <p className="mt-1 text-xs text-red-500">{errors.category.message} </p>}
                 </div>
-              </div>
-              <div className="w-full flex flex-col md:flex-row gap-5 md:gap-10 justify-between">
-                <div className="w-72 md:w-md">
-                  <label className="label md:text-sm">Location</label>
-                  <br />
-                  <input
-                    type="text"
-                    className="input-field"
-                    placeholder="e.g. Jashore"
-                    {...register("location", {
-                      required: "Location must be required",
-                      minLength: { value: 3, message: "Location atleast 3 character" },
-                    })}
-                  />
-                  {errors.location && <p className="mt-1 text-xs text-red-500">{errors.location.message} </p>}
-                </div>
-                <div className="w-72 md:w-xs">
-                  <div>
+                <div className="w-72 md:w-1/2">
                     <label className="label md:text-sm">Sample Issue Image</label>
                     <input
                       type="file"
@@ -158,9 +155,9 @@ const ReportIssueForm = () => {
                     />
                     {errors.image && <p className="mt-1 text-xs text-red-500">{errors.image.message} </p>}
                   </div>
-                </div>
               </div>
-              <div className="w-72 md:w-full">
+      
+              <div className="w-72 md:w-xl">
                 <label className="label md:text-sm">Description</label>
                 <br />
                 <textarea

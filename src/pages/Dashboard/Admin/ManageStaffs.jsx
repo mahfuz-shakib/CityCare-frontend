@@ -18,10 +18,13 @@ import {
   BarChart2,
   Users,
   Award,
+  Download,
 } from "lucide-react";
 import Loader from "../../../components/Loader";
 import { FaCircle } from "react-icons/fa";
 import { monthlyDataResolution } from "../../../utils/monthlyDataResolution";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 20 },
@@ -114,41 +117,71 @@ const ManageStaffs = () => {
   const avgRating = staffs.length > 0 ? (staffs.reduce((s, st) => s + (st.rating || 4.5), 0) / staffs.length).toFixed(2) : 0;
   const activeTasks = staffs.reduce((s, st) => s + (st.activeTasks || 0), 0);
   const resolvedTasks = staffs.reduce((s, st) => s + (st.resolvedTasks || 0), 0);
-  const completionRate = ((resolvedTasks / activeTasks) * 100).toPrecision(2); // can be derived from real data if available
+  const completionRate = ((resolvedTasks / activeTasks) * 100).toPrecision(2);
   console.log(resolvedTasks);
 
+  const handleExportPDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(14);
+    doc.text("Staff Directory — CityCare", 14, 15);
+    doc.setFontSize(9);
+    doc.setTextColor(100);
+    doc.text(`Generated: ${new Date().toLocaleDateString()}   Total: ${pagination.total}`, 14, 22);
+    autoTable(doc, {
+      startY: 28,
+      styles: { fontSize: 8, cellPadding: 2 },
+      headStyles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: "bold" },
+      alternateRowStyles: { fillColor: [248, 250, 252] },
+      head: [["#", "Name", "Email", "Department", "Active Tasks", "Resolved Tasks", "Rating"]],
+      body: staffs.map((s, i) => [
+        i + 1,
+        s.displayName || s.name || "—",
+        s.email || "—",
+        s.department || "General",
+        s.activeTasks || 0,
+        s.resolvedTasks || 0,
+        Number(s.rating || 4.5).toFixed(1),
+      ]),
+    });
+    doc.save("Staff_Directory_CityCare.pdf");
+    toast.success("PDF downloaded successfully");
+  };
+
   return (
-    <div>
+    <div className="min-h-screen bg-[#f7f8fc]">
       <title>Manage Staffs</title>
-      <Container className=" px-4 md:px-10">
-        <div className=" space-y-6">
+      <Container className="px-4 md:px-10">
+        <div className="pt-8 pb-16 space-y-6">
           {/* ── Header ── */}
 
           <motion.div
-            initial={{ opacity: 0, y: 0 }}
-            whileInView={{ opacity: 1, y: 20 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="mb-10 mt-3"
+            {...fadeUp(0)}
+            className="flex flex-wrap items-end justify-between gap-4 mb-2 mt-3"
           >
-            <p className="text-[8px] md:text-[11px] font-bold uppercase tracking-widest text-blue-600 mb-1">
-              Field Workforce
-            </p>
-            <div className="flex justify-between">
-              <h1 className="text-2xl md:text-3xl font-bold text-slate-800 mt-1 mb-2">Manage Staff</h1>
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.97 }}
-                className="btn bg-surface-container-high px-3 md:p-5 hover:bg-surface-container-highest"
-                onClick={handleCreateStaff}
-              >
-                <UserPlus size={16} /> <span className="hidden md:block">Add Staff Member</span>
-              </motion.button>
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-widest text-blue-600 mb-1">
+                Field Workforce
+              </p>
+              <h1 className="text-2xl md:text-3xl font-bold text-slate-900 mt-1 mb-1">Manage Staff</h1>
+              <p className="text-slate-500 text-sm max-w-xl">
+                Supervise municipal personnel, track operational performance metrics, and optimize field assignments
+                across city departments.
+              </p>
             </div>
-            <p className="text-secondary max-w-xl">
-              Supervise municipal personnel, track operational performance metrics, and optimize field assignments
-              across city departments.
-            </p>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleExportPDF}
+                className="flex items-center gap-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-sm rounded-xl px-4 py-2.5 shadow-sm transition-colors"
+              >
+                <Download size={14} /> <span className="hidden md:inline">Export PDF</span>
+              </button>
+              <button
+                onClick={handleCreateStaff}
+                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-xl px-4 py-2.5 shadow-sm transition-colors"
+              >
+                <UserPlus size={16} /> <span className="hidden md:inline">Add Staff Member</span>
+              </button>
+            </div>
           </motion.div>
 
           {/* ── 3 KPI summary cards ── */}

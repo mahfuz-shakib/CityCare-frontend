@@ -61,9 +61,10 @@ const Login = () => {
 
       await redirectByRole(res.user.email);
     } catch (err) {
+      console.log(err.code);
       const message = err.code?.includes("invalid-credential")
         ? "Invalid email or password"
-        : "Login failed. Try again.";
+        : err.code?.includes("user-not-found")?"User not found. Try with registered credential.": "Login failed. Try again.";
 
       setAuthError(message);
       toast.error(message);
@@ -80,7 +81,7 @@ const Login = () => {
     try {
       const res = await signInWithGoogle();
       const user = res.user;
-
+console.log(user);
       await saveUserMutation.mutateAsync({
         displayName: user.displayName,
         email: user.email,
@@ -109,21 +110,15 @@ const Login = () => {
         >
           {/* Header */}
           <div className="text-center mb-6">
-            <h1 className="text-3xl font-semibold text-slate-800">
-              Welcome Back
-            </h1>
-            <p className="text-slate-500">
-              Sign in to your account
-            </p>
+            <h1 className="text-3xl font-semibold text-slate-800">Welcome Back</h1>
+            <p className="text-slate-500">Sign in to your account</p>
           </div>
 
           {/* Card */}
           <div className="card bg-white shadow-xl">
             <div className="card-body space-y-4">
-
               {/* Form */}
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-
                 {/* Email */}
                 <div>
                   <label className="label text-slate-700">Email</label>
@@ -133,11 +128,7 @@ const Login = () => {
                     className="input input-bordered w-full"
                     placeholder="Enter your email"
                   />
-                  {errors.email && (
-                    <p className="text-xs text-red-500 mt-1">
-                      {errors.email.message}
-                    </p>
-                  )}
+                  {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>}
                 </div>
 
                 {/* Password */}
@@ -153,16 +144,12 @@ const Login = () => {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-4 top-3 text-slate-500"
+                      className="absolute right-4 top-3 text-slate-500 z-1"
                     >
                       {showPassword ? <FaEyeSlash /> : <FaEye />}
                     </button>
                   </div>
-                  {errors.password && (
-                    <p className="text-xs text-red-500 mt-1">
-                      {errors.password.message}
-                    </p>
-                  )}
+                  {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>}
                 </div>
 
                 <button
@@ -173,18 +160,12 @@ const Login = () => {
                 </button>
               </form>
 
-              {authError && (
-                <p className="text-sm text-red-500 text-center">
-                  {authError}
-                </p>
-              )}
+              {authError && <p className="text-sm text-red-500 text-center">{authError}</p>}
 
               {/* Divider */}
               <div className="flex items-center gap-2">
                 <span className="flex-1 h-px bg-slate-300" />
-                <span className="text-sm text-slate-500">
-                  Or continue with
-                </span>
+                <span className="text-sm text-slate-500">Or continue with</span>
                 <span className="flex-1 h-px bg-slate-300" />
               </div>
 
@@ -201,14 +182,10 @@ const Login = () => {
               {/* Footer */}
               <p className="text-center text-slate-600 text-sm">
                 New here?{" "}
-                <Link
-                  to="/register"
-                  className="text-sky-600 hover:underline"
-                >
+                <Link to="/register" className="text-sky-600 hover:underline">
                   Create an account
                 </Link>
               </p>
-
             </div>
           </div>
         </motion.div>

@@ -142,7 +142,9 @@ const IssueTimeline = ({ issueId }) => {
                     </div>
 
                     <div className="flex md:flex-col items-end gap-1.5 shrink-0">
-                      <span className="text-[11px] font-semibold text-slate-500 whitespace-nowrap hid">By {updatedBy}</span>
+                      <span className="text-[11px] font-semibold text-slate-500 whitespace-nowrap hid">
+                        By {updatedBy}
+                      </span>
                       <span className="text-[10px] text-slate-400 uppercase tracking-wide">
                         {relativeTime(updatedAt)}
                       </span>
@@ -180,38 +182,36 @@ const IssueTimeline = ({ issueId }) => {
                     transition={{ duration: 0.25 }}
                     className="overflow-hidden"
                   >
-                    <div className="px-6 pb-4 pl-[4.5rem]">
+                    <div className="px-6 pb-4 pl-18">
                       <div className="bg-white border border-slate-100 rounded-xl p-4 shadow-sm space-y-2.5">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                           <div>
                             <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">
                               Full Message
                             </p>
                             <p className="text-slate-700 leading-relaxed">{message}</p>
                           </div>
-                          <div className="space-y-3">
-                            <div>
-                              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">
-                                Updated By
-                              </p>
-                              <div className="flex items-center gap-2">
-                                <div className="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center">
-                                  <User size={11} className="text-slate-500" />
-                                </div>
-                                <span className="text-slate-700 font-medium">{updatedBy}</span>
+                          <div>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">
+                              Updated By
+                            </p>
+                            <div className="flex items-center gap-2">
+                              <div className="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center">
+                                <User size={11} className="text-slate-500" />
                               </div>
+                              <span className="text-slate-700 font-medium">{updatedBy}</span>
                             </div>
-                            <div>
-                              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">
-                                Timestamp
-                              </p>
-                              <p className="text-slate-700">
-                                {new Date(updatedAt).toLocaleString("en-US", {
-                                  dateStyle: "medium",
-                                  timeStyle: "short",
-                                })}
-                              </p>
-                            </div>
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">
+                              Timestamp
+                            </p>
+                            <p className="text-slate-700">
+                              {new Date(updatedAt).toLocaleString("en-US", {
+                                dateStyle: "medium",
+                                timeStyle: "short",
+                              })}
+                            </p>
                           </div>
                         </div>
                       </div>

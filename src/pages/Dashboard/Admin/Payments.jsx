@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell,
 } from "recharts";
@@ -11,6 +12,7 @@ import {
 } from "lucide-react";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import Container from "../../../container/Container";
+import { toast } from "react-toastify";
 
 /* ── helpers ── */
 const fadeUp = (delay = 0) => ({
@@ -171,6 +173,34 @@ const Payments = () => {
   const totalPages = Math.ceil(filtered.length / pageSize);
   const paginatedData = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
+  const handleExportPDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(14);
+    doc.text("Payments Report — CityCare", 14, 15);
+    doc.setFontSize(9);
+    doc.setTextColor(100);
+    doc.text(
+      `Generated: ${new Date().toLocaleDateString()}   Total: ${filtered.length}   Revenue: tk ${totalRevenue.toFixed(2)}`,
+      14, 22
+    );
+    autoTable(doc, {
+      startY: 28,
+      styles: { fontSize: 8, cellPadding: 2 },
+      headStyles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: "bold" },
+      alternateRowStyles: { fillColor: [248, 250, 252] },
+      head: [["#", "Date", "Customer Email", "Purpose", "Amount (TK)", "Status"]],
+      body: filtered.map((p, i) => {
+        const purpose = p.purpose || (p.metadata?.issueId ? "Priority Boost" : p.metadata?.userId ? "Premium Subscription" : "Unknown");
+        const status = (p.paymentStatus || p.status || "paid").toUpperCase();
+        const amount = (p.amount || p.amount_total / 100 || 0).toFixed(2);
+        const date = p.createdAt ? new Date(p.createdAt).toLocaleDateString() : "—";
+        return [i + 1, date, p.customerEmail || "—", purpose, amount, status];
+      }),
+    });
+    doc.save("Payments_Report_CityCare.pdf");
+    toast.success("PDF downloaded successfully");
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-slate-50">
@@ -181,9 +211,9 @@ const Payments = () => {
   }
 
   return (
-    <div >
+    <div className="min-h-screen bg-[#f7f8fc]">
       <title>Payments Dashboard</title>
-      <Container className="px-10">
+      <Container className="px-4 md:px-10">
         <div className="pt-8 pb-16 space-y-6">
 
           {/* ── Header ── */}
@@ -196,8 +226,10 @@ const Payments = () => {
               <button className="flex items-center gap-2 bg-white border border-slate-200 text-slate-600 text-sm font-medium rounded-xl px-4 py-2.5 shadow-sm hover:bg-slate-50 transition-colors">
                 📅 Oct 1, 2023 – Oct 31, 2023
               </button>
-              <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-xl px-4 py-2.5 shadow-sm transition-colors">
-                <Download size={14} /> Export to CSV
+              <button
+                onClick={handleExportPDF}
+                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-xl px-4 py-2.5 shadow-sm transition-colors">
+                <Download size={14} /> Export PDF
               </button>
             </div>
           </motion.div>

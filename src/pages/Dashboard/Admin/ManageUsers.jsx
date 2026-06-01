@@ -104,7 +104,7 @@ const ManageUsers = () => {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-slate-50">
+      <div className="flex justify-center items-center min-h-screen bg-slat-50">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
@@ -136,33 +136,28 @@ const ManageUsers = () => {
     toast.success("PDF Downloaded Successfully");
  }
   return (
-    <Container className="px-10">
+    <div className="min-h-screen">
       <title>Manage Citizens</title>
-      {/* ── Header ── */}
-      <motion.div
-        initial={{ opacity: 0, y: 0 }}
-        whileInView={{ opacity: 1, y: 20 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.5 }}
-        className="mt-3 mb-10"
-      >
-        <p className="text-[11px] font-bold uppercase tracking-widest text-blue-600 mb-1">Governance Portal</p>
-        <h1 className="text-3xl font-bold text-slate-800 mt-1 mb-2">Manage Citizens</h1>
-        <div className="flex justify-between">
-          <p className="text-secondary max-w-xl">
-            Manage the registered citizen database, monitor engagement metrics, and oversee subscription tiers for
-            premium municipal services.
-          </p>
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.97 }}
-            className="btn bg-surface-container-high p-5"
-            onClick={handleDownloadData}
-          >
-            <FaDownload /> Export Directory
-          </motion.button>
-        </div>
-      </motion.div>
+      <Container className="px-4 md:px-10">
+        <div className="pt-8 pb-16 space-y-6">
+
+          {/* ── Header ── */}
+          <motion.div {...fadeUp(0)} className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-widest text-blue-600 mb-1">Governance Portal</p>
+              <h1 className="text-3xl font-bold text-slate-900 mt-1 mb-1">Manage Citizens</h1>
+              <p className="text-slate-500 text-sm max-w-xl">
+                Manage the registered citizen database, monitor engagement metrics, and oversee subscription tiers for
+                premium municipal services.
+              </p>
+            </div>
+            <button
+              onClick={handleDownloadData}
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-xl px-4 py-2.5 shadow-sm transition-colors"
+            >
+              <Download size={14} /> Export Directory
+            </button>
+          </motion.div>
 
       {/* ── 4 KPI cards ── */}
       <motion.div {...fadeUp(0.1)} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
@@ -423,7 +418,10 @@ const ManageUsers = () => {
           </button>
         </div>
       </motion.div>
-    </Container>
+
+        </div>
+      </Container>
+    </div>
   );
 };
 
