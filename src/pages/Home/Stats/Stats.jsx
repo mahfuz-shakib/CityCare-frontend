@@ -1,36 +1,50 @@
 import { motion } from "framer-motion";
 import { TrendingDown, TrendingUp } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import useAxios from "../../../hooks/useAxios";
+import useResolution from "../../../hooks/useResolution";
 
 const Stats = () => {
-  const axiosInstance = useAxios();
-  const { data, loading } = useQuery({
-    queryKey: ["issues", "matrics"],
-    queryFn: async () => {
-      const res = await axiosInstance.get("/issues/matrics");
-      return res?.data;
-    },
-  });
+  const { data, loading } = useResolution();
+
   if (loading) return;
-  const { allSize, resolvedSize, pendingSize, prevMonthSize, currMonthSize, prevMonthReso, currMonthReso } = data || {};
-  const currentMonthAverageResolution = currMonthReso / currMonthSize;
-  const previousMonthAverageResolution = prevMonthReso / prevMonthSize;
-  const resolution =
-    ((previousMonthAverageResolution - currentMonthAverageResolution) / previousMonthAverageResolution) * 100;
+
+  const { allSize = 0, resolvedSize = 0, pendingSize = 0, resolutionPerformance = [] } = data || {};
+  // Current and previous month
+  const currentMonth = resolutionPerformance[resolutionPerformance.length - 1];
+  // Current average resolution
+  const currentMonthAverageResolution = currentMonth?.averageResolution ?? 0;
+  // Current month performance
+  const resolutionChange = currentMonth?.resolutionChangePercent ?? null;
+
   const stats = [
-    { label: "Total Issues", value: allSize, color: "primary", progress: "100%" },
-    { label: "Resolved", value: resolvedSize, color: "emerald-500", progress: (resolvedSize / allSize) * 100 },
-    { label: "Pending", value: pendingSize, color: "orange-400", progress: (pendingSize / allSize) * 100 },
+    {
+      label: "Total Issues",
+      value: allSize,
+      color: "primary",
+      progress: "100%",
+    },
+    {
+      label: "Resolved",
+      value: resolvedSize,
+      color: "emerald-500",
+      progress: allSize > 0 ? (resolvedSize / allSize) * 100 : 0,
+    },
+    {
+      label: "Pending",
+      value: pendingSize,
+      color: "orange-400",
+      progress: allSize > 0 ? (pendingSize / allSize) * 100 : 0,
+    },
     {
       label: "Avg Resolution",
       value: currentMonthAverageResolution.toFixed(1),
       unit: "days",
       color: "blue-800",
       trend:
-        resolution >= 0
-          ? `${resolution.toFixed(1)}% faster than last month`
-          : `${Math.abs(resolution).toFixed(1)}% slower than last month`,
+        resolutionChange === null
+          ? "No previous month data"
+          : resolutionChange >= 0
+            ? `${resolutionChange.toFixed(1)}% faster than last month`
+            : `${Math.abs(resolutionChange).toFixed(1)}% slower than last month`,
     },
   ];
   return (
@@ -73,7 +87,7 @@ const Stats = () => {
                 </div>
               ) : (
                 <p className="mt-4 text-xs font-semibold text-emerald-600 flex items-center justify-center gap-1">
-                  {resolution >= 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+                  {resolutionChange >= 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
                   {stat.trend}
                 </p>
               )}

@@ -1,8 +1,13 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { CheckCircle } from "lucide-react";
-
+import useResolution from "../../../hooks/useResolution";
+import ListingSkeleton from "../../../components/ListingSkeleton";
 const Transparency_Analytics = () => {
+  const { data, loading } = useResolution();
+  if (loading) return <ListingSkeleton />;
+  const { resolutionPerformance } = data || {};
+  console.log(resolutionPerformance);
   return (
     <section className="px-6 py-24 bg-primary text-white">
       <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
@@ -18,21 +23,21 @@ const Transparency_Analytics = () => {
               <h3 className="text-3xl font-black">Resolution Performance</h3>
             </div>
             <div className="w-20 h-20 rounded-full border-4 border-white/20 flex items-center justify-center">
-              <span className="text-xl font-black">88%</span>
+              <span className="text-xl font-black">{resolutionPerformance?.at(-1).averageResolution}%</span>
             </div>
           </div>
           <div className="flex items-end gap-3 h-48">
-            {[40, 65, 55, 80, 70, 90, 100].map((h, i) => (
+            {resolutionPerformance?.map((m, i) => (
               <div
-                key={i}
-                className="flex-1 bg-white/20 rounded-t-lg transition-all duration-1000"
-                style={{ height: `${h}%` }}
+                key={m.monthKey}
+                className={`flex-1  rounded-t-lg transition-all duration-1000 ${i === 5 ? "bg-gray-100" : i === 4 ? "bg-gray-200" : i === 3 ? "bg-gray-300" : "bg-white/50"}`}
+                style={{ height: `${m.resolutionChangePercent || 5}%` }}
               ></div>
             ))}
           </div>
           <div className="flex justify-between mt-4 text-xs font-bold opacity-60">
-            {["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL"].map((m) => (
-              <span key={m}>{m}</span>
+            {resolutionPerformance?.map((m) => (
+              <span key={m.monthKey}>{m.month}</span>
             ))}
           </div>
         </motion.div>
@@ -44,20 +49,16 @@ const Transparency_Analytics = () => {
             taxes are used where they are needed most.
           </p>
           <ul className="space-y-4 mb-10">
-            {[
-              "Blockchain-verified report integrity",
-              "Open-data API for civic researchers",
-              "Monthly municipal accountability audits",
-            ].map((item, i) => (
+            {["Blockchain-verified report integrity", "Monthly municipal accountability audits"].map((item, i) => (
               <li key={i} className="flex items-center gap-3">
                 <CheckCircle size={20} className="text-emerald-400" />
                 <span>{item}</span>
               </li>
             ))}
           </ul>
-          <button className="px-8 py-4 bg-white text-primary font-bold rounded-lg hover:bg-surface-container-low transition-all">
+          {/* <button className="px-8 py-4 bg-white text-primary font-bold rounded-lg hover:bg-surface-container-low transition-all">
             Explore Full Analytics
-          </button>
+          </button> */}
         </motion.div>
       </div>
     </section>

@@ -8,6 +8,7 @@ import Transparency_Analytics from "./Analytics/Transparency_Analytics";
 import Testimonials from "./Testimonials/Testimonials";
 import LatestResolvedIssues from "./ResolvedIssues/LatestResolvedIssues";
 import { useState } from "react";
+import FeedbackForm from "./Feedback/FeedbackForm";
 
 export default function Home() {
   const [lastResolvedIssue, setLastResolvedIssue] = useState({});
@@ -26,6 +27,7 @@ export default function Home() {
       <IssueLifecycle />
       <Transparency_Analytics />
       <Testimonials />
+      <FeedbackForm/>
     </>
   );
 }
