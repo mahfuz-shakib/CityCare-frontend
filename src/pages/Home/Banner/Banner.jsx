@@ -4,7 +4,10 @@ import { Link } from 'react-router';
 import { CheckCircle, MapIcon, Megaphone } from 'lucide-react';
 import Container from '../../../container/Container';
 
-const Banner = () => {
+const Banner = ({lastResolvedIssue,loading}) => {
+  const {image, title, location, resolvedAt} = lastResolvedIssue || {};
+  const time = new Date(resolvedAt).toLocaleTimeString();
+  const date = new Date(resolvedAt).toLocaleDateString();
   return (
       <section className="relative pt-16 pb-32 overflow-hidden">
         <Container className="grid lg:grid-cols-2 gap-16 items-center">
@@ -42,12 +45,12 @@ const Banner = () => {
             viewport={{ once: true }}
             className="relative"
           >
-            <div className="absolute -z-10 top-0 -right-20 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px]"></div>
-            <div className="relative bg-white rounded-3xl shadow-2xl p-4 overflow-hidden transform lg:rotate-2 border border-white/40">
+            <div className="absolute -z-10 top-0 -right-20 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px] overflow-hidden"></div>
+            <div className="relative bg-gradient-to-br from-purple-100 via-sky-100 to-indigo-100 rounded-3xl shadow-2xl p-4 overflow-hidden transform lg:rotate-2 borde border-white/40">
               <img 
                 alt="Civic Platform Dashboard" 
                 className="rounded-2xl w-full" 
-                src="https://picsum.photos/seed/dashboard/800/600"
+                src={image}
                 referrerPolicy="no-referrer"
               />
               <div className="absolute bottom-8 left-8 right-8 glass-effect bg-white/70 p-6 rounded-2xl shadow-lg border border-white/20">
@@ -57,7 +60,8 @@ const Banner = () => {
                   </div>
                   <div>
                     <p className="font-headline font-bold text-on-surface">Issue Resolved</p>
-                    <p className="text-sm text-secondary">Main St. Pothole fixed in 48 hours</p>
+                    <p className="text-sm text-secondary">{title} fixed in {time} {date}</p>
+                    <p className="text-sm text-secondary">{location}</p>
                   </div>
                 </div>
               </div>

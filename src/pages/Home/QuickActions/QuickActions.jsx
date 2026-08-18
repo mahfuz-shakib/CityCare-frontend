@@ -13,7 +13,7 @@ const QuickActions = () => {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
             viewport={{ once: true }}
-            className={`bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-all border-b-4 border-${action.color} group cursor-pointer`}
+            className={`bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-all border-b-4 border-${action.color} group `}
           >
             <div
               className={`w-14 h-14 ${action.bg} rounded-xl flex items-center justify-center text-${action.color} mb-6 group-hover:scale-110 transition-transform`}

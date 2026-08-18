@@ -7,15 +7,21 @@ import IssueLifecycle from "./IssueLifecycle/IssueLifecycle";
 import Transparency_Analytics from "./Analytics/Transparency_Analytics";
 import Testimonials from "./Testimonials/Testimonials";
 import LatestResolvedIssues from "./ResolvedIssues/LatestResolvedIssues";
+import { useState } from "react";
 
 export default function Home() {
+  const [lastResolvedIssue, setLastResolvedIssue] = useState({});
+  const [loading, setLoading] = useState(false);
+  const getLastIssue = (issue, loading) => {
+    (setLastResolvedIssue(issue), setLoading(loading));
+  };
   return (
     <>
-      <Banner />
+      <Banner lastResolvedIssue={lastResolvedIssue} loading={loading} />
       <QuickActions />
       <Stats />
       <Categories />
-      <LatestResolvedIssues />
+      <LatestResolvedIssues getLastIssue={getLastIssue} />
       <Map />
       <IssueLifecycle />
       <Transparency_Analytics />

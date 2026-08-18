@@ -89,7 +89,7 @@ const IssueActions = ({ issue}) => {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.97 }}
               onClick={handleBoost}
-              className="w-full flex items-center justify-between gap-3 bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded-xl px-4 py-3 transition-colors group"
+              className="w-full flex items-center justify-between gap-3 bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded-xl px-4 py-3 transition-colors group cursor-pointer"
             >
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center shrink-0 shadow-sm">
@@ -116,7 +116,7 @@ const IssueActions = ({ issue}) => {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.97 }}
               onClick={handleUpdate}
-              className="w-full flex items-center gap-3 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 transition-colors"
+              className="w-full flex items-center gap-3 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 transition-colors cursor-pointer"
             >
               <Pencil size={15} className="text-slate-500" />
               <span className="text-sm font-semibold text-slate-700">Edit Issue</span>
@@ -130,7 +130,7 @@ const IssueActions = ({ issue}) => {
               whileTap={{ scale: 0.97 }}
               onClick={handleDelete}
               disabled={isDeleting}
-              className="w-full flex items-center gap-3 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl px-4 py-3 transition-colors disabled:opacity-60"
+              className="w-full flex items-center gap-3 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl px-4 py-3 transition-colors disabled:opacity-60 cursor-pointer"
             >
               {isDeleting ? (
                 <Loader2 size={15} className="text-red-500 animate-spin" />

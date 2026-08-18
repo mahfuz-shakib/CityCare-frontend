@@ -7,9 +7,18 @@ import IssueCard from "../../components/IssueCard";
 import Loader from "../../components/Loader";
 import { FaArrowLeft } from "react-icons/fa6";
 import ListingSkeleton from "../../components/ListingSkeleton";
+import { useLocation } from "react-router";
 
 const Issues = () => {
-  const [filters, setFilters] = useState({ category: "", status: "", priority: "", search: "" });
+  const location = useLocation();
+  const browsedCategory = location.search.includes("category") ? location.search.slice(10) : "";
+  const browsedStatus = location.search.includes("status") ? location.search.slice(8) : "";
+  const [filters, setFilters] = useState({
+    category: browsedCategory || "",
+    status: browsedStatus || "",
+    priority: "",
+    search: "",
+  });
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 9; // 9 items per page (3 columns x 3 rows)
   const axiosInstance = useAxios();
@@ -149,7 +158,12 @@ const Issues = () => {
               </motion.div>
             ))}
       </motion.div>
-
+      {issues.length === 0 && (
+        <div className="text-center mb-16">
+          <h1 className="text-3xl font-semibold">Issues not found based on your searched value</h1>
+          <p className="text-xl mt-2">Please try again!</p>
+        </div>
+      )}
       {/* Pagination Controls */}
       {pagination.totalPages > 1 && (
         <motion.div

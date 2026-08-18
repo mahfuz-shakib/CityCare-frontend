@@ -1,19 +1,4 @@
-import {
-  AlertTriangle,
-  Navigation,
-  PlusCircle,
-  Target,
-  Hammer,
-  Droplets,
-  Zap,
-  Trash2,
-  Shield,
-  MoreHorizontal,
-  Upload,
-  UserCheck,
-  ClipboardCheck,
-  Star,
-} from "lucide-react";
+import { AlertTriangle, Navigation, PlusCircle, Target,Hammer, Upload, UserCheck, ClipboardCheck, Star } from "lucide-react";
 
 export const quickActions = [
   {
@@ -46,28 +31,8 @@ export const quickActions = [
   },
 ];
 // -----------------------------------------------------
-export const stats = [
-  { label: "Total Issues", value: "24,561", color: "primary", progress: "100%" },
-  { label: "Resolved", value: "18,942", color: "emerald-500", progress: "77%" },
-  { label: "Pending", value: "3,450", color: "orange-400", progress: "14%" },
-  {
-    label: "Avg Resolution",
-    value: "3.4",
-    unit: "days",
-    color: "blue-800",
-    trend: "12% faster than last month",
-  },
-];
 
 // -----------------------------------------------------
-export const categories = [
-  { icon: Hammer, label: "Road Damage" },
-  { icon: Droplets, label: "Water Supply" },
-  { icon: Zap, label: "Electricity" },
-  { icon: Trash2, label: "Waste Mgmt" },
-  { icon: Shield, label: "Public Safety" },
-  { icon: MoreHorizontal, label: "Others" },
-];
 // -----------------------------------------------------
 export const issueLifecycles = [
   { icon: Upload, title: "1. Submit", desc: "Snap a photo, add details & location." },
@@ -106,18 +71,18 @@ export const getChartData = (issues) => {
   let reported = {};
   let resolved = {};
   const months = {
-    '-01': "Jan",
-    '-02': "Feb",
-    '-03': "Mar",
-    '-04': "Apr",
-    '-05': "May",
-    '-06': "Jun",
-    '-07': "Jul",
-    '-08': "Aug",
-    '-09': "Sep",
-    '-10': "Oct",
-    '-11': "Nov",
-    '-12': "Dec",
+    "-01": "Jan",
+    "-02": "Feb",
+    "-03": "Mar",
+    "-04": "Apr",
+    "-05": "May",
+    "-06": "Jun",
+    "-07": "Jul",
+    "-08": "Aug",
+    "-09": "Sep",
+    "-10": "Oct",
+    "-11": "Nov",
+    "-12": "Dec",
   };
   issues.forEach((issue) => {
     const reportedMonth = `${new Date(issue.createdAt).toISOString().slice(0, 7)}`; //2026-04
@@ -131,10 +96,10 @@ export const getChartData = (issues) => {
   });
   const data = Object.keys(reported).map((item) => {
     return {
-      month:months[item.slice(4,7)],
-      reports:reported[item] || 0,
-      resolved:resolved[item] || 0
-    }
+      month: months[item.slice(4, 7)],
+      reports: reported[item] || 0,
+      resolved: resolved[item] || 0,
+    };
   });
   return data;
 };

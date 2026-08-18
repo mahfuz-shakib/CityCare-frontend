@@ -8,6 +8,7 @@ import MapView from "../pages/MapView/MapView";
 import ActivityHistory from "../pages/Dashboard/Common/ActivityHistory";
 import Settings from "../pages/Dashboard/Common/Settings";
 import TaskDetails from "../pages/Dashboard/Staff/TaskDetails";
+import LazyWrapper from "../components/LazyWrapper";
 
 // Lazy load components for better performance
 const Home = lazy(() => import("../pages/Home/Home"));
@@ -31,7 +32,7 @@ const NotFound = lazy(() => import("../pages/NotFound/NotFound"));
 const About = lazy(() => import("../pages/About/About"));
 const Contact = lazy(() => import("../pages/Contact/Contact"));
 
-const LazyWrapper = ({ children }) => <Suspense fallback={<Loader />}>{children}</Suspense>;
+// const LazyWrapper = ({ children }) => <Suspense fallback={<ListingSkeleton/>}>{children}</Suspense>;
 
 export const router = createBrowserRouter([
   {
