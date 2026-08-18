@@ -1,13 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "react-router";
 import { motion, AnimatePresence } from "framer-motion";
-import { Pencil, Trash2, Zap, Loader2, Download, ExternalLink } from "lucide-react";
-
-import useAuth from "../../hooks/useAuth";
-import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import { useRef } from "react";
+import { Pencil, Trash2, Zap, Loader2, Download, ExternalLink } from "lucide-react";
+import useAuth from "../../hooks/useAuth";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 import UpdateIssueForm from "../../components/Form/UpdateIssueForm";
 
 /**
@@ -27,7 +26,7 @@ const IssueActions = ({ issue}) => {
 
   const isOwner = user?.email === issue.reporter;
   const canEdit = isOwner && issue.status === "pending";
-  const canBoost = issue.priority !== "high";
+  const canBoost =isOwner && issue.priority !== "high";
   // const haveActions = canEdit || isOwner || canBoost;
 
   const { mutateAsync: deleteMutation, isPending: isDeleting } = useMutation({
@@ -158,16 +157,16 @@ const IssueActions = ({ issue}) => {
               Community Awareness
             </p>
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
+              {/* <div className="flex items-center justify-between">
                 <span className="text-sm text-slate-600">Verified Neighbors</span>
                 <span className="text-sm font-bold text-slate-800">24</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-slate-600">Similar Reports</span>
                 <span className="text-sm font-bold text-slate-800">03</span>
-              </div>
+              </div> */}
               {/* Progress bar */}
-              <div className="mt-2">
+              {/* <div className="mt-2">
                 <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }}
@@ -179,7 +178,7 @@ const IssueActions = ({ issue}) => {
                 <p className="text-[10px] text-slate-400 mt-1.5">
                   65% Consensus reached for immediate repair
                 </p>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

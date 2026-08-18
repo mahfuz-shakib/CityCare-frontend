@@ -1,28 +1,21 @@
 import React, { use, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
 import { FcGoogle } from "react-icons/fc";
 import { motion, easeInOut } from "framer-motion";
 import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-
 import Container from "../../container/Container";
-import { AuthContext } from "../../providers/AuthContext";
-import useAxiosSecure from "../../hooks/useAxiosSecure";
-
+import useAuth from "../../hooks/useAuth";
+import useAxiosSecure from '../../hooks/useAxiosSecure'
 const Login = () => {
-  const { signInUser, signInWithGoogle } = use(AuthContext);
-
+  const { signInUser, signInWithGoogle, loading, setLoading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [authError, setAuthError] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const location = useLocation();
-  const navigate = useNavigate();
-  const axiosSecure = useAxiosSecure();
   const queryClient = useQueryClient();
-
+  const axiosSecure = useAxiosSecure();
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -30,69 +23,53 @@ const Login = () => {
   } = useForm();
 
   /* ---------------- GOOGLE USER SAVE ---------------- */
-  const saveUserMutation = useMutation({
-    mutationFn: (payload) => axiosSecure.post("/users", payload),
+
+  const { mutateAsync: saveUserToDB } = useMutation({
+    mutationFn: (payload) =>
+      axiosSecure.post(`/users`, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries();
+    },
   });
-
-  /* ---------------- ROLE CHECK ---------------- */
-  const redirectByRole = async (email) => {
-    try {
-      const res = await axiosSecure.get(`/staffs?email=${email}`);
-      const isStaff = res.data?.length > 0;
-
-      if (isStaff) {
-        navigate("/dashboard/homepage", { replace: true });
-      } else {
-        navigate(location.state || "/", { replace: true });
-      }
-    } catch {
-      navigate("/", { replace: true });
-    }
-  };
 
   /* ---------------- EMAIL LOGIN ---------------- */
   const onSubmit = async ({ email, password }) => {
-    setLoading(true);
     setAuthError("");
-
     try {
-      const res = await signInUser(email, password);
+      await signInUser(email, password);
       toast.success("Login successful");
-
-      await redirectByRole(res.user.email);
+      navigate(location.state || "/", { replace: true });
     } catch (err) {
       console.log(err.code);
       const message = err.code?.includes("invalid-credential")
         ? "Invalid email or password"
-        : err.code?.includes("user-not-found")?"User not found. Try with registered credential.": "Login failed. Try again.";
-
+        : err.code?.includes("user-not-found")
+          ? "User not found. Try with registered credential."
+          : "Login failed. Try again.";
       setAuthError(message);
       toast.error(message);
-    } finally {
-      setLoading(false);
     }
   };
 
   /* ---------------- GOOGLE LOGIN ---------------- */
   const handleGoogleAuth = async () => {
     setLoading(true);
-    setAuthError("");
-
     try {
       const res = await signInWithGoogle();
       const user = res.user;
-console.log(user);
-      await saveUserMutation.mutateAsync({
+
+      navigate(location.state || "/", { replace: true });
+      toast.success("Login successful");
+      
+      await saveUserToDB({
         displayName: user.displayName,
         email: user.email,
-        image: user.photoURL,
+        photoURL: user.photoURL,
       });
 
       queryClient.invalidateQueries({ queryKey: ["users"] });
-
-      toast.success("Login successful");
-      await redirectByRole(user.email);
-    } catch {
+    } catch (err) {
+      console.error(err);
       toast.error("Google login failed");
     } finally {
       setLoading(false);

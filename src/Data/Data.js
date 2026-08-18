@@ -119,7 +119,6 @@ export const getChartData = (issues) => {
     '-11': "Nov",
     '-12': "Dec",
   };
-  console.log("months: ", months);
   issues.forEach((issue) => {
     const reportedMonth = `${new Date(issue.createdAt).toISOString().slice(0, 7)}`; //2026-04
     if (issue.resolvedAt) {
@@ -130,7 +129,6 @@ export const getChartData = (issues) => {
     const preRep = (reported[reportedMonth] || 0) + 1;
     reported[reportedMonth] = preRep;
   });
-  console.log(reported, resolved);
   const data = Object.keys(reported).map((item) => {
     return {
       month:months[item.slice(4,7)],

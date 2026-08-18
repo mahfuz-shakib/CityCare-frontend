@@ -3,7 +3,7 @@ import React from "react";
 import useAuth from "./useAuth";
 import useAxiosSecure from "./useAxiosSecure";
 
-const useRole = () => {
+const useAuthDB = () => {
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
 
@@ -25,4 +25,4 @@ const useRole = () => {
   return {User,Staff,isLoading,loading}
 };
 
-export default useRole;
+export default useAuthDB;

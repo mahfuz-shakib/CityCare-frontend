@@ -10,7 +10,7 @@ import {
   ChevronDown,
   Activity,
 } from "lucide-react";
-import useAxiosSecure from "../../hooks/useAxiosSecure";
+import useAxios from "../../hooks/useAxios";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import IssueStatusBadge from "../../components/IssueStatusBadge";
@@ -51,13 +51,13 @@ const relativeTime = (dateStr) => {
 };
 
 const IssueTimeline = ({ issueId }) => {
-  const axiosSecure = useAxiosSecure();
+  const axiosInstance = useAxios();
   const [expandedRow, setExpandedRow] = useState(null);
 
   const { data: timeline = [], isLoading } = useQuery({
     queryKey: ["timelines", issueId],
     queryFn: async () => {
-      const res = await axiosSecure.get(`/timelines/?issueId=${issueId}`);
+      const res = await axiosInstance.get(`/timelines/?issueId=${issueId}`);
       return res.data;
     },
   });

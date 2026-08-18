@@ -24,7 +24,7 @@ const CreateStaffForm = ({ createModalRef }) => {
 
   const onSubmit = async (data) => {
     const photoURL = await imageUpload(data?.image[0]);
-
+console.log(photoURL);
     const staffInfo = {
       displayName: data.name,
       photoURL,
@@ -33,9 +33,7 @@ const CreateStaffForm = ({ createModalRef }) => {
       phone: data.phone,
       department: data.department,
     };
-    console.log(staffInfo);
     const res = await mutateAsync(staffInfo);
-    console.log(res.data);
     if (res.data.currentStaff?.insertedId) {
       toast.success("Staff creation successful");
       queryClient.invalidateQueries(["staffs"]);
@@ -130,7 +128,7 @@ const CreateStaffForm = ({ createModalRef }) => {
                     type="file"
                     id="image"
                     accept="image/*"
-                    {...register("image")}
+                    {...register("image", {required:true})}
                     className="block w-full file-input file:bg-surface-container-high file:text-primary"
                   />
                   <p className="mt-1 text-[10px] text-gray-400">PNG, JPG or JPEG (max 2MB)</p>
@@ -170,9 +168,9 @@ const CreateStaffForm = ({ createModalRef }) => {
                 </div>
               </fieldset>
             </form>
-            <div className="absolute top-6 -right-8">
+            <div className="absolute top-6 right-8">
               <form method="dialog">
-                <button className="w-fit md:w-32 text-red-500 text-2xl cursor-pointer hover:scale-102 hover:text-red-600">
+                <button className="w-fit text-red-500 text-2xl cursor-pointer hover:scale-102 hover:text-red-600">
                   X
                 </button>
               </form>

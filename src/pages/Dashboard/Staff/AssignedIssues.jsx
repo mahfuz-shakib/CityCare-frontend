@@ -33,7 +33,6 @@ const AssignedIssues = () => {
   });
   const assignedIssues = issuesResponse?.data || [];
   
-  if (isLoading) return <Loader />;
   return (
     <Container>
       <title>Assigned Issues</title>

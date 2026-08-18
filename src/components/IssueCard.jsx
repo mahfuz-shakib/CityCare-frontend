@@ -7,11 +7,14 @@ import { motion } from "framer-motion";
 import useAuth from "../hooks/useAuth";
 import { condition } from "../utils/DisableCondition";
 import useAxiosSecure from "../hooks/useAxiosSecure";
+import useAxios from "../hooks/useAxios";
+import IssueStatusBadge from "./IssueStatusBadge";
 
 const IssueCard = ({ issue }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const axiosSecure = useAxiosSecure();
+  const axiosInstance = useAxios();
   const queryClient = useQueryClient();
 
   const { _id, title, category, image, location, priority, status, reporter } = issue;
@@ -29,7 +32,7 @@ const IssueCard = ({ issue }) => {
   const { data } = useQuery({
     queryKey,
     queryFn: async () => {
-      const res = await axiosSecure.get(`/upvotes/?${params}`);
+      const res = await axiosInstance.get(`/upvotes/?${params}`);
       return res.data; // { allVotes: [], myVote: boolean }
     },
   });
@@ -78,17 +81,17 @@ const IssueCard = ({ issue }) => {
     }
   };
 
-  const getStatusBadgeClass = (status) => {
-    const statusMap = {
-      pending: "badge-warning",
-      "in-progress": "badge-info",
-      working: "badge-primary",
-      resolved: "badge-success",
-      closed: "badge-ghost",
-      rejected: "badge-error",
-    };
-    return statusMap[status] || "badge-outline";
-  };
+  // const getStatusBadgeClass = (status) => {
+  //   const statusMap = {
+  //     pending: "badge-warning",
+  //     "in-progress": "badge-info",
+  //     working: "badge-primary",
+  //     resolved: "badge-success",
+  //     closed: "badge-ghost",
+  //     rejected: "badge-error",
+  //   };
+  //   return statusMap[status] || "badge-outline";
+  // };
 
   const getPriorityBadgeClass = (priority) => {
     return priority === "high" ? "badge-error" : "badge-outline";
@@ -117,8 +120,8 @@ const IssueCard = ({ issue }) => {
         >
           {priority === "high" && <span className=" bg-red-700 text-white px-2 py-1 rounded shadow-lg">BOOSTED</span>}
           
-          
-          <span className={`badge text-white ${getStatusBadgeClass(status)}`}>{status}</span>
+          <IssueStatusBadge status={status}/>
+          {/* <span className={`badge text-white ${getStatusBadgeClass(status)}`}>{status}</span> */}
         </motion.div>
       </figure>
 
@@ -135,7 +138,7 @@ const IssueCard = ({ issue }) => {
           <FaLocationDot className="text-red-500 flex-shrink-0" />
           <span className="truncate">{location}</span>
         </p>
-
+          
           <i className="badge outline outline-gray-300 mb-3">{category}</i>
           {/* <span className={`badge ${getPriorityBadgeClass(priority)}`}>{priority}</span> */}
 

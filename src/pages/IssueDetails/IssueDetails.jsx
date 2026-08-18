@@ -5,7 +5,7 @@ import { MapPin, CalendarDays, User, Tag, ShieldCheck, ArrowUpRight, Hash } from
 import IssueActions from "./IssueActions";
 import IssueTimeline from "./IssueTimeline";
 import Container from "../../container/Container";
-import useAxiosSecure from "../../hooks/useAxiosSecure";
+import useAxios from "../../hooks/useAxios";
 import IssueStatusBadge from "../../components/IssueStatusBadge";
 import IssuePriorityBadge from "../../components/IssuePriorityBadge";
 import IssueCategoryBadge from "../../components/IssueCategoryBadge";
@@ -21,12 +21,12 @@ const IssueDetails = () => {
   const { _id } = useParams();
   const { user } = useAuth();
 
-  const axiosSecure = useAxiosSecure();
+  const axiosInstance = useAxios();
 
   const { data: issue, isLoading } = useQuery({
     queryKey: ["issueDetails", _id],
     queryFn: async () => {
-      const res = await axiosSecure.get(`/issues/${_id}`);
+      const res = await axiosInstance.get(`/issues/${_id}`);
       return res.data;
     },
   });
@@ -249,7 +249,7 @@ const IssueDetails = () => {
               </div>
 
               {/* Civic Guarantee card */}
-              <div className="h-fit bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-5 text-white shadow-md">
+              {/* <div className="h-fit bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-5 text-white shadow-md">
                 <div className="flex items-center gap-2 mb-2">
                   <ShieldCheck size={18} className="text-blue-200" />
                   <h4 className="font-bold text-sm">Civic Guarantee</h4>
@@ -262,7 +262,7 @@ const IssueDetails = () => {
                   Learn more about our integrity policy
                   <ArrowUpRight size={13} />
                 </button>
-              </div>
+              </div> */}
             </motion.div>
           </div>
 

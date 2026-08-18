@@ -1,6 +1,6 @@
-import React, { memo, use, useEffect, useRef, useState } from "react";
-import { Link, Outlet, useNavigate } from "react-router";
-import { AnimatePresence, motion } from "framer-motion";
+import React, { memo, useRef } from "react";
+import { Link, Outlet } from "react-router";
+import { motion } from "framer-motion";
 import useRole from "../hooks/useRole";
 import AdminMenu from "../components/Dashboard/Menu/AdminMenu";
 import StaffMenu from "../components/Dashboard/Menu/StaffMenu";
@@ -8,35 +8,17 @@ import CitizenMenu from "../components/Dashboard/Menu/CitizenMenu";
 import Loader from "../components/Loader";
 import Container from "../container/Container";
 import { AuthContext } from "../providers/AuthContext";
-import { toast } from "react-toastify";
 import { FaUser } from "react-icons/fa";
+import NavProfileDropdown from "../components/NavProfileDropdown";
+import useAuth from "../hooks/useAuth";
 
 const DashboardLayout = () => {
   const { role, roleLoading } = useRole();
-  const [openDropdown, setOpenDropdown] = useState(false);
-  const { user, logOut } = use(AuthContext);
+  const { loading: authLoading } = useAuth();
   const dropdownRef = useRef(null);
-  const navigate = useNavigate();
-  // Close dropdown on outside click
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setOpenDropdown(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-  if (roleLoading) {
+  if ( authLoading || roleLoading) {
     return <Loader />;
   }
-
-  const handleLogOut = async () => {
-    await logOut;
-    setOpenDropdown(false);
-    navigate("/");
-    toast.success("Logged out successfully");
-  };
 
   const renderMenu = () => {
     if (role === "admin") {
@@ -48,7 +30,7 @@ const DashboardLayout = () => {
     }
   };
   return (
-    <div className="">
+    <div className="md:min-h-[calc(100vh-244px)]">
       <div className="drawer lg:drawer-open">
         <input id="my-drawer-4" type="checkbox" className="drawer-toggle" />
         <div className="drawer-content">
@@ -87,51 +69,16 @@ const DashboardLayout = () => {
               </motion.div>
             </div>
             <div className="mr-12 relative" ref={dropdownRef}>
-              <button onClick={() => setOpenDropdown((p) => !p)}>
-                {user.photoURL ? (
-                  <img
-                    src={user.photoURL}
-                    alt={user.displayName || "User avatar"}
-                    referrerPolicy="no-referrer"
-                    className="w-10 h-10 cursor-pointer rounded-full border border-slate-300"
-                  />
-                ) : (
-                  <FaUser className="w-10 h-10 p-2 rounded-full border border-slate-300" />
-                )}
-              </button>
-
-              <AnimatePresence>
-                {openDropdown && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -8 }}
-                    className="absolute right-0 mt- w-48 bg-white border border-blue-200 rounded-lg shadow-lg overflow-hidden z-10"
-                  >
-                    <Link
-                      to="/dashboard/myProfile"
-                      onClick={() => setOpenDropdown(false)}
-                      className="block px-4 py-2 hover:bg-blue-100"
-                    >
-                      {user.displayName}
-                    </Link>
-                    <Link
-                      to="/dashboard/overview"
-                      onClick={() => setOpenDropdown(false)}
-                      className="block px-4 py-2 hover:bg-blue-100"
-                    >
-                      Dashboard
-                    </Link>
-                    <button onClick={handleLogOut} className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50">
-                      Log Out
-                    </button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              <NavProfileDropdown dropdownRef={dropdownRef} />
             </div>
           </motion.nav>
           {/* Page content here */}
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4, delay: 0.1 }}>
+          <motion.div
+            className="min-h-[calc(100vh-374px)]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+          >
             <Outlet />
           </motion.div>
         </div>

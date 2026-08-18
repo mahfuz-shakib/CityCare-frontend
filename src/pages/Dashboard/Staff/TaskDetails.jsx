@@ -7,7 +7,7 @@ import Loader from "../../../components/Loader";
 import { MdLocationPin } from "react-icons/md";
 import { FaFileAlt } from "react-icons/fa";
 import { toast } from "react-toastify";
-
+import Swal from "sweetalert2";
 const TaskDetails = () => {
   const { _id } = useParams();
   const axiosSecure = useAxiosSecure();
@@ -28,23 +28,46 @@ const TaskDetails = () => {
     { id: 4, label: "Resolved", value: "resolved", color: "bg-emerald-200" },
     { id: 5, label: "Closed", value: "closed", color: "bg-slate-200" },
   ];
-  const handleStatus = async (newStatus) => {
+  const handleStatus = (newStatus) => {
     if (!newStatus) return;
-    const currentIndex = statuses.findIndex((s) => s.value === issue.status);
-    const allowedNext = currentIndex === -1 ? null : statuses[currentIndex + 1]?.value;
-    if (newStatus !== allowedNext) {
-      toast.error("Invalid status change. You can only advance to the next status in order.");
-      return;
-    }
-    try {
-      await axiosSecure.patch(`/issues/${issue._id}`, { status: newStatus });
-
-      toast.success("Status changed successfully!");
-      queryClient.invalidateQueries({ queryKey });
-    } catch (err) {
-      toast.error("Status change failed. Please try again.");
-      console.error(err);
-    }
+    Swal.fire({
+      title: "Are you sure to do update?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, Update it!",
+    }).then(async(result) => {
+      if (result.isConfirmed) {
+        const currentIndex = statuses.findIndex((s) => s.value === issue.status);
+        const allowedNext = currentIndex === -1 ? null : statuses[currentIndex + 1]?.value;
+        if (newStatus !== allowedNext) {
+          toast.error("Invalid status change. You can only advance to the next status in order.");
+          return;
+        }
+        try {
+          await axiosSecure.patch(`/issues/${issue._id}`, { status: newStatus });
+    
+          toast.success("Status changed successfully!");
+          queryClient.invalidateQueries({ queryKey });
+          Swal.fire({
+            position: "top-end",
+            title: "Updated!",
+            text: "Issue status has been updated.",
+            icon: "success",
+            showConfirmButton:false
+          });
+        } catch (err) {
+          toast.error("Status change failed. Please try again.");
+          console.error(err);
+        }
+      }
+      if(result.isDismissed)
+      {
+        queryClient.invalidateQueries({queryKey})
+      }
+    });
   };
   if (isLoading) return <Loader />;
   return (

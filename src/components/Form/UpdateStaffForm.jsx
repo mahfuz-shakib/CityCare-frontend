@@ -145,9 +145,9 @@ const UpdateStaffForm = ({ staff, updateModalRef }) => {
               </div>
             </fieldset>
           </form>
-          <div className="absolute top-6 -right-8">
+          <div className="absolute top-6 right-8">
             <form method="dialog">
-              <button className="w-fit md:w-32 text-red-500 text-2xl cursor-pointer hover:scale-102 hover:text-red-600">
+              <button className="w-fit text-red-500 text-2xl cursor-pointer hover:scale-102 hover:text-red-600">
                 X
               </button>
             </form>

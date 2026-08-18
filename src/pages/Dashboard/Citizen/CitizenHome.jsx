@@ -18,7 +18,7 @@ const CitizenHome = () => {
   const { user, loading } = useAuth();
   const axiosSecure = useAxiosSecure();
 
-  const { data: issuesResponse, isLoading: issuesLoading } = useQuery({
+  const { data: issuesData, isLoading: issuesLoading } = useQuery({
     queryKey: ["issues", "citizen", user?.email],
     queryFn: async () => {
       const res = await axiosSecure.get(`/issues/?email=${user?.email}`);
@@ -26,7 +26,7 @@ const CitizenHome = () => {
     },
     enabled: !!user?.email,
   });
-  const issues = issuesResponse?.data || [];
+  const issues = issuesData?.data || [];
 
   const { data: payments = [], isLoading: paymentsLoading } = useQuery({
     queryKey: ["payments", "citizen", user?.email],
@@ -37,16 +37,9 @@ const CitizenHome = () => {
     enabled: !!user?.email,
   });
   //   console.log(payments);
-  const { data: userData, isLoading: userLoading } = useQuery({
-    queryKey: ["users", user?.email],
-    queryFn: async () => {
-      const res = await axiosSecure.get(`/users/?email=${user?.email}`);
-      return res.data?.[0];
-    },
-    enabled: !!user?.email,
-  });
 
-  if (loading || issuesLoading || paymentsLoading || userLoading) {
+
+  if (loading || issuesLoading || paymentsLoading ) {
     return <Loader />;
   }
 
@@ -63,7 +56,6 @@ const CitizenHome = () => {
   const latestIssues = issues?.slice(0, 4);
 
   const latestPayments = payments?.slice(0, 4);
-  console.log(latestPayments);
   const boostedPayments = payments.filter(
     (p) => p.purpose?.toLowerCase().includes("boost") || p.metadata?.issueId,
   ).length;
@@ -82,7 +74,7 @@ const CitizenHome = () => {
       value: stats.resolved,
       icon: FaCheckCircle,
       color: "bg-green-500",
-      analytics: `${parseInt((stats.resolved / stats.totalIssues) * 100)}% completion`,
+      analytics: `${parseInt(((stats.resolved / stats.totalIssues)|| 0) * 100)}% completion`,
       analyticsColor: "text-slate-500",
     },
     {
@@ -120,7 +112,7 @@ const CitizenHome = () => {
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
           <div className="flex justify-between items-center">
             <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">
-              Welcome back, {userData?.displayName || user?.displayName}!
+              Welcome back, { user?.displayName}!
             </h1>
             <Link
               to="/dashboard/report-issue"

@@ -10,7 +10,7 @@ const BlockedWarning = () => {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5 }}
-                className="max-w-2xl mx-auto mt-20"
+                className="max-w-2xl mx-auto my-20"
             >
                 <div className="bg-red-50 border-2 border-red-500 rounded-lg p-8 text-center">
                     <FaExclamationTriangle className="text-6xl text-red-500 mx-auto mb-4" />

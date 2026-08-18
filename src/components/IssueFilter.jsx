@@ -1,12 +1,12 @@
 import React, { useMemo, useState } from "react";
-import useAxiosSecure from "../hooks/useAxiosSecure";
+import useAxios from "../hooks/useAxios";
 import { useQuery } from "@tanstack/react-query";
 
 const IssueFilter = () => {
   const [filters, setFilters] = useState({ category: "", status: "", priority: "", search: "" });
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 9; // 9 items per page (3 columns x 3 rows)
-  const axiosSecure = useAxiosSecure();
+  const axiosInstance = useAxios();
   const { data: response, isLoading } = useQuery({
     queryKey: ["issues", filters, currentPage],
     queryFn: async () => {
@@ -15,7 +15,7 @@ const IssueFilter = () => {
         page: currentPage.toString(),
         limit: pageSize.toString(),
       }).toString();
-      const res = await axiosSecure.get(`/issues/?${params}`);
+      const res = await axiosInstance.get(`/issues/?${params}`);
       return res.data;
     },
   });

@@ -1,21 +1,19 @@
 import React, { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import useAxiosSecure from "../../hooks/useAxiosSecure";
+import useAxios from "../../hooks/useAxios";
 import Container from "../../container/Container";
 import IssueCard from "../../components/IssueCard";
 import Loader from "../../components/Loader";
 import { FaArrowLeft } from "react-icons/fa6";
-import { useNavigate } from "react-router";
 import ListingSkeleton from "../../components/ListingSkeleton";
 
 const Issues = () => {
   const [filters, setFilters] = useState({ category: "", status: "", priority: "", search: "" });
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 9; // 9 items per page (3 columns x 3 rows)
-  const axiosSecure = useAxiosSecure();
-  const navigate = useNavigate();
-  const { data: response, isLoading } = useQuery({
+  const axiosInstance = useAxios();
+  const { data: issuesData, isLoading } = useQuery({
     queryKey: ["issues", filters, currentPage],
     queryFn: async () => {
       const params = new URLSearchParams({
@@ -23,13 +21,13 @@ const Issues = () => {
         page: currentPage.toString(),
         limit: pageSize.toString(),
       }).toString();
-      const res = await axiosSecure.get(`/issues/?${params}`);
+      const res = await axiosInstance.get(`/issues/?${params}`);
       return res.data;
     },
   });
 
-  const issues = response?.data || [];
-  const pagination = response?.pagination || { page: 1, limit: pageSize, total: 0, totalPages: 1 };
+  const issues = issuesData?.data || [];
+  const pagination = issuesData?.pagination || { page: 1, limit: pageSize, total: 0, totalPages: 1 };
 
   const activeFilters = Object.entries(filters).filter(([_, value]) => value);
 

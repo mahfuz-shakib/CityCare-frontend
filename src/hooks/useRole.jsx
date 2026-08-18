@@ -1,35 +1,25 @@
-import { useQuery } from '@tanstack/react-query';
-import React from 'react';
-import useAuth from './useAuth';
-import useAxiosSecure from './useAxiosSecure';
+import { useQuery } from "@tanstack/react-query";
+import useAuth from "./useAuth";
+import useAxiosSecure from "./useAxiosSecure";
 
 const useRole = () => {
-    const { user } = useAuth();
-    const axiosSecure = useAxiosSecure();
-    const { isLoading: roleLoading, data: role = 'citizen' } = useQuery({
-        queryKey: ['user-role', user?.email],
-        queryFn: async () => {
-            if (!user?.email) return 'citizen';
-            const res = await axiosSecure.get(`/users/?email=${user?.email}`);
-            const userData = res.data?.[0];
-            // Check if user is staff
-            if (!userData || userData.role !== 'staff') {
-                // Check staffs collection
-                try {
-                    const staffRes = await axiosSecure.get(`/staffs/?email=${user?.email}`);
-                    if (staffRes?.data?.data[0]) {
-                        return 'staff';
-                    }
-                } catch (err) {
-                    console.log(err);
-                }
-            }
-            
-            return userData?.role || 'citizen';
-        },
-        enabled: !!user?.email,
-    })
-    return { role, roleLoading };
+  const { user, loading: authLoading } = useAuth();
+  const axiosSecure = useAxiosSecure();
+
+  const { data: role = "citizen", isLoading: roleLoading } = useQuery({
+    queryKey: ["user-role", user?.email],
+    queryFn: async () => {
+      const res = await axiosSecure.get("/role");
+      return res.data?.role || "citizen";
+    },
+    // Don't run until Firebase auth is settled and we have a user
+    enabled: !authLoading && !!user?.email,
+    // Role won't change mid-session — no need to refetch on window focus
+    staleTime: 1000 * 60 * 10,
+    refetchOnWindowFocus: false,
+  });
+
+  return { role, roleLoading: authLoading || roleLoading };
 };
 
 export default useRole;

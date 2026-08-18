@@ -6,19 +6,18 @@ import { FcGoogle } from "react-icons/fc";
 import { toast } from "react-toastify";
 import { motion, easeInOut } from "framer-motion";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-
-import { AuthContext } from "../../providers/AuthContext";
 import Container from "../../container/Container";
 import { imageUpload } from "../../utils";
+import useAuth from "../../hooks/useAuth";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 const Register = () => {
-  const { createUser, signInWithGoogle, updateUser } = use(AuthContext);
+  const { createUser, signInWithGoogle, updateUser } = useAuth();
 
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-
   const axiosSecure = useAxiosSecure();
+
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -28,9 +27,9 @@ const Register = () => {
     formState: { errors },
   } = useForm();
 
-  /* ---------------- SAVE USER ---------------- */
+  /* ---------------- SAVE USER (plain axios — POST /users is public) ---------------- */
   const saveUserMutation = useMutation({
-    mutationFn: (payload) => axiosSecure.post("/users", payload),
+    mutationFn: (payload) => axiosSecure.post(`/users`, payload),
   });
 
   /* ---------------- EMAIL REGISTER ---------------- */
@@ -42,7 +41,7 @@ const Register = () => {
       const photoURL = await imageUpload(formData.image[0]);
 
       // Firebase create
-      const res = await createUser(formData.email, formData.password);
+      await createUser(formData.email, formData.password);
 
       // Update firebase profile
       await updateUser(formData.name, photoURL);
@@ -94,7 +93,6 @@ const Register = () => {
     <div className="min-h-screen flex items-center justify-center bg-slate-50">
       <Container>
         <div className="flex flex-col md:flex-row items-center gap-28">
-
           {/* Left Content */}
           <motion.div
             initial={{ x: -150, opacity: 0 }}
@@ -105,9 +103,7 @@ const Register = () => {
             <h1 className="text-4xl md:text-5xl font-semibold text-slate-800 mb-3">
               Join <span className="text-sky-600">CityCare</span>
             </h1>
-            <p className="text-slate-500">
-              Create your citizen account
-            </p>
+            <p className="text-slate-500">Create your citizen account</p>
           </motion.div>
 
           {/* Form Card */}
@@ -118,9 +114,7 @@ const Register = () => {
           >
             <div className="card w-full max-w-sm bg-white shadow-xl">
               <div className="card-body space-y-4">
-
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-
                   {/* Name */}
                   <div>
                     <label className="label text-slate-700">Full Name</label>
@@ -132,11 +126,7 @@ const Register = () => {
                       className="input input-bordered w-full"
                       placeholder="Enter your full name"
                     />
-                    {errors.name && (
-                      <p className="text-xs text-red-500 mt-1">
-                        {errors.name.message}
-                      </p>
-                    )}
+                    {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name.message}</p>}
                   </div>
 
                   {/* Email */}
@@ -154,11 +144,7 @@ const Register = () => {
                       className="input input-bordered w-full"
                       placeholder="Enter your email"
                     />
-                    {errors.email && (
-                      <p className="text-xs text-red-500 mt-1">
-                        {errors.email.message}
-                      </p>
-                    )}
+                    {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>}
                   </div>
 
                   {/* Image */}
@@ -170,11 +156,7 @@ const Register = () => {
                       {...register("image", { required: "Image is required" })}
                       className="file-input file-input-bordered w-full"
                     />
-                    {errors.image && (
-                      <p className="text-xs text-red-500 mt-1">
-                        {errors.image.message}
-                      </p>
-                    )}
+                    {errors.image && <p className="text-xs text-red-500 mt-1">{errors.image.message}</p>}
                   </div>
 
                   {/* Password */}
@@ -187,8 +169,7 @@ const Register = () => {
                           required: "Password is required",
                           pattern: {
                             value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/,
-                            message:
-                              "Min 6 chars, atleast uppercase, lowercase & number",
+                            message: "Min 6 chars, atleast uppercase, lowercase & number",
                           },
                         })}
                         className="input input-bordered w-full"
@@ -202,11 +183,7 @@ const Register = () => {
                         {showPassword ? <FaEyeSlash /> : <FaEye />}
                       </button>
                     </div>
-                    {errors.password && (
-                      <p className="text-xs text-red-500 mt-1">
-                        {errors.password.message}
-                      </p>
-                    )}
+                    {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>}
                   </div>
 
                   <button
@@ -220,9 +197,7 @@ const Register = () => {
                 {/* Divider */}
                 <div className="flex items-center gap-2">
                   <span className="flex-1 h-px bg-slate-300" />
-                  <span className="text-sm text-slate-500">
-                    Or continue with
-                  </span>
+                  <span className="text-sm text-slate-500">Or continue with</span>
                   <span className="flex-1 h-px bg-slate-300" />
                 </div>
 
@@ -243,7 +218,6 @@ const Register = () => {
                     Login here
                   </Link>
                 </p>
-
               </div>
             </div>
           </motion.div>

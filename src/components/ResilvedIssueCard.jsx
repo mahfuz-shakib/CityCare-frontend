@@ -6,24 +6,7 @@ import { MapPin } from "lucide-react";
 
 const ResilvedIssueCard = ({ issue }) => {
   const navigate = useNavigate();
- 
   const { _id, title, category, image, location } = issue;
-
-  const getStatusBadgeClass = (status) => {
-    const statusMap = {
-      pending: "badge-warning",
-      "in-progress": "badge-info",
-      working: "badge-primary",
-      resolved: "badge-success",
-      closed: "badge-ghost",
-      rejected: "badge-error",
-    };
-    return statusMap[status] || "badge-outline";
-  };
-
-  const getPriorityBadgeClass = (priority) => {
-    return priority === "high" ? "badge-error" : "badge-outline";
-  };
 
   return (
     <div className="group min-h-100 bg-surface rounded-2xl overflow-hidden hover:shadow-xl transition-all">

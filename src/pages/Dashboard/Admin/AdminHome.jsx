@@ -45,14 +45,14 @@ const StatCard = ({ icon: Icon, label, value, sub, trend, trendUp, color, delay 
       <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${color}`}>
         <Icon size={18} className="text-white" />
       </div>
-      {trend !== undefined && (
+      {/* {trend !== undefined && (
         <span
           className={`flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full ${trendUp ? "text-emerald-600 bg-emerald-50" : "text-red-500 bg-red-50"}`}
         >
           {trendUp ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
           {trend}
         </span>
-      )}
+      )} */}
     </div>
     <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-400 mb-1">{label}</p>
     <p className="text-3xl font-bold text-slate-900 leading-none">{value}</p>
@@ -160,7 +160,7 @@ const AdminHome = () => {
     infrastructure: Math.round(weeklyBase * (0.6 + Math.sin(i) * 0.3)),
     sanitation: Math.round(weeklyBase * (0.3 + Math.cos(i) * 0.2)),
   }));
-
+  console.log("trend: ",trendData);
   /* ── payment mix donut ── */
   const subPct = totalRevenue > 0 ? Math.round((subRevenue / totalRevenue) * 100) : 65;
   const boostPct = totalRevenue > 0 ? Math.round((boostRevenue / totalRevenue) * 100) : 25;

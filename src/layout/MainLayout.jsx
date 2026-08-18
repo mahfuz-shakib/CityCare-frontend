@@ -8,7 +8,9 @@ const MainLayout = () => {
   return (
     <>
       <Navbar />
-      <Outlet></Outlet>
+      <div className="md:min-h-[calc(100vh-374px)]">
+        <Outlet></Outlet>
+      </div>
       <Footer />
       <ToastContainer />
       <ScrollRestoration />

@@ -11,7 +11,7 @@ import Loader from "../../../components/Loader";
 import { imageUpload } from "../../../utils";
 
 const StaffProfile = () => {
-  const { user, setUser } = useAuth();
+  const { user, setUser, updateUser } = useAuth();
   const axiosSecure = useAxiosSecure();
   const queryClient = useQueryClient();
 
@@ -19,11 +19,12 @@ const StaffProfile = () => {
     queryKey: ["staffs", user?.email],
     queryFn: async () => {
       const res = await axiosSecure.get(`/staffs/?email=${user?.email}`);
-      return res.data?.[0];
+      console.log(res);
+      return res.data.data?.[0];
     },
     enabled: !!user?.email,
   });
-
+  console.log(staffData);
   const { data: issuesData } = useQuery({
     queryKey: ["staff-issues", user?.email],
     queryFn: async () => {
@@ -37,26 +38,26 @@ const StaffProfile = () => {
 
   const { register, handleSubmit, reset } = useForm({
     defaultValues: {
-      displayName: staffData?.displayName || "",
-      photoURL: staffData?.photoURL || "",
+      displayName: "",
+      photoURL: "",
     },
   });
 
   useEffect(() => {
     reset({
-      displayName: staffData?.displayName || "",
-      photoURL: staffData?.photoURL || "",
+      displayName: staffData?.displayName || user?.displayName || "",
+      photoURL: staffData?.photoURL || user.photoURL || "",
     });
-  }, [staffData, reset]);
+  }, [staffData, user, reset]);
 
   const onSubmit = async (formData) => {
     try {
-       const photoURL = await imageUpload(formData?.image[0]);
-            const updatePayload = {
-              displayName: formData.displayName || staffData?.displayName,
-              photoURL: photoURL || staffData?.photoURL,
-            };
-
+      const photoURL = await imageUpload(formData?.image[0]) ;
+      const updatePayload = {
+        displayName: formData?.displayName || staffData?.displayName || user?.displayName,
+        photoURL: photoURL || staffData?.photoURL || user?.photoURL,
+      };
+      await updateUser(updatePayload.displayName, updatePayload.photoURL);
       const res = await axiosSecure.patch(`/staffs/${staffData?._id}`, updatePayload);
       if (res?.acknowledged || res?.data) {
         const updated = { ...staffData, ...updatePayload };
@@ -86,8 +87,8 @@ const StaffProfile = () => {
 
   return (
     <Container>
-            <title>Profile</title>
-      
+      <title>Profile</title>
+
       <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
         {/* Profile Header */}
         <motion.div
@@ -137,17 +138,17 @@ const StaffProfile = () => {
                         <input
                           {...register("displayName")}
                           className="input input-bordered w-full text-black"
-                          defaultValue={staffData?.displayName || user}
+                          defaultValue={staffData?.displayName || user.displayName}
                         />
                       </div>
-                      <div className="w-40">
-                        <label className="label md:text-sm  text-black">Upload Image</label>
+                      <div className="w-54">
+                        <label className="label md:text-sm text-white">Upload Image</label>
                         <input
-                        type="file"
-                      id="image"
-                      accept="image/*"
+                          type="file"
+                          // id="image"
+                          accept="image/*"
                           {...register("image")}
-                      className=" file-input file:bg-lime-50 file:text-lime-700"
+                      className="block w-full file-input file:bg-surface-container-high file:text-primary"
                         />
                       </div>
                     </div>

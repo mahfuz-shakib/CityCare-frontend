@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import useAxiosSecure from "../../../hooks/useAxiosSecure";
+import useAxios from "../../../hooks/useAxios";
 import Container from "../../../container/Container";
 import Loader from "../../../components/Loader";
 import { Link } from "react-router";
@@ -8,20 +8,20 @@ import ResilvedIssueCard from "../../../components/ResilvedIssueCard";
 import { ArrowRight } from "lucide-react";
 
 const LatestResolvedIssues = () => {
-  const axiosSecure = useAxiosSecure();
-
-  const { data: issuesResponse, isLoading } = useQuery({
+  const axiosInstance = useAxios();
+  const { data: issuesData, isLoading } = useQuery({
     queryKey: ["latestResolvedIssues"],
     queryFn: async () => {
-      const res = await axiosSecure.get("/issues/?status=resolved&limit=6");
+      const res = await axiosInstance.get("/issues/?status=resolved&limit=6");
       return res.data?.data || res.data || [];
     },
   });
-  if (isLoading) {
-    return <Loader />;
-  }
 
-  const issues = issuesResponse || [];
+  // if (isLoading) {
+  //   return <Loader />;
+  // }
+
+  const issues = issuesData || [];
 
   return (
     <section className="bg-white py-16">

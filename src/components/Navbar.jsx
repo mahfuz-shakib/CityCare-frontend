@@ -1,36 +1,16 @@
-import React, { memo, use, useEffect, useRef, useState } from "react";
-import { Link, NavLink, useLocation, useNavigate } from "react-router";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { memo, useRef } from "react";
+import { Link, NavLink, useLocation } from "react-router";
 import { FaUser } from "react-icons/fa6";
-import { toast } from "react-toastify";
-import { AuthContext } from "../providers/AuthContext";
 import Container from "../container/Container";
+import useAuth from "../hooks/useAuth";
+import NavProfileDropdown from "./NavProfileDropdown";
+import { motion } from "framer-motion";
 
 const Navbar = memo(() => {
-  const { user, loading, logOut } = use(AuthContext);
-  const [openDropdown, setOpenDropdown] = useState(false);
+  const { user, loading } = useAuth();
   // const [activeLabel, setActiveLabel] = useState("/");
-  const dropdownRef = useRef(null);
-  const navigate = useNavigate();
   const location = useLocation();
-  // Close dropdown on outside click
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setOpenDropdown(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const handleLogOut = async () => {
-    await logOut();
-    setOpenDropdown(false);
-    navigate("/");
-    toast.success("Logged out successfully");
-  };
-
+  const dropdownRef = useRef(null);
   const navLinks = [
     { to: "/", label: "Home" },
     { to: "/all-issues", label: "All Issues" },
@@ -39,7 +19,7 @@ const Navbar = memo(() => {
     { to: "/contact", label: "Contact" },
   ];
   if (location.pathname.startsWith("/dashboard")) return;
-  
+
   return (
     <motion.nav
       initial={{ y: -80 }}
@@ -103,18 +83,7 @@ const Navbar = memo(() => {
             {loading ? (
               <span className="loading loading-spinner loading-sm" />
             ) : user ? (
-              <button onClick={() => setOpenDropdown((p) => !p)}>
-                {user.photoURL ? (
-                  <img
-                    src={user.photoURL}
-                    alt={user.displayName || "User avatar"}
-                    referrerPolicy="no-referrer"
-                    className="w-10 h-10 cursor-pointer rounded-full border border-slate-300"
-                  />
-                ) : (
-                  <FaUser className="w-10 h-10 p-2 rounded-full border border-slate-300" />
-                )}
-              </button>
+              <NavProfileDropdown dropdownRef={dropdownRef} />
             ) : (
               <>
                 <Link to="/login" className="btn btn-outline btn-sm">
@@ -125,35 +94,6 @@ const Navbar = memo(() => {
                 </Link>
               </>
             )}
-
-            <AnimatePresence>
-              {openDropdown && user && (
-                <motion.div
-                  initial={{ opacity: 0, y: -8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  className="absolute right-0 mt-42 w-48 bg-white border border-blue-300 rounded-lg shadow-lg overflow-hidden"
-                >
-                  <Link
-                    to="/dashboard/myProfile"
-                    onClick={() => setOpenDropdown(false)}
-                    className="block px-4 py-2 hover:bg-blue-100"
-                  >
-                    {user.displayName}
-                  </Link>
-                  <Link
-                    to="/dashboard/overview"
-                    onClick={() => setOpenDropdown(false)}
-                    className="block px-4 py-2 hover:bg-blue-100"
-                  >
-                    Dashboard
-                  </Link>
-                  <button onClick={handleLogOut} className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50">
-                    Log Out
-                  </button>
-                </motion.div>
-              )}
-            </AnimatePresence>
           </div>
         </div>
       </Container>

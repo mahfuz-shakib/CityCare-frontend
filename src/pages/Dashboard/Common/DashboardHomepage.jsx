@@ -1,6 +1,6 @@
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
-import useAxiosSecure from '../../../hooks/useAxiosSecure';
+// import { useQuery } from '@tanstack/react-query';
+// import useAxiosSecure from '../../../hooks/useAxiosSecure';
 import useAuth from '../../../hooks/useAuth';
 import useRole from '../../../hooks/useRole';
 import AdminHome from '../Admin/AdminHome';
@@ -9,8 +9,8 @@ import CitizenHome from '../Citizen/CitizenHome';
 import Loader from '../../../components/Loader';
 
 const DashboardHomepage = () => {
-    const { user ,loading} = useAuth();
-    const axiosSecure = useAxiosSecure();
+    const {loading} = useAuth();
+    // const axiosSecure = useAxiosSecure();
     const { role, roleLoading } = useRole()
     // const { data: userData, isLoading } = useQuery({
     //     queryKey: ['users', user?.email],

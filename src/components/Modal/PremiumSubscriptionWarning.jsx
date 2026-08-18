@@ -11,7 +11,7 @@ const PremiumSubscriptionWarning = () => {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5 }}
-                className="max-w-2xl mx-auto mt-20"
+                className="max-w-2xl mx-auto my-20"
             >
                 <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-500 rounded-lg p-8 text-center">
                     <div className="relative inline-block mb-4">
