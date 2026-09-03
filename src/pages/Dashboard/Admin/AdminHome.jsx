@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Link } from "react-router";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, Legend } from "recharts";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import {
   TrendingUp,
   TrendingDown,
@@ -20,8 +22,10 @@ import {
   RefreshCcw,
 } from "lucide-react";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
-import useAuth from "../../../hooks/useAuth";
 import Container from "../../../container/Container";
+import IssueStatusBadge from "../../../components/IssueStatusBadge";
+import PageHeader from "../../../components/PageHeader";
+import { formatCategory } from "../../../constants/categories";
 
 /* ── tiny helpers ── */
 const fadeUp = (delay = 0) => ({
@@ -45,38 +49,12 @@ const StatCard = ({ icon: Icon, label, value, sub, trend, trendUp, color, delay 
       <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${color}`}>
         <Icon size={18} className="text-white" />
       </div>
-      {/* {trend !== undefined && (
-        <span
-          className={`flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full ${trendUp ? "text-emerald-600 bg-emerald-50" : "text-red-500 bg-red-50"}`}
-        >
-          {trendUp ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
-          {trend}
-        </span>
-      )} */}
     </div>
     <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-400 mb-1">{label}</p>
     <p className="text-3xl font-bold text-slate-900 leading-none">{value}</p>
     {sub && <p className="text-xs text-slate-400 mt-1.5">{sub}</p>}
   </motion.div>
 );
-
-/* ── Status badge ── */
-const StatusBadge = ({ status }) => {
-  const map = {
-    pending: "bg-amber-100 text-amber-700",
-    resolved: "bg-emerald-100 text-emerald-700",
-    closed: "bg-emerald-100 text-emerald-700",
-    rejected: "bg-red-100 text-red-600",
-    "in-progress": "bg-blue-100 text-blue-700",
-  };
-  return (
-    <span
-      className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full capitalize ${map[status] || "bg-slate-100 text-slate-600"}`}
-    >
-      {status}
-    </span>
-  );
-};
 
 /* ── Real-time feed entry ── */
 const FeedEntry = ({ icon: Icon, iconBg, title, sub, time }) => (
@@ -92,18 +70,21 @@ const FeedEntry = ({ icon: Icon, iconBg, title, sub, time }) => (
 );
 
 const AdminHome = () => {
-  const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
   const [dateRange] = useState("Last 30 Days");
 
-  const { data: issuesResponse, isLoading: issuesLoading } = useQuery({
+  const { data: issuesData, isLoading: issuesLoading } = useQuery({
     queryKey: ["issues", "admin"],
     queryFn: async () => {
       const res = await axiosSecure.get("/issues");
       return res.data;
     },
   });
-  const issues = issuesResponse?.data || [];
+  const issues = issuesData?.data || [];
+  const { data: metrics = {}, isLoading: metricsLoading } = useQuery({
+    queryKey: ["issues", "metrics", "admin"],
+    queryFn: async () => (await axiosSecure.get("/issues/metrics")).data,
+  });
 
   const { data: payments = [], isLoading: paymentsLoading } = useQuery({
     queryKey: ["payments", "admin"],
@@ -128,7 +109,7 @@ const AdminHome = () => {
   });
   const staffs = staffResult?.data || [];
 
-  const isLoading = issuesLoading || paymentsLoading || usersLoading || staffsLoading;
+  const isLoading = issuesLoading || metricsLoading || paymentsLoading || usersLoading || staffsLoading;
 
   if (isLoading) {
     return (
@@ -154,13 +135,8 @@ const AdminHome = () => {
   const boostRevenue = boostPayments.reduce((s, p) => s + (p.amount || p.amount_total / 100 || 0), 0);
   const subRevenue = subPayments.reduce((s, p) => s + (p.amount || p.amount_total / 100 || 0), 0);
   /* ── bar chart: fake weekly trend seeded from real totals ── */
-  const weeklyBase = Math.max(1, Math.floor(issues.length / 7));
-  const trendData = DAYS.map((day, i) => ({
-    day,
-    infrastructure: Math.round(weeklyBase * (0.6 + Math.sin(i) * 0.3)),
-    sanitation: Math.round(weeklyBase * (0.3 + Math.cos(i) * 0.2)),
-  }));
-  console.log("trend: ",trendData);
+  const categoryData = metrics.categoryStatistics || [];
+
   /* ── payment mix donut ── */
   const subPct = totalRevenue > 0 ? Math.round((subRevenue / totalRevenue) * 100) : 65;
   const boostPct = totalRevenue > 0 ? Math.round((boostRevenue / totalRevenue) * 100) : 25;
@@ -172,59 +148,81 @@ const AdminHome = () => {
   ];
 
   /* ── recent lists ── */
-  const latestIssues = [...issues].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
+  const latestIssues = [...issues].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 3);
   const latestPayments = [...payments]
     .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
     .slice(0, 3);
   const latestUsers = [...users].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)).slice(0, 3);
+
+  const handleExportPDF = () => {
+    const document = new jsPDF();
+    document.setFontSize(18);
+    document.text("CityCare Admin Dashboard Report", 14, 18);
+    document.setFontSize(10);
+    document.setTextColor(100);
+    document.text(`Generated: ${new Date().toLocaleString()}`, 14, 25);
+    autoTable(document, {
+      startY: 34,
+      head: [["Metric", "Value"]],
+      body: [
+        ["Total issues", issues.length],
+        ["Resolved issues", resolved],
+        ["Pending issues", pending],
+        ["Resolution rate", `${resolutionRate}%`],
+        ["Total citizens", users.length],
+        ["Staff members", staffs.length],
+        ["Total payments", payments.length],
+      ],
+      theme: "grid",
+      headStyles: { fillColor: [0, 55, 176] },
+    });
+
+    let nextY = document.lastAutoTable.finalY + 10;
+    autoTable(document, {
+      startY: nextY,
+      head: [["Latest Issues", "Category", "Status"]],
+      body: latestIssues.map((issue) => [issue.title, formatCategory(issue.category), issue.status]),
+      theme: "grid",
+      headStyles: { fillColor: [0, 55, 176] },
+    });
+
+    nextY = document.lastAutoTable.finalY + 10;
+    autoTable(document, {
+      startY: nextY,
+      head: [["Latest Payments", "Purpose", "Status"]],
+      body: latestPayments.map((payment) => [
+        payment.customerEmail || "Unknown customer",
+        payment.purpose || "Unknown",
+        payment.paymentStatus || payment.status || "Unknown",
+      ]),
+      theme: "grid",
+      headStyles: { fillColor: [0, 55, 176] },
+    });
+
+    nextY = document.lastAutoTable.finalY + 10;
+    autoTable(document, {
+      startY: nextY,
+      head: [["Latest Citizens", "Email", "Account"]],
+      body: latestUsers.map((user) => [
+        user.displayName || "Unnamed",
+        user.email || "-",
+        user.isBlocked ? "Blocked" : "Active",
+      ]),
+      theme: "grid",
+      headStyles: { fillColor: [0, 55, 176] },
+    });
+
+    document.save("citycare-admin-dashboard-report.pdf");
+  };
 
   /* ── staff performance mock (seeded from staffs list) ── */
   const staffPerf = staffs.slice(0, 3).map((s, i) => ({
     initials: (s.displayName || "??").slice(0, 2).toUpperCase(),
     color: ["bg-red-400", "bg-blue-400", "bg-emerald-400"][i % 3],
     name: s.displayName || s.name || "Staff",
-    resolved: [142, 128, 94][i] || Math.floor(Math.random() * 100 + 50),
-    avgTime: ["4.2h", "3.8h", "5.1h"][i] || "4.0h",
-    rating: [4.9, 4.8, 4.5][i] || 4.5,
-    trend: [true, true, null][i],
+    resolved: s.resolvedTasks || 0,
+    avgTime: `${s.averageDays || 4}h`,
   }));
-
-  /* ── real-time feed from latest data ── */
-  const feedItems = [
-    ...latestUsers.slice(0, 1).map((u) => ({
-      icon: Users,
-      iconBg: "bg-blue-100 text-blue-600",
-      title: (
-        <>
-          <span className="font-semibold text-blue-700">New User:</span> {u.displayName} joined the platform.
-        </>
-      ),
-      time: "2 minutes ago",
-    })),
-    ...latestPayments.slice(0, 1).map((p) => ({
-      icon: DollarSign,
-      iconBg: "bg-emerald-100 text-emerald-600",
-      title: (
-        <>
-          <span className="font-semibold text-emerald-700">Payment:</span> {p.purpose || "Premium Boost"} verified.
-        </>
-      ),
-      time: "14 minutes ago",
-    })),
-    ...latestIssues.slice(0, 2).map((iss, i) => ({
-      icon: i === 0 ? AlertCircle : CheckCircle2,
-      iconBg: i === 0 ? "bg-amber-100 text-amber-600" : "bg-slate-100 text-slate-500",
-      title: (
-        <>
-          <span className={`font-semibold ${i === 0 ? "text-amber-700" : "text-slate-700"}`}>
-            {i === 0 ? "Urgent:" : "Closed:"}
-          </span>{" "}
-          {iss.title}
-        </>
-      ),
-      time: i === 0 ? "45 minutes ago" : "1 hour ago",
-    })),
-  ];
 
   return (
     <div className="min-h-screen bg-[#f7f8fc]">
@@ -232,22 +230,20 @@ const AdminHome = () => {
       <Container>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-7">
           {/* ── Page Header ── */}
-          <motion.div {...fadeUp(0)} className="flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-widest text-blue-600 mb-1">
-                Operational Intelligence
-              </p>
-              <h1 className="text-3xl font-bold text-slate-900">Admin Dashboard Overview</h1>
-            </div>
-            <div className="flex gap-2.5">
-              <button className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 font-medium text-sm rounded-xl px-4 py-2.5 shadow-sm hover:bg-slate-50 transition-colors">
-                <Clock size={14} /> {dateRange}
-              </button>
-              <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-xl px-4 py-2.5 shadow-sm transition-colors">
-                <Download size={14} /> Export Report
-              </button>
-            </div>
-          </motion.div>
+          <PageHeader
+            eyebrow="Operational Intelligence"
+            title="Admin Dashboard Overview"
+            actions={
+              <div>
+                <button
+                  onClick={handleExportPDF}
+                  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-xl px-4 py-2.5 shadow-sm transition-colors cursor-pointer"
+                >
+                  <Download size={14} /> Export Report
+                </button>
+              </div>
+            }
+          />
 
           {/* ── 4 KPI Cards ── */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -303,28 +299,35 @@ const AdminHome = () => {
           </div>
 
           {/* ── Charts row ── */}
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-5">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px_250px] gap-5">
             {/* Issue Trends bar chart */}
             <motion.div {...fadeUp(0.25)} className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
               <div className="flex items-start justify-between mb-1">
                 <div>
                   <h3 className="font-bold text-slate-800 text-base">Issue Trends</h3>
-                  <p className="text-xs text-slate-400">Infrastructure vs. Sanitation reports</p>
+                  <p className="text-xs text-slate-400">Reported and resolved issues by category</p>
                 </div>
                 <div className="flex items-center gap-4 text-xs font-medium text-slate-500">
                   <span className="flex items-center gap-1.5">
                     <span className="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block" />
-                    Infrastructure
+                    Reported
                   </span>
                   <span className="flex items-center gap-1.5">
                     <span className="w-2.5 h-2.5 rounded-full bg-amber-600 inline-block" />
-                    Sanitation
+                    Resolved
                   </span>
                 </div>
               </div>
               <ResponsiveContainer width="100%" height={220}>
-                <BarChart data={trendData} barGap={2} barCategoryGap="30%">
-                  <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#94a3b8" }} />
+                <BarChart data={categoryData} barGap={2} barCategoryGap="24%">
+                  <XAxis
+                    dataKey="category"
+                    tickFormatter={formatCategory}
+                    interval={0}
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 10, fill: "#94a3b8" }}
+                  />
                   <YAxis hide />
                   <Tooltip
                     contentStyle={{
@@ -334,12 +337,8 @@ const AdminHome = () => {
                       fontSize: 12,
                     }}
                   />
-                  <Bar dataKey="infrastructure" fill="#bfdbfe" radius={[4, 4, 0, 0]}>
-                    {trendData.map((_, i) => (
-                      <Cell key={i} fill={i === trendData.length - 1 ? "#2563eb" : "#bfdbfe"} />
-                    ))}
-                  </Bar>
-                  <Bar dataKey="sanitation" fill="#d97706" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="reportedCount" name="Reported" fill="#2563eb" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="resolvedCount" name="Resolved" fill="#d97706" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </motion.div>
@@ -383,10 +382,43 @@ const AdminHome = () => {
                 ))}
               </div>
             </motion.div>
+            {/* Real-time Feed */}
+            <motion.div {...fadeUp(0.4)} className=" h-fit bg-white rounded-2xl border border-slate-100 shadow-sm">
+              <div className="px-6 py-4 border-b border-slate-100">
+                <h3 className="font-bold text-slate-800">Real-time Feed</h3>
+              </div>
+              <div className="mx-6 mb-6 grid gap-3">
+                <Link
+                  to="/dashboard/payments"
+                  className="bg-slate-50 hover:bg-slate-100 rounded-xl p-3 transition-colors text-center"
+                >
+                  <p className="text-xl font-bold text-slate-800">{payments.length}</p>
+                  <p className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Total Payments</p>
+                </Link>
+                <Link
+                  to="/dashboard/manage-staffs"
+                  className="bg-slate-50 hover:bg-slate-100 rounded-xl p-3 transition-colors text-center"
+                >
+                  <p className="text-xl font-bold text-slate-800">{staffs.length}</p>
+                  <p className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Staff Members</p>
+                </Link>
+                <Link
+                  to="/dashboard/manage-users"
+                  className="bg-blue-50 hover:bg-blue-100 rounded-xl p-3 transition-colors text-center"
+                >
+                  <p className="text-xl font-bold text-blue-700">{premiumUsers}</p>
+                  <p className="text-[10px] uppercase tracking-wider text-blue-400 font-semibold">Premium Users</p>
+                </Link>
+                <div className="bg-amber-50 rounded-xl p-3 text-center">
+                  <p className="text-xl font-bold text-amber-700">{pending}</p>
+                  <p className="text-[10px] uppercase tracking-wider text-amber-400 font-semibold">Pending Issues</p>
+                </div>
+              </div>
+            </motion.div>
           </div>
 
-          {/* ── Bottom section: Staff performance + Real-time feed ── */}
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-5">
+          {/* ── Bottom section:*/}
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-5">
             {/* Staff Performance */}
             <motion.div
               {...fadeUp(0.35)}
@@ -408,7 +440,7 @@ const AdminHome = () => {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-slate-50">
-                      {["OFFICER", "RESOLVED", "AVG TIME", "RATING", "TREND"].map((h) => (
+                      {["OFFICER", "RESOLVED", "AVG TIME"].map((h) => (
                         <th
                           key={h}
                           className="text-left text-[10px] font-bold uppercase tracking-wider text-slate-400 px-6 py-3"
@@ -436,20 +468,6 @@ const AdminHome = () => {
                             {s.resolved} <span className="text-slate-400">cases</span>
                           </td>
                           <td className="px-6 py-3.5 text-slate-700">{s.avgTime}</td>
-                          <td className="px-6 py-3.5">
-                            <span className="flex items-center gap-1 font-semibold text-amber-500">
-                              <Star size={12} fill="currentColor" /> {s.rating}
-                            </span>
-                          </td>
-                          <td className="px-6 py-3.5">
-                            {s.trend === true ? (
-                              <TrendingUp size={16} className="text-emerald-500" />
-                            ) : s.trend === false ? (
-                              <TrendingDown size={16} className="text-red-400" />
-                            ) : (
-                              <span className="text-slate-300">—</span>
-                            )}
-                          </td>
                         </tr>
                       ))
                     ) : (
@@ -462,6 +480,12 @@ const AdminHome = () => {
                   </tbody>
                 </table>
               </div>
+            </motion.div>
+
+            <motion.div
+              {...fadeUp(0.35)}
+              className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden"
+            >
               {/* Latest Issues below staff table */}
               <div className="border-t border-slate-100 px-6 py-4">
                 <div className="flex items-center justify-between mb-3">
@@ -486,7 +510,7 @@ const AdminHome = () => {
                         </p>
                       </div>
                       <div className="flex items-center gap-3 shrink-0 ml-3">
-                        <StatusBadge status={iss.status} />
+                        <IssueStatusBadge status={iss.status} />
                         <Link
                           to={`/all-issues/${iss._id}`}
                           className="text-xs text-blue-600 font-medium hover:underline"
@@ -499,50 +523,94 @@ const AdminHome = () => {
                 </div>
               </div>
             </motion.div>
+          </div>
 
-            {/* Real-time Feed */}
-            <motion.div {...fadeUp(0.4)} className="bg-white rounded-2xl border border-slate-100 shadow-sm">
-              <div className="px-6 py-4 border-b border-slate-100">
-                <h3 className="font-bold text-slate-800">Real-time Feed</h3>
-              </div>
-              <div className="px-6 py-2">
-                {feedItems.map((f, i) => (
-                  <FeedEntry key={i} {...f} />
-                ))}
-              </div>
-              <div className="px-6 pb-4 pt-2">
-                <button className="w-full text-sm font-semibold text-blue-600 hover:text-blue-700 py-2.5 border border-slate-200 rounded-xl hover:bg-blue-50 transition-colors">
-                  Load More Activity
-                </button>
-              </div>
-
-              {/* Quick stat chips */}
-              <div className="mx-6 mb-6 grid grid-cols-2 gap-3">
-                <Link
-                  to="/dashboard/payments"
-                  className="bg-slate-50 hover:bg-slate-100 rounded-xl p-3 transition-colors text-center"
-                >
-                  <p className="text-xl font-bold text-slate-800">{payments.length}</p>
-                  <p className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Total Payments</p>
-                </Link>
-                <Link
-                  to="/dashboard/manage-staffs"
-                  className="bg-slate-50 hover:bg-slate-100 rounded-xl p-3 transition-colors text-center"
-                >
-                  <p className="text-xl font-bold text-slate-800">{staffs.length}</p>
-                  <p className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Staff Members</p>
-                </Link>
-                <Link
-                  to="/dashboard/manage-users"
-                  className="bg-blue-50 hover:bg-blue-100 rounded-xl p-3 transition-colors text-center"
-                >
-                  <p className="text-xl font-bold text-blue-700">{premiumUsers}</p>
-                  <p className="text-[10px] uppercase tracking-wider text-blue-400 font-semibold">Premium Users</p>
-                </Link>
-                <div className="bg-amber-50 rounded-xl p-3 text-center">
-                  <p className="text-xl font-bold text-amber-700">{pending}</p>
-                  <p className="text-[10px] uppercase tracking-wider text-amber-400 font-semibold">Pending Issues</p>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <motion.div
+              {...fadeUp(0.45)}
+              className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden"
+            >
+              <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+                <div>
+                  <h3 className="font-bold text-slate-800">Latest Payments</h3>
+                  <p className="text-xs text-slate-400">Most recent financial activity</p>
                 </div>
+                <Link to="/dashboard/payments" className="text-xs font-semibold text-blue-600 hover:text-blue-700">
+                  View All
+                </Link>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>Customer</th>
+                      <th>Purpose</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {latestPayments.length ? (
+                      latestPayments.map((payment) => (
+                        <tr key={payment._id || payment.sessionId || payment.id}>
+                          <td className="font-medium text-slate-700">{payment.customerEmail || "Unknown"}</td>
+                          <td className="capitalize text-slate-600">{payment.purpose || "Unknown"}</td>
+                          <td className="capitalize text-slate-600">
+                            {payment.paymentStatus || payment.status || "Unknown"}
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={3} className="text-center text-slate-400">
+                          No payment data
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </motion.div>
+
+            <motion.div
+              {...fadeUp(0.5)}
+              className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden"
+            >
+              <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+                <div>
+                  <h3 className="font-bold text-slate-800">Latest Citizens</h3>
+                  <p className="text-xs text-slate-400">Recently registered community members</p>
+                </div>
+                <Link to="/dashboard/manage-users" className="text-xs font-semibold text-blue-600 hover:text-blue-700">
+                  View All
+                </Link>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>Citizen</th>
+                      <th>Email</th>
+                      <th>Account</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {latestUsers.length ? (
+                      latestUsers.map((citizen) => (
+                        <tr key={citizen._id || citizen.email}>
+                          <td className="font-medium text-slate-700">{citizen.displayName || "Unnamed"}</td>
+                          <td className="text-slate-600">{citizen.email || "-"}</td>
+                          <td className="text-slate-600">{citizen.isBlocked ? "Blocked" : "Active"}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={3} className="text-center text-slate-400">
+                          No citizen data
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
               </div>
             </motion.div>
           </div>

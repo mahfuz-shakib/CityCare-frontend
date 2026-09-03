@@ -21,7 +21,7 @@ const PaymentSuccess = () => {
       const fetchPaymentInfo = async () => {
         try {
           const { data } = await axiosSecure.get(`/payment-session-info?sessionId=${sessionId}`);
-          console.log("sessionInfo: ",data);
+          console.log("sessionInfo: ", data);
           setPaymentInfo(data);
           await savePaymentToDatabase(data);
         } catch (error) {
@@ -357,14 +357,6 @@ const PaymentSuccess = () => {
                     </a>
                   </div>
                 </div>
-              </div>
-
-              {/* Additional Info */}
-              <div className="bg-white rounded-lg shadow p-6 text-center text-gray-600">
-                <p className="text-sm">
-                  Need help? Contact our support team at{" "}
-                  <span className="font-semibold text-gray-900">support@citycare.com</span>
-                </p>
               </div>
             </div>
           ) : (

@@ -142,45 +142,6 @@ const IssueActions = ({ issue}) => {
               </span>
             </motion.button>
           )}
-
-          {/* Divider + Download receipt
-          <div className="pt-1 border-t border-slate-100 mt-1">
-            <button className="w-full flex items-center justify-center gap-2 text-blue-600 hover:text-blue-700 text-sm font-semibold py-2.5 transition-colors">
-              <Download size={14} />
-              Download Official Receipt
-            </button>
-          </div> */}
-
-          {/* Community awareness */}
-          <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 mt-1">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">
-              Community Awareness
-            </p>
-            <div className="space-y-2">
-              {/* <div className="flex items-center justify-between">
-                <span className="text-sm text-slate-600">Verified Neighbors</span>
-                <span className="text-sm font-bold text-slate-800">24</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-slate-600">Similar Reports</span>
-                <span className="text-sm font-bold text-slate-800">03</span>
-              </div> */}
-              {/* Progress bar */}
-              {/* <div className="mt-2">
-                <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: "65%" }}
-                    transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
-                    className="h-full bg-blue-500 rounded-full"
-                  />
-                </div>
-                <p className="text-[10px] text-slate-400 mt-1.5">
-                  65% Consensus reached for immediate repair
-                </p>
-              </div> */}
-            </div>
-          </div>
         </div>
 
         {/* Modal */}

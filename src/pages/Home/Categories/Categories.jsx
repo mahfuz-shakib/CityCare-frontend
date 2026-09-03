@@ -2,15 +2,10 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router";
 
-import { Hammer, Droplets, Zap, Trash2, Shield, MoreHorizontal } from "lucide-react";
-const categories = [
-  { icon: Hammer, label: "Road Damage", category: "road" },
-  { icon: Droplets, label: "Water Supply", category: "water" },
-  { icon: Zap, label: "Electricity", category: "electricity" },
-  { icon: Trash2, label: "Waste Mgmt", category: "waste" },
-  { icon: Shield, label: "Public Safety", category: "safety" },
-  // { icon: MoreHorizontal, label: "Others", category: "" },
-];
+import { Construction, Leaf, Shield, Trash2, TrainFront, Wrench } from "lucide-react";
+import { ISSUE_CATEGORIES, formatCategory } from "../../../constants/categories";
+
+const icons = [Wrench, Shield, Leaf, Trash2, TrainFront, Construction];
 
 const Categories = () => {
   return (
@@ -22,20 +17,23 @@ const Categories = () => {
             Select a category to view reports or submit a new issue specifically related to that sector.
           </p>
         </div>
-        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-          {categories.map((cat, i) => (
-            <Link className="mx-auto" key={i} to={`/all-issues/?category=${cat.category}`}>
-              <motion.button
-                key={i}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="flex flex-col items-center p-8 bg-surface-container-low rounded-2xl hover:bg-primary hover:text-white transition-all group cursor-pointer"
-              >
-                <cat.icon size={36} className="mb-4 group-hover:scale-110 transition-transform animate-bounce" />
-                <span className="font-bold text-sm">{cat.label}</span>
-              </motion.button>
-            </Link>
-          ))}
+        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+          {ISSUE_CATEGORIES.map((category, i) => {
+            const Icon = icons[i];
+            return (
+              <Link className="mx-auto" key={category} to={`/all-issues/?category=${encodeURIComponent(category)}`}>
+                <motion.button
+                  key={i}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="flex flex-col items-center p-8 bg-surface-container-low rounded-2xl hover:bg-primary hover:text-white transition-all group cursor-pointer"
+                >
+                  <Icon size={36} className="mb-4 text-indigo-500 group-hover:scale-110 transition-transform" />
+                  <span className="font-bold text-sm">{formatCategory(category)}</span>
+                </motion.button>
+              </Link>
+            );
+          })}
         </div>
       </div>
     </section>

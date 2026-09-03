@@ -1,5 +1,6 @@
 import { Layers } from "lucide-react";
 import React from "react";
+import MapLocation from "../../../components/MapLocation";
 
 const Map = () => {
   return (
@@ -44,24 +45,8 @@ const Map = () => {
               </div>
             </div>
           </div>
-          <div className="lg:col-span-2 relative h-[500px] rounded-3xl overflow-hidden shadow-2xl border-8 border-white">
-            <img
-              className="w-full h-full object-cover grayscale opacity-50"
-              src="https://picsum.photos/seed/map/1200/800"
-              referrerPolicy="no-referrer"
-            />
-            <div className="absolute inset-0 bg-blue-900/10"></div>
-            {/* Dummy Pins */}
-            <div className="absolute top-1/4 left-1/3 p-1.5 bg-red-500 rounded-full border-2 border-white shadow-lg animate-bounce"></div>
-            <div className="absolute top-1/2 left-2/3 p-1.5 bg-orange-400 rounded-full border-2 border-white shadow-lg"></div>
-            <div className="absolute bottom-1/4 left-1/2 p-1.5 bg-emerald-500 rounded-full border-2 border-white shadow-lg"></div>
-            <div className="absolute top-1/3 right-1/4 p-1.5 bg-red-500 rounded-full border-2 border-white shadow-lg"></div>
-            <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between">
-              <div className="glass-effect bg-white/80 px-4 py-2 rounded-lg text-xs font-bold border border-white/40">
-                42 ACTIVE ISSUES NEARBY
-              </div>
-              <button className="px-6 py-2 bg-primary text-white font-bold rounded-lg shadow-lg">Fullscreen Map</button>
-            </div>
+          <div className="lg:col-span-2 relative h-125 rounded-3xl overflow-hidden shadow-2xl border-8 border-white">
+            <MapLocation/>
           </div>
         </div>
       </div>

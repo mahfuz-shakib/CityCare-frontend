@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from "react";
+import React from "react";
 import { Link } from "react-router";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -12,22 +12,14 @@ import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import {
-  Download,
-  Search,
-  ChevronLeft,
-  ChevronRight,
-  Eye,
-  UserPlus,
-  XCircle,
-  MapPin,
-  Clock,
-  Filter,
-} from "lucide-react";
+import { Download, Eye, UserPlus, XCircle, MapPin, Clock } from "lucide-react";
 
 import IssuePriorityBadge from "../../../components/IssuePriorityBadge";
 import IssueCategoryBadge from "../../../components/IssueCategoryBadge";
 import IssueStatusBadge from "../../../components/IssueStatusBadge";
+import IssueFilterBar from "../../../components/IssueFilterBar";
+import Pagination from "../../../components/Pagination";
+import PageHeader from "../../../components/PageHeader";
 
 /* ── animation helper ── */
 const fadeUp = (delay = 0) => ({
@@ -104,14 +96,6 @@ const AllIssues = () => {
     setCurrentPage(1);
   }, [filters.category, filters.status, filters.priority, filters.search]);
 
-  const paginationButtons = useMemo(() => {
-    if (pagination.totalPages <= 1) return [];
-    const pages = Array.from({ length: pagination.totalPages }, (_, i) => i + 1);
-    return pages.filter((page) => {
-      return page === 1 || page === pagination.totalPages || (page >= currentPage - 1 && page <= currentPage + 1);
-    });
-  }, [pagination.totalPages, currentPage]);
-
   const handleAssignStaff = (issue) => {
     setIssue(issue);
     staffModalRef.current.showModal();
@@ -145,94 +129,28 @@ const AllIssues = () => {
       <title>All Issues</title>
       <Container className="px-4 md:px-10">
         <div className="pt-8 pb-16 space-y-6">
-
           {/* ── Page Header ── */}
-          <motion.div {...fadeUp(0)} className="flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-widest text-blue-600 mb-1">City Care Authority</p>
-              <h1 className="text-3xl font-bold text-slate-900">All Issues Management</h1>
-              <p className="text-slate-500 text-sm mt-1 max-w-xl">
-                Oversee and triage public service requests across all municipal departments. Assign technical staff and
-                ensure service level agreements are met.
-              </p>
-            </div>
-            <button
-              onClick={handleExportPDF}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-xl px-4 py-2.5 shadow-sm transition-colors">
-              <Download size={14} /> Export PDF
-            </button>
-          </motion.div>
+          <PageHeader
+            eyebrow="City Care Authority"
+            title="All Issues Management"
+            description="Oversee and triage public service requests across all municipal departments. Assign technical staff and ensure service level agreements are met."
+            actions={
+              <button
+                onClick={handleExportPDF}
+                className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 cursor-pointer"
+              >
+                <Download size={14} /> Export PDF
+              </button>
+            }
+          />
 
           {/* ── Table Card ── */}
-          <motion.div {...fadeUp(0.1)} className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-
-            {/* ── Filters row ── */}
-            <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-b border-slate-100">
-              <div className="flex flex-wrap items-center gap-2">
-                {/* Search */}
-                <div className="relative">
-                  <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <input
-                    type="search"
-                    placeholder="Search title, category or location…"
-                    className="pl-8 pr-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl w-56 focus:outline-none focus:ring-2 focus:ring-blue-100"
-                    onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-                  />
-                </div>
-
-                {/* Category filter */}
-                <div className="relative">
-                  <Filter size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <select
-                    className="pl-7 pr-3 py-2 text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-100"
-                    onChange={(e) => setFilters({ ...filters, category: e.target.value })}
-                    defaultValue=""
-                  >
-                    <option value="">Category: All</option>
-                    <option value="road">Road</option>
-                    <option value="water">Water</option>
-                    <option value="electricity">Electricity</option>
-                    <option value="garbage">Garbage</option>
-                  </select>
-                </div>
-
-                {/* Status filter */}
-                <div className="relative">
-                  <Filter size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <select
-                    className="pl-7 pr-3 py-2 text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-100"
-                    onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-                    defaultValue=""
-                  >
-                    <option value="">Status: All</option>
-                    <option value="pending">Pending</option>
-                    <option value="in-progress">In-Progress</option>
-                    <option value="working">Working</option>
-                    <option value="resolved">Resolved</option>
-                    <option value="closed">Closed</option>
-                    <option value="rejected">Rejected</option>
-                  </select>
-                </div>
-
-                {/* Priority filter */}
-                <div className="relative">
-                  <Filter size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <select
-                    className="pl-7 pr-3 py-2 text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-100"
-                    onChange={(e) => setFilters({ ...filters, priority: e.target.value })}
-                    defaultValue=""
-                  >
-                    <option value="">Priority: All</option>
-                    <option value="high">High</option>
-                    <option value="normal">Normal</option>
-                  </select>
-                </div>
-              </div>
-
-              <p className="text-xs text-slate-400 font-medium">
-                Page {pagination.page} of {pagination.totalPages} &nbsp;·&nbsp; {pagination.total} total
-              </p>
-            </div>
+          <motion.div {...fadeUp(0.1)} className="table-shell">
+            <IssueFilterBar
+              filters={filters}
+              onFilterChange={(key, value) => setFilters({ ...filters, [key]: value })}
+              className="mt-0 rounded-none border-b border-slate-100"
+            />
 
             {/* ── Table ── */}
             {isLoading ? (
@@ -245,7 +163,7 @@ const AllIssues = () => {
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+                <table className="data-table">
                   <thead>
                     <tr className="border-b border-slate-100">
                       {["#", "Issue", "Category", "Priority", "Assigned Staff", "Status", "Actions"].map((h) => (
@@ -288,7 +206,7 @@ const AllIssues = () => {
                                 className="w-12 h-12 rounded-xl object-cover shrink-0"
                               />
                               <div className="min-w-0">
-                                <p className="font-semibold text-slate-800 truncate max-w-[180px]">{list.title}</p>
+                                <p className="font-semibold text-slate-800 truncate max-w-45">{list.title}</p>
                                 <p className="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
                                   <MapPin size={10} /> {list.location}
                                 </p>
@@ -317,7 +235,9 @@ const AllIssues = () => {
                                   {(list.assignedStaff.displayName || "?").slice(0, 2).toUpperCase()}
                                 </div>
                                 <div>
-                                  <p className="text-xs font-semibold text-slate-800">{list.assignedStaff.displayName}</p>
+                                  <p className="text-xs font-semibold text-slate-800">
+                                    {list.assignedStaff.displayName}
+                                  </p>
                                   <p className="text-[10px] text-slate-400">{list.assignedStaff.department}</p>
                                 </div>
                               </div>
@@ -377,47 +297,13 @@ const AllIssues = () => {
             )}
 
             {/* ── Pagination ── */}
-            {pagination.totalPages > 1 && (
-              <div className="flex items-center justify-between px-6 py-4 border-t border-slate-100">
-                <p className="text-xs text-slate-400">
-                  Showing {(currentPage - 1) * pageSize + 1}–{Math.min(currentPage * pageSize, pagination.total)} of{" "}
-                  {pagination.total} issues
-                </p>
-                <div className="flex items-center gap-1.5">
-                  <button
-                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                    disabled={currentPage === 1}
-                    className="flex items-center gap-1 text-xs font-semibold text-slate-600 border border-slate-200 rounded-lg px-3 py-1.5 hover:bg-slate-50 disabled:opacity-40 transition-colors"
-                  >
-                    <ChevronLeft size={13} /> Previous
-                  </button>
-
-                  {paginationButtons.map((page, index, array) => {
-                    const showEllipsisBefore = index > 0 && array[index - 1] !== page - 1;
-                    return (
-                      <React.Fragment key={page}>
-                        {showEllipsisBefore && <span className="text-slate-400 text-xs px-1">…</span>}
-                        <button
-                          onClick={() => setCurrentPage(page)}
-                          className={`w-7 h-7 rounded-lg text-xs font-semibold transition-colors
-                            ${currentPage === page ? "bg-blue-600 text-white" : "text-slate-600 hover:bg-slate-100"}`}
-                        >
-                          {page}
-                        </button>
-                      </React.Fragment>
-                    );
-                  })}
-
-                  <button
-                    onClick={() => setCurrentPage((p) => Math.min(pagination.totalPages, p + 1))}
-                    disabled={currentPage === pagination.totalPages}
-                    className="flex items-center gap-1 text-xs font-semibold text-slate-600 border border-slate-200 rounded-lg px-3 py-1.5 hover:bg-slate-50 disabled:opacity-40 transition-colors"
-                  >
-                    Next <ChevronRight size={13} />
-                  </button>
-                </div>
-              </div>
-            )}
+            <Pagination
+              currentPage={currentPage}
+              totalPages={pagination.totalPages}
+              totalItems={pagination.total}
+              pageSize={pageSize}
+              onPageChange={setCurrentPage}
+            />
           </motion.div>
         </div>
       </Container>

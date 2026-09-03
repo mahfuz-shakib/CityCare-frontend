@@ -7,27 +7,21 @@ import IssueLifecycle from "./IssueLifecycle/IssueLifecycle";
 import Transparency_Analytics from "./Analytics/Transparency_Analytics";
 import Testimonials from "./Testimonials/Testimonials";
 import LatestResolvedIssues from "./ResolvedIssues/LatestResolvedIssues";
-import { useState } from "react";
 import FeedbackForm from "./Feedback/FeedbackForm";
 
 export default function Home() {
-  const [lastResolvedIssue, setLastResolvedIssue] = useState({});
-  const [loading, setLoading] = useState(false);
-  const getLastIssue = (issue, loading) => {
-    (setLastResolvedIssue(issue), setLoading(loading));
-  };
   return (
     <>
-      <Banner lastResolvedIssue={lastResolvedIssue} loading={loading} />
+      <Banner />
       <QuickActions />
       <Stats />
       <Categories />
-      <LatestResolvedIssues getLastIssue={getLastIssue} />
-      <Map />
+      <LatestResolvedIssues />
+      {/* <Map /> */}
       <IssueLifecycle />
       <Transparency_Analytics />
       <Testimonials />
-      <FeedbackForm/>
+      <FeedbackForm />
     </>
   );
 }

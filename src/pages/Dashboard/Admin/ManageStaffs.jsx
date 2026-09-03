@@ -2,29 +2,20 @@ import React, { useEffect, useRef, useState } from "react";
 import Container from "../../../container/Container";
 import CreateStaffForm from "../../../components/Form/CreateStaffForm";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import UpdateStaffForm from "../../../components/Form/UpdateStaffForm";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
-import {
-  UserPlus,
-  Pencil,
-  Trash2,
-  Star,
-  TrendingUp,
-  ChevronLeft,
-  ChevronRight,
-  BarChart2,
-  Users,
-  Award,
-  Download,
-} from "lucide-react";
+import { UserPlus, Pencil, Trash2, Star, TrendingUp, BarChart2, Users, Award, Download } from "lucide-react";
 import Loader from "../../../components/Loader";
 import { FaCircle } from "react-icons/fa";
 import { monthlyDataResolution } from "../../../utils/monthlyDataResolution";
+import SearchFilterPanel from "../../../components/SearchFilterPanel";
+import Pagination from "../../../components/Pagination";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import PageHeader from "../../../components/PageHeader";
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 20 },
@@ -55,6 +46,7 @@ const avatarColor = (name = "") => {
 const ManageStaffs = () => {
   const [editStaff, setEditStaff] = useState({});
   const [activeDept, setActiveDept] = useState("All Staff");
+  const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 6;
   const createModalRef = useRef();
@@ -71,6 +63,7 @@ const ManageStaffs = () => {
     queryFn: async () => {
       const params = new URLSearchParams({
         department: activeDept === "All Staff" ? "" : activeDept,
+        search,
         page: currentPage.toString(),
         limit: pageSize.toString(),
       }).toString();
@@ -81,7 +74,7 @@ const ManageStaffs = () => {
 
   useEffect(() => {
     queryClient.invalidateQueries({ queryKey: ["staffs", "admin"] });
-  }, [currentPage, queryClient, activeDept]);
+  }, [currentPage, queryClient, activeDept, search]);
 
   const handleCreateStaff = () => createModalRef.current?.showModal();
   const handleUpdate = (s) => {
@@ -114,7 +107,8 @@ const ManageStaffs = () => {
   const staffChartData = monthlyDataResolution(staffs);
   const newStaffsInThisMonth = staffChartData[new Date().toISOString().slice(0, 7)];
   const pagination = staffsResult?.pagination || { page: 1, limit: pageSize, total: 0, totalPages: 1 };
-  const avgRating = staffs.length > 0 ? (staffs.reduce((s, st) => s + (st.rating || 4.5), 0) / staffs.length).toFixed(2) : 0;
+  const avgRating =
+    staffs.length > 0 ? (staffs.reduce((s, st) => s + (st.rating || 4.5), 0) / staffs.length).toFixed(2) : 0;
   const activeTasks = staffs.reduce((s, st) => s + (st.activeTasks || 0), 0);
   const resolvedTasks = staffs.reduce((s, st) => s + (st.resolvedTasks || 0), 0);
   const completionRate = ((resolvedTasks / activeTasks) * 100).toPrecision(2);
@@ -154,35 +148,28 @@ const ManageStaffs = () => {
         <div className="pt-8 pb-16 space-y-6">
           {/* ── Header ── */}
 
-          <motion.div
-            {...fadeUp(0)}
-            className="flex flex-wrap items-end justify-between gap-4 mb-2 mt-3"
-          >
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-widest text-blue-600 mb-1">
-                Field Workforce
-              </p>
-              <h1 className="text-2xl md:text-3xl font-bold text-slate-900 mt-1 mb-1">Manage Staff</h1>
-              <p className="text-slate-500 text-sm max-w-xl">
-                Supervise municipal personnel, track operational performance metrics, and optimize field assignments
-                across city departments.
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handleExportPDF}
-                className="flex items-center gap-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-sm rounded-xl px-4 py-2.5 shadow-sm transition-colors"
-              >
-                <Download size={14} /> <span className="hidden md:inline">Export PDF</span>
-              </button>
-              <button
-                onClick={handleCreateStaff}
-                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-xl px-4 py-2.5 shadow-sm transition-colors"
-              >
-                <UserPlus size={16} /> <span className="hidden md:inline">Add Staff Member</span>
-              </button>
-            </div>
-          </motion.div>
+          <PageHeader
+            className="mb-2 mt-3"
+            eyebrow="Field Workforce"
+            title="Manage Staff"
+            description="Supervise municipal personnel, track operational performance metrics, and optimize field assignments across city departments."
+            actions={
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleExportPDF}
+                  className="flex items-center gap-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-sm rounded-xl px-4 py-2.5 shadow-sm transition-colors cursor-pointer"
+                >
+                  <Download size={14} /> <span className="hidden md:inline">Export PDF</span>
+                </button>
+                <button
+                  onClick={handleCreateStaff}
+                  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-xl px-4 py-2.5 shadow-sm transition-colors cursor-pointer"
+                >
+                  <UserPlus size={16} /> <span className="hidden md:inline">Add Staff Member</span>
+                </button>
+              </div>
+            }
+          />
 
           {/* ── 3 KPI summary cards ── */}
           <motion.div {...fadeUp(0.1)} className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -218,8 +205,14 @@ const ManageStaffs = () => {
                   <p className="text-xs text-slate-400 mt-1">{completionRate}% completion rate</p>
                 </div>
                 <div className="flex items-end gap-1 h-10">
-                  <div className="w-6 rounded bg-blue-300" style={{ height: `${resolvedTasks * 10}%`, minHeight: "6px" }} />
-                  <div className="w-6 rounded bg-blue-600" style={{ height: `${activeTasks * 10}%`, minHeight: "6px" }} />
+                  <div
+                    className="w-6 rounded bg-blue-300"
+                    style={{ height: `${resolvedTasks * 10}%`, minHeight: "6px" }}
+                  />
+                  <div
+                    className="w-6 rounded bg-blue-600"
+                    style={{ height: `${activeTasks * 10}%`, minHeight: "6px" }}
+                  />
                 </div>
               </div>
             </div>
@@ -231,33 +224,34 @@ const ManageStaffs = () => {
             </div>
           </motion.div>
 
-          {/* ── Dept filter pills ── */}
-          <motion.div {...fadeUp(0.15)} className="flex flex-wrap gap-2">
-            {DEPARTMENTS.map((dept) => (
-              <button
-                key={dept}
-                onClick={() => {
-                  setActiveDept(dept);
+          {/* ── Staff table ── */}
+          <motion.div {...fadeUp(0.2)} className="table-shell mb-16">
+            <div className="overflow-x-auto">
+              <SearchFilterPanel
+                search={search}
+                onSearchChange={(value) => {
+                  setSearch(value);
                   setCurrentPage(1);
                 }}
-                className={`text-sm font-semibold px-4 py-2 rounded-full transition-all cursor-pointer
-                  ${activeDept === dept ? "bg-blue-600 text-white shadow-sm" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"}`}
-              >
-                {dept}
-              </button>
-            ))}
-          </motion.div>
-
-          {/* ── Staff table ── */}
-          <motion.div
-            {...fadeUp(0.2)}
-            className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden mb-16"
-          >
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+                searchPlaceholder="Search staff by name or email"
+                onFilterChange={(key, value) => {
+                  setActiveDept(value);
+                  setCurrentPage(1);
+                }}
+                filters={[
+                  {
+                    key: "department",
+                    value: activeDept,
+                    label: "All departments",
+                    options: DEPARTMENTS.slice(1).map((department) => ({ value: department, text: department })),
+                  },
+                ]}
+                className="rounded-none"
+              />
+              <table className="data-table">
                 <thead>
                   <tr className="border-b border-slate-100">
-                    {["STAFF MEMBER", "DEPARTMENT / ROLE", "WORKLOAD", "RATING", "ACTIONS"].map((h) => (
+                    {["STAFF MEMBER", "DEPARTMENT / ROLE", "WORKLOAD", "ACTIONS"].map((h) => (
                       <th
                         key={h}
                         className="text-left text-[10px] font-bold uppercase tracking-wider text-slate-400 px-6 py-3.5"
@@ -282,9 +276,8 @@ const ManageStaffs = () => {
                     </tr>
                   ) : (
                     staffs.map((s, index) => {
-                      const workload = s.workloadPct || s.activeTasks*10;
+                      const workload = s.workloadPct || s.activeTasks * 10;
                       const tasks = s.activeTasks || 0;
-                      const rating = s.rating || (4.5 + Math.random() * 0.5).toFixed(1);
                       const role = s.role || s.designation || "Field Staff";
                       const dept = s.department || "General";
                       const photo = s.photoURL;
@@ -342,13 +335,6 @@ const ManageStaffs = () => {
                             </div>
                           </td>
 
-                          {/* Rating */}
-                          <td className="px-6 py-4">
-                            <span className="flex items-center gap-1 font-bold text-amber-500">
-                              <Star size={13} fill="currentColor" /> {Number(rating).toFixed(1)}
-                            </span>
-                          </td>
-
                           {/* Actions */}
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-2">
@@ -378,38 +364,13 @@ const ManageStaffs = () => {
               </table>
             </div>
 
-            {/* Pagination */}
-            <div className="flex items-center justify-between px-6 py-4 border-t border-slate-100">
-              <p className="text-xs text-slate-400">
-                Showing 1 to {staffs.length} of {pagination.total} staff members
-              </p>
-              <div className="flex items-center gap-1.5">
-                <button
-                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                  disabled={currentPage === 1}
-                  className="w-7 h-7 flex items-center justify-center rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-40 transition-colors cursor-pointer"
-                >
-                  <ChevronLeft size={14} className="text-slate-600" />
-                </button>
-                {Array.from({ length: Math.min(pagination.totalPages, 5) }, (_, i) => i + 1).map((pg) => (
-                  <button
-                    key={pg}
-                    onClick={() => setCurrentPage(pg)}
-                    className={`w-7 h-7 rounded-lg text-xs font-semibold transition-colors
-                      ${currentPage === pg ? "bg-blue-600 text-white" : "text-slate-600 hover:bg-slate-100"}`}
-                  >
-                    {pg}
-                  </button>
-                ))}
-                <button
-                  onClick={() => setCurrentPage((p) => Math.min(pagination.totalPages, p + 1))}
-                  disabled={currentPage >= pagination.totalPages}
-                  className="w-7 h-7 flex items-center justify-center rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-40 transition-colors cursor-pointer"
-                >
-                  <ChevronRight size={14} className="text-slate-600" />
-                </button>
-              </div>
-            </div>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={pagination.totalPages}
+              totalItems={pagination.total}
+              pageSize={pageSize}
+              onPageChange={setCurrentPage}
+            />
           </motion.div>
         </div>
       </Container>

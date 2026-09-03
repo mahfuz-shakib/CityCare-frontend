@@ -1,19 +1,26 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { FaUserTie, FaClipboardList, FaCheckCircle, FaClock, FaTasks } from "react-icons/fa";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { FaUserTie } from "react-icons/fa";
 import Swal from "sweetalert2";
 import useAuth from "../../../hooks/useAuth";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import Container from "../../../container/Container";
 import Loader from "../../../components/Loader";
 import { imageUpload } from "../../../utils";
+import ProfileActions from "../../../components/ProfileActions";
+import { ClipboardList, History, Save } from "lucide-react";
+import AccountSettings from "../../../components/AccountSettings";
 
 const StaffProfile = () => {
   const { user, setUser, updateUser } = useAuth();
   const axiosSecure = useAxiosSecure();
   const queryClient = useQueryClient();
+  const { mutateAsync: updateAvailability, isPending: availabilityUpdating } = useMutation({
+    mutationFn: (isAvailable) => axiosSecure.patch(`/staffs/${staffData?._id}`, { isAvailable }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["staffs", user?.email] }),
+  });
 
   const { data: staffData, isLoading: staffLoading } = useQuery({
     queryKey: ["staffs", user?.email],
@@ -25,15 +32,6 @@ const StaffProfile = () => {
     enabled: !!user?.email,
   });
   console.log(staffData);
-  const { data: issuesData } = useQuery({
-    queryKey: ["staff-issues", user?.email],
-    queryFn: async () => {
-      const res = await axiosSecure.get(`/issues/?staffEmail=${user?.email}`);
-      return res.data?.data || [];
-    },
-    enabled: !!user?.email,
-  });
-
   const [isEditing, setIsEditing] = useState(false);
 
   const { register, handleSubmit, reset } = useForm({
@@ -52,7 +50,7 @@ const StaffProfile = () => {
 
   const onSubmit = async (formData) => {
     try {
-      const photoURL = await imageUpload(formData?.image[0]) ;
+      const photoURL = formData?.image?.[0] ? await imageUpload(formData.image[0]) : undefined;
       const updatePayload = {
         displayName: formData?.displayName || staffData?.displayName || user?.displayName,
         photoURL: photoURL || staffData?.photoURL || user?.photoURL,
@@ -78,12 +76,7 @@ const StaffProfile = () => {
     return <Loader />;
   }
 
-  const stats = {
-    assignedIssues: issuesData?.length || 0,
-    pending: issuesData?.filter((i) => i.status === "pending").length || 0,
-    inProgress: issuesData?.filter((i) => i.status === "in-progress").length || 0,
-    resolved: issuesData?.filter((i) => i.status === "resolved" || i.status === "closed").length || 0,
-  };
+  const isAvailable = staffData?.isAvailable !== false;
 
   return (
     <Container>
@@ -116,18 +109,13 @@ const StaffProfile = () => {
                   <p className="text-blue-100">{staffData?.email || user?.email}</p>
                   <div className="flex gap-2 mt-3 justify-center md:justify-start">
                     <span className="badge badge-lg bg-blue-500 border-blue-400 text-white">Staff Member</span>
-                    {staffData?.isAvailable !== false && (
-                      <span className="badge badge-lg bg-green-500 border-green-400 text-white">Available</span>
-                    )}
-                  </div>
-                  <div className="mt-4 flex gap-2 justify-center md:justify-start">
-                    <button
-                      onClick={() => setIsEditing(true)}
-                      className="btn btn-sm bg-white text-blue-600 hover:bg-blue-50 border-0"
+                    <span
+                      className={`badge badge-lg border-0 text-white ${isAvailable ? "bg-emerald-500" : "bg-slate-500"}`}
                     >
-                      Edit Profile
-                    </button>
+                      {isAvailable ? "Available" : "Unavailable"}
+                    </span>
                   </div>
+                  <div className="mt-4 flex gap-2 justify-center md:justify-start"></div>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
@@ -148,7 +136,7 @@ const StaffProfile = () => {
                           // id="image"
                           accept="image/*"
                           {...register("image")}
-                      className="block w-full file-input file:bg-surface-container-high file:text-primary"
+                          className="block w-full file-input file:bg-surface-container-high file:text-primary"
                         />
                       </div>
                     </div>
@@ -174,43 +162,6 @@ const StaffProfile = () => {
           </div>
         </motion.div>
 
-        {/* Statistics Cards */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="grid md:grid-cols-2 lg:grid-cols-4 gap-6"
-        >
-          <div className="card bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg">
-            <div className="card-body">
-              <FaClipboardList className="text-3xl mb-2" />
-              <h3 className="text-2xl font-bold">{stats.assignedIssues}</h3>
-              <p className="text-blue-100">Assigned Issues</p>
-            </div>
-          </div>
-          <div className="card bg-gradient-to-br from-yellow-500 to-yellow-600 text-white shadow-lg">
-            <div className="card-body">
-              <FaClock className="text-3xl mb-2" />
-              <h3 className="text-2xl font-bold">{stats.pending}</h3>
-              <p className="text-yellow-100">Pending</p>
-            </div>
-          </div>
-          <div className="card bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-lg">
-            <div className="card-body">
-              <FaTasks className="text-3xl mb-2" />
-              <h3 className="text-2xl font-bold">{stats.inProgress}</h3>
-              <p className="text-purple-100">In Progress</p>
-            </div>
-          </div>
-          <div className="card bg-gradient-to-br from-green-500 to-green-600 text-white shadow-lg">
-            <div className="card-body">
-              <FaCheckCircle className="text-3xl mb-2" />
-              <h3 className="text-2xl font-bold">{stats.resolved}</h3>
-              <p className="text-green-100">Resolved</p>
-            </div>
-          </div>
-        </motion.div>
-
         {/* Account Information */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -232,37 +183,41 @@ const StaffProfile = () => {
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Availability</p>
-                  <p className={`font-medium ${staffData?.isAvailable !== false ? "text-success" : "text-error"}`}>
-                    {staffData?.isAvailable !== false ? "Available" : "Unavailable"}
-                  </p>
+                  <div className="flex items-center justify-between gap-3">
+                    <p className={`font-medium ${isAvailable ? "text-success" : "text-error"}`}>
+                      {isAvailable ? "Available" : "Unavailable"}
+                    </p>
+                    <button
+                      type="button"
+                      disabled={availabilityUpdating}
+                      onClick={() => updateAvailability(!isAvailable)}
+                      className="btn btn-sm btn-outline border-primary text-primary"
+                    >
+                      <Save size={14} /> {availabilityUpdating ? "Updating" : "Change"}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-
-          <div className="card bg-base-100 shadow-lg">
-            <div className="card-body">
-              <h3 className="text-xl font-semibold mb-4">Staff Capabilities</h3>
-              <ul className="space-y-2">
-                <li className="flex items-center gap-2">
-                  <span className="text-green-500">✓</span>
-                  <span>View assigned issues</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-green-500">✓</span>
-                  <span>Update issue status</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-green-500">✓</span>
-                  <span>Add progress updates</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-green-500">✓</span>
-                  <span>Track assigned issues</span>
-                </li>
-              </ul>
-            </div>
-          </div>
+          <ProfileActions
+            title="Staff workspace"
+            items={[
+              {
+                to: "/dashboard/assigned-issues",
+                label: "Assigned issues",
+                description: "Open your current work queue",
+                icon: ClipboardList,
+              },
+              {
+                to: "/dashboard/assigned-issues",
+                label: "Update work status",
+                description: "Record progress on assigned reports",
+                icon: History,
+              },
+            ]}
+          />
+          <AccountSettings account={staffData} collection="staffs" />
         </motion.div>
       </div>
     </Container>

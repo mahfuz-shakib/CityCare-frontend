@@ -1,7 +1,6 @@
-import React from "react";
 import Container from "../../container/Container";
 import { motion } from "framer-motion";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { imageUpload } from "../../utils";
 import useAuth from "../../hooks/useAuth";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
@@ -10,64 +9,62 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router";
 import { FaSpinner } from "react-icons/fa";
 import { IoIosSend } from "react-icons/io";
+import MapLocation from "../MapLocation";
+import { ISSUE_CATEGORIES, formatCategory } from "../../constants/categories";
 
 const ReportIssueForm = () => {
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm();
 
-  const {
-    data: reportData,
-    mutateAsync: reportIssue,
-    isPending: isReporting,
-  } = useMutation({
-    mutationFn: async (issueData) => await axiosSecure.post("/issues", issueData),
-    onSettled: () => {
-      console.log("settled data: ", reportData);
-    },
+  const { mutateAsync: reportIssue, isPending: isReporting } = useMutation({
+    mutationFn: (issueData) => axiosSecure.post("/issues", issueData),
     retry: 2,
   });
 
-  const { data, mutateAsync: addTimeline } = useMutation({
-    mutationFn: async (timelineInfo) => await axiosSecure.post("/timelines", timelineInfo),
-    onSettled: () => {
-      console.log("settled data: ", data);
-    },
+  const { mutateAsync: addTimeline } = useMutation({
+    mutationFn: (timelineInfo) => axiosSecure.post("/timelines", timelineInfo),
     retry: 2,
   });
 
   const onSubmit = async (data) => {
-    const { title, category, description, location } = data;
-
     try {
-      const imageURL = await imageUpload(data?.image[0]);
+      const imageURL = await imageUpload(data.image[0]);
+
+      // location is { address, lat, lng } from the Controller
       const issueInfo = {
-        title,
-        category,
-        description,
-        location,
+        title: data.title,
+        category: data.category,
+        description: data.description,
+        location: data.location.address, // human-readable string
+        position: {
+          // lat/lng for map marker
+          lat: data.location.lat,
+          lng: data.location.lng,
+        },
         image: imageURL,
         reporter: user?.email,
       };
-
+      console.log(issueInfo);
       const result = await reportIssue(issueInfo);
+
       if (result.data.insertedId) {
-        const timelineInfo = {
+        await addTimeline({
           issueId: result.data.insertedId,
           message: "Issue Creation",
           updatedBy: "Citizen",
-        };
-        await addTimeline(timelineInfo);
+        });
 
-        // Invalidate user query to refresh freeReport count
-        queryClient.invalidateQueries(["users", user?.email]);
-        queryClient.invalidateQueries(["issues"]);
+        queryClient.invalidateQueries({ queryKey: ["users", user?.email] });
+        queryClient.invalidateQueries({ queryKey: ["issues"] });
 
         toast.success("Issue reported successfully");
         navigate("/dashboard/my-issues");
@@ -82,100 +79,109 @@ const ReportIssueForm = () => {
     <Container>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.5 }}
-        className=" max-w-76 md:max-w-fit border border-primary/15  mx-auto card rounded-lg overflow-hidden mb-16 mt-8"
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="border border-primary/15 mx-auto card rounded-xl overflow-hidden mb-16 mt-6"
       >
-        <div className={`card-body px-2 md:px-4 bg-surface-container-low`}>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <fieldset className="! fieldset space-y-2 overflow-hidden">
-                <div className="w-72 md:w-xl">
-                  <label htmlFor="name" className="label md:text-sm">
-                    Issue Title
-                  </label>
+        <div className="card-body px-3 md:px-6">
+          <form onSubmit={handleSubmit(onSubmit)} noValidate>
+            <div className="flex flex-col lg:flex-row gap-6">
+              {/* ── Left column: text fields ── */}
+              <div className="flex-1 space-y-4">
+                {/* Title */}
+                <div>
+                  <label className="label text-sm font-semibold text-slate-700">Issue Title</label>
                   <input
                     type="text"
-                    id="name"
                     className="input-field"
                     placeholder="Enter issue title"
                     {...register("title", {
-                      required: "Title must be required",
-                      minLength: { value: 3, message: "title atleast 3 character" },
+                      required: "Title is required",
+                      minLength: { value: 3, message: "Title must be at least 3 characters" },
                     })}
                   />
-                  {errors.title && <p className="mt-1 text-xs text-red-500">{errors.title.message} </p>}
+                  {errors.title && <p className="mt-1 text-xs text-red-500">{errors.title.message}</p>}
                 </div>
-                <div className="w-72 md:w-xl">
-                  <label className="label md:text-sm">Location</label>
-                  <br />
-                  <input
-                    type="text"
-                    className="input-field"
-                    placeholder="e.g. Jashore"
-                    {...register("location", {
-                      required: "Location must be required",
-                      minLength: { value: 3, message: "Location atleast 3 character" },
-                    })}
-                  />
-                  {errors.location && <p className="mt-1 text-xs text-red-500">{errors.location.message} </p>}
-                </div>
-              <div className="flex flex-col md:flex-row justify-between gap-5">
-                <div className="w-72 md:w-1/2">
-                  <label className="label md:text-sm">Select Category</label>
-                  <br />
+
+                {/* Category */}
+                <div>
+                  <label className="label text-sm font-semibold text-slate-700">Category</label>
                   <select
-                    className="select select-bordered"
-                    {...register("category", {
-                      required: true,
-                      minLength: {
-                        value: 1,
-                        message: "Please Select category",
-                      },
-                    })}
+                    className="w-full select select-bordered"
+                    {...register("category", { required: "Please select a category" })}
                   >
                     <option value="">Select Category</option>
-                    <option value="road">Road</option>
-                    <option value="water">Water</option>
-                    <option value="electricity">Electricity</option>
-                    <option value="garbage">Garbage</option>
+                    {ISSUE_CATEGORIES.map((category) => (
+                      <option key={category} value={category}>
+                        {formatCategory(category)}
+                      </option>
+                    ))}
                   </select>
-                  {errors.category && <p className="mt-1 text-xs text-red-500">{errors.category.message} </p>}
+                  {errors.category && <p className="mt-1 text-xs text-red-500">{errors.category.message}</p>}
                 </div>
-                <div className="w-72 md:w-1/2">
-                    <label className="label md:text-sm">Sample Issue Image</label>
-                    <input
-                      type="file"
-                      id="image"
-                      accept="image/*"
-                      {...register("image", {
-                        required: "Image must be required",
-                      })}
-                      className=" file-input file:bg-surface-container-high file:text-primary"
-                    />
-                    {errors.image && <p className="mt-1 text-xs text-red-500">{errors.image.message} </p>}
-                  </div>
-              </div>
-      
-              <div className="w-72 md:w-xl">
-                <label className="label md:text-sm">Description</label>
-                <br />
-                <textarea
-                  className="textarea textarea-bordered h-24 md:h-8 md:w-full"
-                  placeholder="Enter description"
-                  {...register("description", {
-                    required: "Description must be required",
-                    minLength: { value: 3, message: "Description atleast 10 character" },
-                  })}
-                ></textarea>
-                {errors.description && <p className="mt-1 text-xs text-red-500">{errors.description.message} </p>}
+
+                {/* Image */}
+                <div>
+                  <label className="label text-sm font-semibold text-slate-700">Issue Photo</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    {...register("image", { required: "A photo is required" })}
+                    className="w-full file-input file:bg-surface-container-high file:text-primary"
+                  />
+                  {errors.image && <p className="mt-1 text-xs text-red-500">{errors.image.message}</p>}
+                </div>
+
+                {/* Description */}
+                <div>
+                  <label className="label text-sm font-semibold text-slate-700">Description</label>
+                  <textarea
+                    className="w-full textarea textarea-bordered h-28"
+                    placeholder="Describe the issue in detail…"
+                    {...register("description", {
+                      required: "Description is required",
+                      minLength: { value: 10, message: "Description must be at least 10 characters" },
+                    })}
+                  />
+                  {errors.description && <p className="mt-1 text-xs text-red-500">{errors.description.message}</p>}
+                </div>
               </div>
 
-              <button className="btn mx-auto w-72  md:w-full  mt-4 bg-primary hover:bg-primary/90 text-white">
-                {isReporting ? <FaSpinner className="animate-spin text-lg" /> : <IoIosSend className="text-lg" />}
-                {isReporting ? "Reporting..." : "Report Issue"}
+              {/* ── Right column: location picker ── */}
+              <div className="flex-1">
+                <Controller
+                  name="location"
+                  control={control}
+                  rules={{ required: "Please select a location on the map" }}
+                  render={({ field }) => (
+                    <MapLocation
+                      value={field.value || null}
+                      onChange={field.onChange}
+                      error={errors.location?.message}
+                    />
+                  )}
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end mt-5">
+              {/* Submit */}
+              <button
+                type="submit"
+                disabled={isReporting}
+                className="btn w-full sm:w-fit bg-primary hover:bg-primary/90 text-white disabled:opacity-60"
+              >
+                {isReporting ? (
+                  <>
+                    <FaSpinner className="animate-spin text-lg" /> Reporting…
+                  </>
+                ) : (
+                  <>
+                    <IoIosSend className="text-lg" /> Report Issue
+                  </>
+                )}
               </button>
-            </fieldset>
+            </div>
           </form>
         </div>
       </motion.div>

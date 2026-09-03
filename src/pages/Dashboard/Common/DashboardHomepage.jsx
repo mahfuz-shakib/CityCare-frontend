@@ -1,28 +1,16 @@
 import React from 'react';
-// import { useQuery } from '@tanstack/react-query';
-// import useAxiosSecure from '../../../hooks/useAxiosSecure';
 import useAuth from '../../../hooks/useAuth';
 import useRole from '../../../hooks/useRole';
 import AdminHome from '../Admin/AdminHome';
 import StaffHome from '../Staff/StaffHome';
 import CitizenHome from '../Citizen/CitizenHome';
-import Loader from '../../../components/Loader';
+import ListingSkeleton from '../../../components/ListingSkeleton';
 
 const DashboardHomepage = () => {
     const {loading} = useAuth();
-    // const axiosSecure = useAxiosSecure();
     const { role, roleLoading } = useRole()
-    // const { data: userData, isLoading } = useQuery({
-    //     queryKey: ['users', user?.email],
-    //     queryFn: async () => {
-    //         const res = await axiosSecure.get(`/users/?email=${user?.email}`);
-    //         return res.data?.[0];
-    //     },
-    //     enabled: !!user?.email,
-    // });
-
     if (roleLoading || loading) {
-        return <Loader />;
+        return <ListingSkeleton />;
     }
     if (role === 'admin') {
         return <AdminHome />;
@@ -32,5 +20,4 @@ const DashboardHomepage = () => {
         return <CitizenHome />;
     }
 };
-
 export default DashboardHomepage;

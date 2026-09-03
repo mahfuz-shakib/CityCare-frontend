@@ -2,14 +2,16 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { FaUser, FaClipboardList, FaClock, FaSpinner, FaCheckCircle, FaCreditCard, FaCrown, FaBan } from "react-icons/fa";
-import { Link } from "react-router";
+import { FaUser, FaCrown, FaBan } from "react-icons/fa";
+import { ClipboardList, CreditCard, PlusCircle } from "lucide-react";
 import Swal from "sweetalert2";
 import useAuth from "../../../hooks/useAuth";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import Container from "../../../container/Container";
 import Loader from "../../../components/Loader";
 import { imageUpload } from "../../../utils";
+import ProfileActions from "../../../components/ProfileActions";
+import AccountSettings from "../../../components/AccountSettings";
 
 const CitizenProfile = () => {
   const { user, setUser } = useAuth();
@@ -24,16 +26,6 @@ const CitizenProfile = () => {
     },
     enabled: !!user?.email,
   });
-console.log(userData)
-  const { data: issuesData } = useQuery({
-    queryKey: ["citizen-issues", user?.email],
-    queryFn: async () => {
-      const res = await axiosSecure.get(`/issues/?email=${user?.email}`);
-      return res.data?.data || [];
-    },
-    enabled: !!user?.email,
-  });
-
   const { data: paymentsData = [] } = useQuery({
     queryKey: ["citizen-payments", user?.email],
     queryFn: async () => {
@@ -75,7 +67,7 @@ console.log(userData)
 
   const onSubmit = async (formData) => {
     try {
-      const photoURL = await imageUpload(formData?.image[0]);
+      const photoURL = formData?.image?.[0] ? await imageUpload(formData.image[0]) : undefined;
       const updatePayload = {
         displayName: formData.displayName || userData?.displayName,
         photoURL: photoURL || userData?.photoURL,
@@ -101,21 +93,13 @@ console.log(userData)
     return <Loader />;
   }
 
-  const stats = {
-    totalIssues: issuesData?.length || 0,
-    pending: issuesData?.filter((i) => i.status === "pending").length || 0,
-    inProgress: issuesData?.filter((i) => i.status === "in-progress" || i.status === "working").length || 0,
-    resolved: issuesData?.filter((i) => i.status === "resolved" || i.status === "closed").length || 0,
-    totalPayments: paymentsData?.length || 0,
-    remainingReports: userData?.freeReport || 0,
-  };
-
-  const boostPayments = paymentsData?.filter((p) => p.purpose?.toLowerCase().includes("boost") || p.metadata?.issueId) || [];
-  const subscriptionPayments = paymentsData?.filter((p) => p.purpose?.toLowerCase().includes("subscription") || p.metadata?.userId) || [];
+  const subscriptionPayments =
+    paymentsData?.filter((p) => p.purpose?.toLowerCase().includes("subscription") || p.metadata?.userId) || [];
+  const remainingReports = userData?.freeReport || 0;
 
   return (
     <Container>
-            <title>Profile</title>
+      <title>Profile</title>
 
       <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
         {/* Profile Header */}
@@ -166,14 +150,7 @@ console.log(userData)
                       </span>
                     )}
                   </div>
-                  <div className="mt-4 flex gap-2 justify-center md:justify-start">
-                    <button
-                      onClick={() => setIsEditing(true)}
-                      className="btn btn-sm bg-white text-blue-600 hover:bg-blue-50 border-0"
-                    >
-                      Edit Profile
-                    </button>
-                  </div>
+                  <div className="mt-4 flex gap-2 justify-center md:justify-start"></div>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
@@ -188,15 +165,14 @@ console.log(userData)
                         />
                       </div>
                       <div className="md:w-60">
-                    <label className="label md:text-sm  text-black">Upload Image</label>
+                        <label className="label md:text-sm  text-black">Upload Image</label>
                         <input
-                        type="file"
-                      id="image"
-                      accept="image/*"
+                          type="file"
+                          id="image"
+                          accept="image/*"
                           {...register("image")}
-                      className="file-input file:bg-lime-50 file:text-lime-700"
+                          className="file-input file:bg-lime-50 file:text-lime-700"
                         />
-                        
                       </div>
                     </div>
                   </div>
@@ -217,50 +193,6 @@ console.log(userData)
                   </div>
                 </form>
               )}
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Statistics Cards */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="grid md:grid-cols-3 lg:grid-cols-5 gap-6"
-        >
-          <div className="card bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg">
-            <div className="card-body">
-              <FaClipboardList className="text-3xl mb-2" />
-              <h3 className="text-2xl font-bold">{stats.totalIssues}</h3>
-              <p className="text-blue-100">Total Issues</p>
-            </div>
-          </div>
-          <div className="card bg-gradient-to-br from-yellow-500 to-yellow-600 text-white shadow-lg">
-            <div className="card-body">
-              <FaClock className="text-3xl mb-2" />
-              <h3 className="text-2xl font-bold">{stats.pending}</h3>
-              <p className="text-yellow-100">Pending</p>
-            </div>
-          </div>
-          <div className="card bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-lg">
-            <div className="card-body">
-              <FaSpinner className="text-3xl mb-2" />
-              <h3 className="text-2xl font-bold">{stats.inProgress}</h3>
-              <p className="text-purple-100">In Progress</p>
-            </div>
-          </div>
-          <div className="card bg-gradient-to-br from-green-500 to-green-600 text-white shadow-lg">
-            <div className="card-body">
-              <FaCheckCircle className="text-3xl mb-2" />
-              <h3 className="text-2xl font-bold">{stats.resolved}</h3>
-              <p className="text-green-100">Resolved</p>
-            </div>
-          </div>
-          <div className="card bg-gradient-to-br from-indigo-500 to-indigo-600 text-white shadow-lg">
-            <div className="card-body">
-              <FaCreditCard className="text-3xl mb-2" />
-              <h3 className="text-2xl font-bold">{stats.totalPayments}</h3>
-              <p className="text-indigo-100">Payments</p>
             </div>
           </div>
         </motion.div>
@@ -288,17 +220,9 @@ console.log(userData)
                         You are currently on the <strong className="text-gray-800">Free Plan</strong>.
                       </p>
                       <p className="text-sm text-gray-500">
-                        Free users can submit up to <strong>{stats.remainingReports}</strong> more issue{stats.remainingReports !== 1 ? "s" : ""}.
+                        Free users can submit up to <strong>{remainingReports}</strong> more issue
+                        {remainingReports !== 1 ? "s" : ""}.
                       </p>
-                    </div>
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                      <h4 className="font-semibold text-yellow-800 mb-2">Premium Benefits:</h4>
-                      <ul className="text-sm text-yellow-700 space-y-1">
-                        <li>✓ Unlimited issue reporting</li>
-                        <li>✓ Priority support</li>
-                        <li>✓ Advanced analytics</li>
-                        <li>✓ Early access to new features</li>
-                      </ul>
                     </div>
                     <motion.button
                       onClick={handleSubscribe}
@@ -321,7 +245,14 @@ console.log(userData)
                     <p className="text-gray-700">Unlimited issue reporting enabled.</p>
                   </div>
                   <div className="text-sm text-gray-600">
-                    <p>Subscription Date: {subscriptionPayments[0] ? new Date(subscriptionPayments[0].createdAt || subscriptionPayments[0].created).toLocaleDateString() : "N/A"}</p>
+                    <p>
+                      Subscription Date:{" "}
+                      {subscriptionPayments[0]
+                        ? new Date(
+                            subscriptionPayments[0].createdAt || subscriptionPayments[0].created,
+                          ).toLocaleDateString()
+                        : "N/A"}
+                    </p>
                   </div>
                 </div>
               )}
@@ -355,75 +286,36 @@ console.log(userData)
                 {!userData?.isPremium && (
                   <div>
                     <p className="text-sm text-gray-500">Remaining Free Reports</p>
-                    <p className="font-medium text-lg">{stats.remainingReports} / 3</p>
+                    <p className="font-medium text-lg">{remainingReports} / 3</p>
                   </div>
                 )}
               </div>
             </div>
           </div>
-        </motion.div>
-
-        {/* Payment Summary */}
-        {stats.totalPayments > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="card bg-base-100 shadow-lg"
-          >
-            <div className="card-body">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-semibold">Payment Summary</h3>
-                {/* <Link to="/dashboard/payment-history" className="btn btn-sm btn-outline">
-                  View All
-                </Link> */}
-              </div>
-              <div className="grid md:grid-cols-3 gap-4">
-                <div className="bg-blue-50 rounded-lg p-4">
-                  <p className="text-sm text-gray-600">Total Payments</p>
-                  <p className="text-2xl font-bold text-blue-600">{stats.totalPayments}</p>
-                </div>
-                <div className="bg-green-50 rounded-lg p-4">
-                  <p className="text-sm text-gray-600">Boost Payments</p>
-                  <p className="text-2xl font-bold text-green-600">{boostPayments.length}</p>
-                </div>
-                <div className="bg-yellow-50 rounded-lg p-4">
-                  <p className="text-sm text-gray-600">Subscriptions</p>
-                  <p className="text-2xl font-bold text-yellow-600">{subscriptionPayments.length}</p>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-
-        {/* Quick Actions */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.5 }}
-          className="card bg-base-100 shadow-lg"
-        >
-          <div className="card-body">
-            <h3 className="text-xl font-semibold mb-4">Quick Actions</h3>
-            <div className="grid md:grid-cols-3 gap-4">
-              <Link
-                to="/dashboard/report-issue"
-                className="btn btn-primary w-full"
-                disabled={!userData?.isPremium && stats.remainingReports === 0}
-              >
-                <FaClipboardList className="mr-2" />
-                Report New Issue
-              </Link>
-              <Link to="/dashboard/my-issues" className="btn btn-outline w-full">
-                <FaClipboardList className="mr-2" />
-                View My Issues
-              </Link>
-              <Link to="/dashboard/payment-history" className="btn btn-outline w-full">
-                <FaCreditCard className="mr-2" />
-                Payment History
-              </Link>
-            </div>
-          </div>
+          <ProfileActions
+            title="Citizen account"
+            items={[
+              {
+                to: "/dashboard/report-issue",
+                label: "Report an issue",
+                description: "Submit a new civic report",
+                icon: PlusCircle,
+              },
+              {
+                to: "/dashboard/my-issues",
+                label: "My issues",
+                description: "Track your submitted reports",
+                icon: ClipboardList,
+              },
+              {
+                to: "/dashboard/payment-history",
+                label: "Payment history",
+                description: "View receipts and transactions",
+                icon: CreditCard,
+              },
+            ]}
+          />
+          <AccountSettings account={userData} />
         </motion.div>
       </div>
     </Container>

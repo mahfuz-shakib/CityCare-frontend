@@ -13,6 +13,7 @@ import { getChartData } from "../../../Data/Data";
 import ActivityTrends from "../../../components/Charts/ActivityTrends";
 import IssueStatusBadge from "../../../components/IssueStatusBadge";
 import { FaLocationDot, FaLocationPin } from "react-icons/fa6";
+import ListingSkeleton from "../../../components/ListingSkeleton";
 
 const CitizenHome = () => {
   const { user, loading } = useAuth();
@@ -36,11 +37,9 @@ const CitizenHome = () => {
     },
     enabled: !!user?.email,
   });
-  //   console.log(payments);
-
 
   if (loading || issuesLoading || paymentsLoading ) {
-    return <Loader />;
+    return <ListingSkeleton />;
   }
 
   const stats = {
@@ -213,6 +212,8 @@ const CitizenHome = () => {
           </motion.div>
         </div>
 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+
         {/* Latest Issues */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -254,7 +255,6 @@ const CitizenHome = () => {
             <p className="text-gray-500 text-center py-8">No issues reported yet</p>
           )}
         </motion.div>
-
         {/* Latest Payments */}
         {latestPayments.length > 0 && (
           <motion.div
@@ -298,6 +298,8 @@ const CitizenHome = () => {
             </div>
           </motion.div>
         )}
+        </div>
+
       </div>
     </Container>
   );

@@ -1,12 +1,13 @@
 import React from "react";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import { FaGithub, FaFacebook, FaLinkedin } from "react-icons/fa";
 import Container from "../container/Container";
 import useAuth from "../hooks/useAuth";
 const Footer = () => {
   const { user } = useAuth();
+  const location = useLocation(); 
+  if(location.pathname.startsWith('/dashboard')) return;
   return (
-    <div>
       <div className="bg-[#06091A] text-neutral-content">
         <Container>
           <div className="max-w-7xl mx-auto px-3 py-10">
@@ -97,7 +98,6 @@ const Footer = () => {
           </div>
         </Container>
       </div>
-    </div>
   );
 };
 

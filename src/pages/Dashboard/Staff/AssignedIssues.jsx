@@ -5,12 +5,15 @@ import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import useAuth from "../../../hooks/useAuth";
 import Container from "../../../container/Container";
 import Loader from "../../../components/Loader";
-import { FaClock, FaEye, FaFilter, FaPlus, FaRegEdit } from "react-icons/fa";
+import { FaClock, FaEye, FaPlus, FaRegEdit } from "react-icons/fa";
 import { MdDelete, MdLocationPin, MdNavigateBefore, MdNavigateNext } from "react-icons/md";
 import IssuePriorityBadge from "../../../components/IssuePriorityBadge";
 import IssueStatusBadge from "../../../components/IssueStatusBadge";
 import IssueCategoryBadge from "../../../components/IssueCategoryBadge";
+import IssueFilterBar from "../../../components/IssueFilterBar";
 import { Link } from "react-router";
+import Pagination from "../../../components/Pagination";
+import PageHeader from "../../../components/PageHeader";
 
 const AssignedIssues = () => {
   const { user } = useAuth();
@@ -21,95 +24,54 @@ const AssignedIssues = () => {
     priority: "",
     search: "",
   });
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 6;
   const axiosSecure = useAxiosSecure();
-  const queryKey = ["issues", filters];
+  const queryKey = ["issues", filters, currentPage];
   const { data: issuesResponse, isLoading } = useQuery({
     queryKey,
     queryFn: async () => {
-      const params = new URLSearchParams(filters).toString();
+      const params = new URLSearchParams({
+        ...filters,
+        page: currentPage.toString(),
+        limit: pageSize.toString(),
+      }).toString();
       const res = await axiosSecure.get(`/issues/?${params}`);
       return res.data;
     },
   });
   const assignedIssues = issuesResponse?.data || [];
-  
+  const pagination = issuesResponse?.pagination || { page: 1, total: assignedIssues.length, totalPages: 1 };
+
   return (
     <Container>
       <title>Assigned Issues</title>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.5 }}
-        className="flex flex-col md:flex-row gap-5 mt-6 px-3 bg-surface-container-low py-2 rounded-t-lg "
-      >
-        <label className="input rounded-full w-full lg:w-60 ">
-          <svg className="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <g strokeLinejoin="round" strokeLinecap="round" strokeWidth="2.5" fill="none" stroke="currentColor">
-              <circle cx="11" cy="11" r="8"></circle>
-              <path d="m21 21-4.3-4.3"></path>
-            </g>
-          </svg>
-          <input
-            onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-            type="search"
-            required
-            placeholder="Search by title, category or location"
-          />
-        </label>
-        <div className="relative">
-          <FaFilter className="absolute text-sm text-gray-600 left-2 top-1/2 -translate-y-1/2 z-1" />
-          <select
-            onChange={(e) => setFilters({ ...filters, category: e.target.value })}
-            defaultValue="Select Category"
-            className="pl-7 w-full md:w-42 select select-bordered rounded-2xl"
-          >
-            <option value="">Select Category</option>
-            <option value="road">Road</option>
-            <option value="water">Water</option>
-            <option value="electricity">Electricity</option>
-            <option value="garbage">Garbage</option>
-          </select>
-        </div>
-        <div className="relative">
-          <FaFilter className="absolute text-sm text-gray-600 left-2 top-1/2 -translate-y-1/2 z-1" />
-          <select
-            onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-            defaultValue="Select Status"
-            className="pl-7 w-full md:w-42 select select-bordered rounded-2xl"
-          >
-            <option value="">Select Status</option>
-            <option value="pending">Pending</option>
-            <option value="in-progress">In-progress</option>
-            <option value="resolved">Resolved</option>
-            <option value="closed">Closed</option>
-            <option value="rejected">Rejected</option>
-          </select>
-        </div>
-        <div className="relative">
-          <FaFilter className="absolute text-sm text-gray-600 left-2 top-1/2 -translate-y-1/2 z-1" />
-          <select
-            onChange={(e) => setFilters({ ...filters, priority: e.target.value })}
-            defaultValue="Select Priority"
-            className="pl-7 w-full md:w-42 select select-bordered rounded-2xl"
-          >
-            <option value="">Select Priority</option>
-            <option value="high">High</option>
-            <option value="normal">Normal</option>
-          </select>
-        </div>
-      </motion.div>
+      <div className="my-8">
+
+      <PageHeader
+        eyebrow="Staff Workspace"
+        title="Assigned Issues"
+        description="Review, prioritize, and update the public issues assigned to your team."
+      />
+      
       {!user.email || isLoading ? (
         <Loader />
       ) : assignedIssues.length ? (
-        <div>
+        <div className="mt-6">
+          <IssueFilterBar
+        filters={filters}
+        onFilterChange={(key, value) => {
+          setFilters({ ...filters, [key]: value });
+          setCurrentPage(1);
+        }}
+      />
           <div className="overflow-x-auto mb-16">
             <motion.table
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
-              className="table table-border overflow-hidden"
+              className="data-table"
             >
               {/* head */}
               <thead>
@@ -171,58 +133,18 @@ const AssignedIssues = () => {
               </tbody>
             </motion.table>
           </div>
-          {/* {pagination.totalPages > 1 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="flex flex-wrap justify-end items-center gap-3  mb-8"
-            >
-              <motion.button
-                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                disabled={currentPage === 1}
-                className="btn btn-outline"
-                whileHover={{ scale: currentPage === 1 ? 1 : 1.05 }}
-                whileTap={{ scale: currentPage === 1 ? 1 : 0.95 }}
-              >
-                Previous
-              </motion.button>
-              <div className="flex gap-2">
-                {paginationButtons.map((page, index, array) => {
-                  const showEllipsisBefore = index > 0 && array[index - 1] !== page - 1;
-                  return (
-                    <React.Fragment key={page}>
-                      {showEllipsisBefore && <span className="px-2 text-gray-500">...</span>}
-                      <motion.button
-                        onClick={() => setCurrentPage(page)}
-                        className={`btn ${currentPage === page ? "btn-primary" : "btn-outline"}`}
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                      >
-                        {page}
-                      </motion.button>
-                    </React.Fragment>
-                  );
-                })}
-              </div>
-              <motion.button
-                onClick={() => setCurrentPage((prev) => Math.min(pagination.totalPages, prev + 1))}
-                disabled={currentPage === pagination.totalPages}
-                className="btn btn-outline"
-                whileHover={{ scale: currentPage === pagination.totalPages ? 1 : 1.05 }}
-                whileTap={{ scale: currentPage === pagination.totalPages ? 1 : 0.95 }}
-              >
-                Next
-              </motion.button>
-              <span className="text-sm text-gray-600 px-4">
-                Page {pagination.page} of {pagination.totalPages} ({pagination.total} total)
-              </span>
-            </motion.div>
-          )} */}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={pagination.totalPages}
+            totalItems={pagination.total}
+            pageSize={pageSize}
+            onPageChange={setCurrentPage}
+          />
         </div>
       ) : (
         <p className="my-18 text-3xl font-bold">No reported issues found</p>
       )}
+      </div>
     </Container>
   );
 };

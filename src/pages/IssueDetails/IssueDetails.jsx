@@ -10,6 +10,7 @@ import IssueStatusBadge from "../../components/IssueStatusBadge";
 import IssuePriorityBadge from "../../components/IssuePriorityBadge";
 import IssueCategoryBadge from "../../components/IssueCategoryBadge";
 import useAuth from "../../hooks/useAuth";
+import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 24 },
@@ -49,7 +50,7 @@ const IssueDetails = () => {
   }
 
   const refId = `#CV-${issue._id?.slice(-4)?.toUpperCase()}-NY`;
-
+  const position = issue.position ? issue.position : [23.8103, 90.4125];
   return (
     <div className="min-h-screen ">
       <title>{issue.title}</title>
@@ -115,7 +116,7 @@ const IssueDetails = () => {
               {issue.assignedStaff && (
                 <motion.div
                   {...fadeUp(0.2)}
-                  className="flex items-center gap-3 bg-whit borde border-slate-100 rounded-xl px-4 py-3 shadow-sm"
+                  className="flex items-center bg-white  gap-3 bg-whit borde border-slate-100 rounded-xl px-4 py-3 shadow-sm"
                 >
                   <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
                     <User size={16} className="text-blue-600" />
@@ -136,7 +137,7 @@ const IssueDetails = () => {
             {/* ── Col 2: Description + Details ── */}
             <motion.div {...fadeUp(0.15)} className="space-y-5">
               {/* Description card */}
-              <div className="bg-whit rounded-2xl p-5 shadow-sm borde border-slate-100">
+              <div className="bg-white rounded-2xl p-5 shadow-sm borde border-slate-100">
                 <h3 className="text-sm font-bold uppercase tracking-widest text-blue-600 mb-3 flex items-center gap-2">
                   <span className="w-1 h-4 rounded-full bg-blue-600 inline-block" />
                   Issue Description
@@ -169,24 +170,28 @@ const IssueDetails = () => {
               </div>
 
               {/* Precise Location card */}
-              <div className="bg-whit rounded-2xl p-5 shadow-sm borde border-slate-100">
+              <div className="bg-white rounded-2xl p-5 shadow-sm borde border-slate-100">
                 <h3 className="text-sm font-bold uppercase tracking-widest text-blue-600 mb-3 flex items-center gap-2">
                   <span className="w-1 h-4 rounded-full bg-blue-600 inline-block" />
                   Precise Location
                 </h3>
                 {/* Map placeholder — swap with real map embed */}
                 <div className="w-full h-44 rounded-xl bg-gradient-to-br from-emerald-50 to-teal-100 flex items-center justify-center relative overflow-hidden">
-                  <div
-                    className="absolute inset-0 opacity-20"
-                    style={{
-                      backgroundImage:
-                        "repeating-linear-gradient(0deg,transparent,transparent 20px,#94a3b8 20px,#94a3b8 21px),repeating-linear-gradient(90deg,transparent,transparent 20px,#94a3b8 20px,#94a3b8 21px)",
-                    }}
-                  />
-                  <div className="relative flex flex-col items-center">
-                    <div className="w-10 h-10 rounded-full bg-red-500 shadow-lg flex items-center justify-center mb-1">
-                      <MapPin size={18} className="text-white" />
-                    </div>
+                  <MapContainer
+                    className="h-full w-full absolute"
+                    center={[23.8103, 90.4125]}
+                    zoom={9}
+                    scrollWheelZoom={false}
+                  >
+                    <TileLayer
+                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    />
+                    <Marker position={position}>
+                      <Popup>{issue.title}</Popup>
+                    </Marker>
+                  </MapContainer>
+                  <div className="relative flex flex-col items-center z-500">
                     <span className="text-xs font-medium text-slate-600 bg-white/80 rounded-full px-2.5 py-0.5 shadow">
                       {issue.location}
                     </span>
@@ -196,16 +201,16 @@ const IssueDetails = () => {
 
               {/* Meta chips row */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div className="bg-whit rounded-xl p-4 shadow-sm borde border-slate-100 flex items-center gap-3">
+                <div className="bg-white rounded-xl p-4 shadow-sm borde border-slate-100 flex items-center gap-3">
                   <div className="w-9 h-9 rounded-lg bg-red-50 flex items-center justify-center shrink-0">
                     <MapPin size={16} className="text-red-500" />
                   </div>
                   <div>
                     <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Location</p>
-                    <p className="text-xs font-semibold text-slate-700 truncate">{issue.location}</p>
+                    <p className="text-xs font-semibold text-slate-700">{issue.location}</p>
                   </div>
                 </div>
-                <div className="bg-whit rounded-xl p-4 shadow-sm borde border-slate-100 flex items-center gap-3">
+                <div className="bg-white rounded-xl p-4 shadow-sm borde border-slate-100 flex items-center gap-3">
                   <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
                     <CalendarDays size={16} className="text-blue-500" />
                   </div>
@@ -227,15 +232,15 @@ const IssueDetails = () => {
             <motion.div {...fadeUp(0.2)} className="space-y-4">
               {/* Manage Issue card */}
 
-              <div className="bg-surface-container-high/50 rounded-2xl p-5 shadow-sm border border-slate-100">
-                {isOwner && (
+              {isOwner && (
+                <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
                   <h3 className="text-sm font-bold uppercase tracking-widest text-slate-500 mb-4">Manage Issue</h3>
-                )}
-                <IssueActions issue={issue} sidebar />
-              </div>
+                  <IssueActions issue={issue} sidebar />
+                </div>
+              )}
 
               {/* Status / Priority / Category chips */}
-              <div className="bg-surface-container-high/50 rounded-2xl p-5 shadow-sm border border-slate-100 space-y-3">
+              <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 space-y-3">
                 {[
                   { label: "Status", node: <IssueStatusBadge status={issue.status} /> },
                   { label: "Priority", node: <IssuePriorityBadge priority={issue.priority} /> },

@@ -6,6 +6,7 @@ import { imageUpload } from "../../utils";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import Container from "../../container/Container";
 import { useQueryClient } from "@tanstack/react-query";
+import { ISSUE_CATEGORIES, formatCategory, normalizeCategory } from "../../constants/categories";
 
 const UpdateIssueForm = ({ updateItem, modalRef }) => {
   const axiosSecure = useAxiosSecure();
@@ -29,7 +30,7 @@ const UpdateIssueForm = ({ updateItem, modalRef }) => {
     if (updateItem) {
       reset({
         title: updateItem.title,
-        category: updateItem.category,
+        category: normalizeCategory(updateItem.category),
         description: updateItem.description,
         location: updateItem.location,
       });
@@ -117,10 +118,11 @@ const UpdateIssueForm = ({ updateItem, modalRef }) => {
                     })}
                     key={updateItem._id}
                   >
-                    <option value="road">Road</option>
-                    <option value="water">Water</option>
-                    <option value="electricity">Electricity</option>
-                    <option value="garbage">Garbage</option>
+                    {ISSUE_CATEGORIES.map((category) => (
+                      <option key={category} value={category}>
+                        {formatCategory(category)}
+                      </option>
+                    ))}
                   </select>
                   {errors.category && <p className="mt-1 text-xs text-red-500">{errors.category.message} </p>}
                 </div>

@@ -47,7 +47,7 @@ const NavProfileDropdown = ({ dropdownRef }) => {
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            className="absolute right-0 w-48 bg-white border border-blue-300 rounded-lg shadow-lg overflow-hidden"
+            className="absolute right-0 w-48 bg-white border border-blue-300 rounded-lg shadow-lg overflow-hidden z-[2100]"
           >
             <Link
               to="/dashboard/myProfile"

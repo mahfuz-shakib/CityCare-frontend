@@ -7,7 +7,8 @@ const Transparency_Analytics = () => {
   const { data, loading } = useResolution();
   if (loading) return <ListingSkeleton />;
   const { resolutionPerformance } = data || {};
-  console.log(resolutionPerformance);
+  const currentMonth = resolutionPerformance?.at(-1);
+  const hasCurrentMonthData = currentMonth?.averageResolution !== null && currentMonth?.averageResolution !== undefined;
   return (
     <section className="px-6 py-24 bg-primary text-white">
       <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
@@ -23,16 +24,25 @@ const Transparency_Analytics = () => {
               <h3 className="text-3xl font-black">Resolution Performance</h3>
             </div>
             <div className="w-20 h-20 rounded-full border-4 border-white/20 flex items-center justify-center">
-              <span className="text-xl font-black">{resolutionPerformance?.at(-1).averageResolution}%</span>
+              <span className="text-xl font-black">
+                {hasCurrentMonthData ? `${currentMonth.averageResolution}d` : "N/A"}
+              </span>
             </div>
           </div>
           <div className="flex items-end gap-3 h-48">
             {resolutionPerformance?.map((m, i) => (
               <div
                 key={m.monthKey}
-                className={`flex-1  rounded-t-lg transition-all duration-1000 ${i === 5 ? "bg-gray-100" : i === 4 ? "bg-gray-200" : i === 3 ? "bg-gray-300" : "bg-white/50"}`}
-                style={{ height: `${m.resolutionChangePercent || 5}%` }}
-              ></div>
+                className={`flex-1 rounded-t-lg transition-all duration-1000 ${m.resolvedCount === 0 ? "bg-white/20" : i === 5 ? "bg-gray-100" : i === 4 ? "bg-gray-200" : i === 3 ? "bg-gray-300" : "bg-white/50"}`}
+                style={{
+                  height: `${m.resolvedCount === 0 ? 2 : Math.max((m.resolvedCount / Math.max(...resolutionPerformance.map((item) => item.resolvedCount), 1)) * 100, 8)}%`,
+                }}
+                title={`${m.resolvedCount} resolved issue${m.resolvedCount === 1 ? "" : "s"}`}
+              >
+                {m.resolvedCount === 0 && (
+                  <span className="block -mt-5 text-center text-[10px] font-bold opacity-70">0</span>
+                )}
+              </div>
             ))}
           </div>
           <div className="flex justify-between mt-4 text-xs font-bold opacity-60">

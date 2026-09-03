@@ -28,16 +28,20 @@ const statusMap = {
   },
 };
 
-const IssueStatusBadge = ({ status }) => {
+const statusLabels = {
+  "in-progress": "In progress",
+};
+
+const IssueStatusBadge = ({ status, className = "" }) => {
   const config = statusMap[status] || { icon: FaExclamationTriangle, className: "bg-slate-100 text-slate-600" };
   const Icon = config.icon;
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full capitalize ${config.className}`}
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold ${config.className} ${className}`}
     >
       <Icon className="shrink-0" style={{ fontSize: "10px" }} />
-      {status}
+      {statusLabels[status] || status || "Unknown"}
     </span>
   );
 };

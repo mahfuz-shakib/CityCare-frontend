@@ -9,6 +9,8 @@ import { condition } from "../utils/DisableCondition";
 import useAxiosSecure from "../hooks/useAxiosSecure";
 import useAxios from "../hooks/useAxios";
 import IssueStatusBadge from "./IssueStatusBadge";
+import IssueCategoryBadge from "./IssueCategoryBadge";
+import IssuePriorityBadge from "./IssuePriorityBadge";
 
 const IssueCard = ({ issue }) => {
   const { user } = useAuth();
@@ -93,10 +95,6 @@ const IssueCard = ({ issue }) => {
   //   return statusMap[status] || "badge-outline";
   // };
 
-  const getPriorityBadgeClass = (priority) => {
-    return priority === "high" ? "badge-error" : "badge-outline";
-  };
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -119,8 +117,8 @@ const IssueCard = ({ issue }) => {
           className="flex flex-col gap-2 absolute top-2 left-3 text-xs font-bold "
         >
           {priority === "high" && <span className=" bg-red-700 text-white px-2 py-1 rounded shadow-lg">BOOSTED</span>}
-          
-          <IssueStatusBadge status={status}/>
+
+          <IssueStatusBadge status={status} />
           {/* <span className={`badge text-white ${getStatusBadgeClass(status)}`}>{status}</span> */}
         </motion.div>
       </figure>
@@ -138,9 +136,11 @@ const IssueCard = ({ issue }) => {
           <FaLocationDot className="text-red-500 flex-shrink-0" />
           <span className="truncate">{location}</span>
         </p>
-          
-          <i className="badge outline outline-gray-300 mb-3">{category}</i>
-          {/* <span className={`badge ${getPriorityBadgeClass(priority)}`}>{priority}</span> */}
+
+        <div className="mb-3 flex items-center gap-2">
+          <IssueCategoryBadge category={category} />
+          <IssuePriorityBadge priority={priority} />
+        </div>
 
         <div className="flex justify-between items-center mt-auto pt-2 border-t border-gray-200">
           <motion.span

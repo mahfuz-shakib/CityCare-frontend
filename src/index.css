@@ -1,14 +1,25 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap");
 @import "tailwindcss";
 @plugin "daisyui";
-
-@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
 
 * {
   font-family: "Inter", sans-serif;
 }
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.heading-main,
+.heading-section,
+.heading-sub {
+  font-family: "Manrope", sans-serif;
+}
 a.active {
   color: #0037b0;
-  text-decoration: underline;
+  border-right: 3px solid blue;
 }
 
 body {
@@ -17,7 +28,11 @@ body {
 }
 
 @theme {
-  /* --color-primary: #0037b0; */
+  --font-body: "Inter", sans-serif;
+  --font-headline: "Manrope", sans-serif;
+  --color-primary: #0037b0;
+  --color-secondary: #52647a;
+  --color-general: #0b1c30;
   --color-primary-container: #1d4ed8;
   --color-crimson: #a73400;
   --color-surface: #f8f9ff;
@@ -71,6 +86,9 @@ body {
 .text-secondary {
   /* Supporting text, subtitles */
   @apply text-slate-600;
+}
+.text-general {
+  color: #0b1c30;
 }
 .text-crimson {
   /* Supporting text, subtitles */
@@ -278,7 +296,7 @@ body {
 
 .table-header {
   /* Table header row */
-  @apply bg-surface-container-high text-slate-700;
+  @apply border-b border-slate-100 bg-surface-container-high text-slate-700;
 }
 
 .table-row {
@@ -290,8 +308,28 @@ body {
   @apply border border-surface-container-highest;
 }
 
+.table-shell {
+  @apply overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm;
+}
+
+.data-table {
+  @apply w-full text-sm;
+}
+
+.data-table th {
+  @apply border-b border-slate-100 px-5 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-slate-400;
+}
+
+.data-table td {
+  @apply border-b border-slate-50 px-5 py-4;
+}
+
+.data-table tbody tr {
+  @apply transition-colors hover:bg-slate-50/60;
+}
+
 .input-field {
-  @apply input w-full placeholder-gray-500 hover:border-primary/50 focus:border-primary outline-none;
+  @apply input w-full placeholder-gray-600 hover:border-primary/50 focus:border-primary outline-none;
 }
 .booking-input-field {
   @apply w-full placeholder-gray-500 hover:border-primary/50 focus:border-primary outline-none transition-all duration-200;

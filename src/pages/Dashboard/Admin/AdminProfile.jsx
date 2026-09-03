@@ -2,23 +2,15 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  FileText,
-  Users,
-  UserCheck,
-  DollarSign,
-  ShieldCheck,
-  Pencil,
-  X,
-  Check,
-  Camera,
-} from "lucide-react";
+import { ShieldCheck, Pencil, X, Check, Camera, BarChart3, CreditCard, Users, ClipboardList } from "lucide-react";
 import Swal from "sweetalert2";
 import useAuth from "../../../hooks/useAuth";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import Container from "../../../container/Container";
 import Loader from "../../../components/Loader";
 import { imageUpload } from "../../../utils";
+import ProfileActions from "../../../components/ProfileActions";
+import AccountSettings from "../../../components/AccountSettings";
 
 /* ── animation helper ── */
 const fadeUp = (delay = 0) => ({
@@ -26,20 +18,6 @@ const fadeUp = (delay = 0) => ({
   animate: { opacity: 1, y: 0 },
   transition: { duration: 0.45, delay, ease: [0.22, 1, 0.36, 1] },
 });
-
-/* ── Stat card ── */
-const StatCard = ({ icon: Icon, label, value, color, delay }) => (
-  <motion.div
-    {...fadeUp(delay)}
-    className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm"
-  >
-    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${color} mb-3`}>
-      <Icon size={18} className="text-white" />
-    </div>
-    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">{label}</p>
-    <p className="text-3xl font-bold text-slate-900">{value}</p>
-  </motion.div>
-);
 
 const AdminProfile = () => {
   const { user, setUser } = useAuth();
@@ -51,25 +29,6 @@ const AdminProfile = () => {
     queryFn: async () => {
       const res = await axiosSecure.get(`/users/?email=${user?.email}`);
       return res.data?.[0];
-    },
-    enabled: !!user?.email,
-  });
-
-  const { data: statsData } = useQuery({
-    queryKey: ["admin-stats", user?.email],
-    queryFn: async () => {
-      const [issuesRes, usersRes, staffsRes, paymentsRes] = await Promise.all([
-        axiosSecure.get("/issues"),
-        axiosSecure.get("/users/?role=citizen"),
-        axiosSecure.get("/staffs"),
-        axiosSecure.get("/payments"),
-      ]);
-      return {
-        totalIssues: issuesRes.data?.data?.length || 0,
-        totalUsers: usersRes.data?.length || 0,
-        totalStaffs: staffsRes.data?.data?.length || 0,
-        totalRevenue: paymentsRes.data?.reduce((sum, p) => sum + (p.amount || p.amount_total / 100 || 0), 0) || 0,
-      };
     },
     enabled: !!user?.email,
   });
@@ -88,7 +47,7 @@ const AdminProfile = () => {
 
   const onSubmit = async (formData) => {
     try {
-      const photoURL = await imageUpload(formData?.image?.[0]);
+      const photoURL = formData?.image?.[0] ? await imageUpload(formData.image[0]) : undefined;
       const updatePayload = {
         displayName: formData.displayName || userData?.displayName,
         photoURL: photoURL || userData?.photoURL,
@@ -121,7 +80,6 @@ const AdminProfile = () => {
       <title>Profile</title>
       <Container className="px-4 md:px-10">
         <div className="pt-8 pb-16 space-y-6">
-
           {/* ── Page Header ── */}
           <motion.div {...fadeUp(0)}>
             <p className="text-[11px] font-bold uppercase tracking-widest text-blue-600 mb-1">Account Settings</p>
@@ -169,12 +127,6 @@ const AdminProfile = () => {
                         Active
                       </span>
                     </div>
-                    <button
-                      onClick={() => setIsEditing(true)}
-                      className="mt-4 flex items-center gap-2 text-sm font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl transition-colors mx-auto md:mx-0"
-                    >
-                      <Pencil size={13} /> Edit Profile
-                    </button>
                   </div>
                 </div>
               ) : (
@@ -183,7 +135,11 @@ const AdminProfile = () => {
                     {/* Avatar preview */}
                     <div className="relative shrink-0">
                       {photoURL ? (
-                        <img src={photoURL} alt={displayName} className="w-24 h-24 rounded-2xl object-cover ring-4 ring-slate-100" />
+                        <img
+                          src={photoURL}
+                          alt={displayName}
+                          className="w-24 h-24 rounded-2xl object-cover ring-4 ring-slate-100"
+                        />
                       ) : (
                         <div className="w-24 h-24 rounded-2xl bg-blue-600 flex items-center justify-center text-white text-3xl font-bold ring-4 ring-slate-100">
                           {initials}
@@ -226,7 +182,10 @@ const AdminProfile = () => {
                         </button>
                         <button
                           type="button"
-                          onClick={() => { setIsEditing(false); reset(); }}
+                          onClick={() => {
+                            setIsEditing(false);
+                            reset();
+                          }}
                           className="flex items-center gap-2 text-sm font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl transition-colors"
                         >
                           <X size={13} /> Cancel
@@ -239,29 +198,10 @@ const AdminProfile = () => {
             </div>
           </motion.div>
 
-          {/* ── Stats ── */}
-          {statsData && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <StatCard icon={FileText} label="Total Issues" value={statsData.totalIssues} color="bg-amber-500" delay={0.1} />
-              <StatCard icon={Users} label="Total Citizens" value={statsData.totalUsers} color="bg-indigo-500" delay={0.15} />
-              <StatCard icon={UserCheck} label="Total Staff" value={statsData.totalStaffs} color="bg-emerald-500" delay={0.2} />
-              <StatCard
-                icon={DollarSign}
-                label="Total Revenue (TK)"
-                value={`৳${statsData.totalRevenue.toLocaleString("en-BD", { maximumFractionDigits: 0 })}`}
-                color="bg-blue-600"
-                delay={0.25}
-              />
-            </div>
-          )}
-
           {/* ── Account Info + Privileges ── */}
           <div className="grid md:grid-cols-2 gap-5">
             {/* Account Information */}
-            <motion.div
-              {...fadeUp(0.3)}
-              className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6"
-            >
+            <motion.div {...fadeUp(0.3)} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
               <h3 className="font-bold text-slate-800 mb-4">Account Information</h3>
               <div className="space-y-4">
                 {[
@@ -269,39 +209,47 @@ const AdminProfile = () => {
                   { label: "Role", value: "Administrator" },
                   { label: "Account Status", value: "Active", valueClass: "text-emerald-600 font-semibold" },
                 ].map(({ label, value, valueClass }) => (
-                  <div key={label} className="flex items-center justify-between py-2 border-b border-slate-50 last:border-0">
+                  <div
+                    key={label}
+                    className="flex items-center justify-between py-2 border-b border-slate-50 last:border-0"
+                  >
                     <p className="text-xs font-bold uppercase tracking-wider text-slate-400">{label}</p>
                     <p className={`text-sm font-medium text-slate-800 ${valueClass || ""}`}>{value}</p>
                   </div>
                 ))}
               </div>
             </motion.div>
-
-            {/* Admin Privileges */}
-            <motion.div
-              {...fadeUp(0.35)}
-              className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6"
-            >
-              <h3 className="font-bold text-slate-800 mb-4">Admin Privileges</h3>
-              <ul className="space-y-2.5">
-                {[
-                  "Manage all issues",
-                  "Assign staff to issues",
-                  "Manage users and staff",
-                  "View all payments",
-                  "Access analytics dashboard",
-                ].map((priv) => (
-                  <li key={priv} className="flex items-center gap-2.5 text-sm text-slate-700">
-                    <div className="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
-                      <Check size={11} className="text-emerald-600" />
-                    </div>
-                    {priv}
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
+            <ProfileActions
+              title="Admin workspace"
+              items={[
+                {
+                  to: "/dashboard",
+                  label: "Dashboard overview",
+                  description: "Review current city activity",
+                  icon: BarChart3,
+                },
+                {
+                  to: "/dashboard/all-issues",
+                  label: "Manage issues",
+                  description: "Assign and review reports",
+                  icon: ClipboardList,
+                },
+                {
+                  to: "/dashboard/manage-users",
+                  label: "Manage citizens",
+                  description: "Review registered accounts",
+                  icon: Users,
+                },
+                {
+                  to: "/dashboard/payments",
+                  label: "Payments",
+                  description: "Review payment activity",
+                  icon: CreditCard,
+                },
+              ]}
+            />
           </div>
-
+          <AccountSettings account={userData} />
         </div>
       </Container>
     </div>

@@ -1,5 +1,5 @@
 import React, { memo, useRef } from "react";
-import { Link, Outlet } from "react-router";
+import { Link, Outlet, useNavigation } from "react-router";
 import { motion } from "framer-motion";
 import useRole from "../hooks/useRole";
 import AdminMenu from "../components/Dashboard/Menu/AdminMenu";
@@ -11,15 +11,12 @@ import { AuthContext } from "../providers/AuthContext";
 import { FaUser } from "react-icons/fa";
 import NavProfileDropdown from "../components/NavProfileDropdown";
 import useAuth from "../hooks/useAuth";
+import ListingSkeleton from "../components/ListingSkeleton";
 
 const DashboardLayout = () => {
   const { role, roleLoading } = useRole();
   const { loading: authLoading } = useAuth();
   const dropdownRef = useRef(null);
-  if ( authLoading || roleLoading) {
-    return <Loader />;
-  }
-
   const renderMenu = () => {
     if (role === "admin") {
       return <AdminMenu />;
@@ -30,7 +27,7 @@ const DashboardLayout = () => {
     }
   };
   return (
-    <div className="md:min-h-[calc(100vh-244px)]">
+    <div className="min-h-screen">
       <div className="drawer lg:drawer-open">
         <input id="my-drawer-4" type="checkbox" className="drawer-toggle" />
         <div className="drawer-content">
@@ -74,12 +71,12 @@ const DashboardLayout = () => {
           </motion.nav>
           {/* Page content here */}
           <motion.div
-            className="min-h-[calc(100vh-374px)]"
+            className="min-h-[calc(100vh-374px)] px-2"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.4, delay: 0.1 }}
           >
-            <Outlet />
+            {authLoading || roleLoading ? <ListingSkeleton /> : <Outlet />}
           </motion.div>
         </div>
 
@@ -95,8 +92,8 @@ const DashboardLayout = () => {
             <ul className="menu w-full grow p-4">
               {/* List item */}
               <motion.li initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-                <Link to="/">
-                  <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                <Link to="/" className="bg-surface-container-low">
+                  <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-700 to-indigo-700 bg-clip-text text-transparent mb-2 hover:text-indigo-700 hover:scale-102">
                     CityCare
                   </h3>
                 </Link>

@@ -8,6 +8,7 @@ const useResolution = () => {
     queryKey: ["issues", "metrics"],
     queryFn: async () => {
       const res = await axiosInstance.get("/issues/metrics");
+      console.log(res);
       return res?.data;
     },
   });

@@ -38,7 +38,7 @@ const TaskDetails = () => {
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, Update it!",
-    }).then(async(result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
         const currentIndex = statuses.findIndex((s) => s.value === issue.status);
         const allowedNext = currentIndex === -1 ? null : statuses[currentIndex + 1]?.value;
@@ -48,7 +48,7 @@ const TaskDetails = () => {
         }
         try {
           await axiosSecure.patch(`/issues/${issue._id}`, { status: newStatus });
-    
+
           toast.success("Status changed successfully!");
           queryClient.invalidateQueries({ queryKey });
           Swal.fire({
@@ -56,16 +56,15 @@ const TaskDetails = () => {
             title: "Updated!",
             text: "Issue status has been updated.",
             icon: "success",
-            showConfirmButton:false
+            showConfirmButton: false,
           });
         } catch (err) {
           toast.error("Status change failed. Please try again.");
           console.error(err);
         }
       }
-      if(result.isDismissed)
-      {
-        queryClient.invalidateQueries({queryKey})
+      if (result.isDismissed) {
+        queryClient.invalidateQueries({ queryKey });
       }
     });
   };
@@ -91,23 +90,23 @@ const TaskDetails = () => {
           </p>
         </div>
       </div>
-      <div className="grid grid-cols-3 gap-10 my-8 max-w-7xl pr-8">
-        <div className="col-span-2">
+      <div className="grid grid-cols-3 gap-5 md:gap-10 my-8 max-w-7xl md:pr-8">
+        <div className="col-span-3 md:col-span-2">
           <div className="bg-white rounded-lg p-6">
-            <div className="flex items-center justify-between">
+            <div className="md:flex items-center justify-between">
               <h1 className="flex items-center gap-1">
                 <FaFileAlt className="text-primary" /> <span className="font-bold text-lg">Citizen Issue Report</span>
               </h1>
-              <p className="text-secondary">Submitted at {new Date(issue.createdAt).toLocaleString()}</p>
+              <p className="text-sm text-secondary">Submitted at {new Date(issue.createdAt).toLocaleString()}</p>
             </div>
             <p className="py-5">{issue.description}</p>
-            <img src={issue.image} alt={issue.title} className="w-full h-84 object-cover rounded-lg" />
+            <img src={issue.image} alt={issue.title} className="w-full md:h-84 object-cover rounded-lg" />
           </div>
         </div>
-        <div className="col-span-1">
+        <div className="col-span-3 md:col-span-1">
           <div className=" bg-white rounded-lg p-6">
             <h1 className="text-sm text-secondary">WORK STATUS</h1>
-            <form className="mt-3 space-y-3">
+            <form className="mt-3 space-y-2 md:space-y-3">
               {statuses.map((s, i) => {
                 const currentIndex = statuses.findIndex((x) => x.value === issue.status);
                 const isCompleted = i < currentIndex;
@@ -116,7 +115,7 @@ const TaskDetails = () => {
                 return (
                   <div
                     key={s.id}
-                    className={`flex items-center justify-between rounded-lg p-5 ${isCurrent ? s.color : "bg-surface-container-low/50"}`}
+                    className={`flex items-center justify-between rounded-lg p-3 md:p-5 ${isCurrent ? s.color : "bg-surface-container-low/50"}`}
                   >
                     <label htmlFor={s.value} className="flex items-center gap-2">
                       <h1

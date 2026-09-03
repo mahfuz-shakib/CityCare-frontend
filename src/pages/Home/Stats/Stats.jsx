@@ -7,12 +7,14 @@ const Stats = () => {
 
   if (loading) return;
 
-  const { allSize = 0, resolvedSize = 0, pendingSize = 0, resolutionPerformance = [] } = data || {};
-  // Current and previous month
+  const {
+    allSize = 0,
+    resolvedSize = 0,
+    pendingSize = 0,
+    overallAverageResolution = null,
+    resolutionPerformance = [],
+  } = data || {};
   const currentMonth = resolutionPerformance[resolutionPerformance.length - 1];
-  // Current average resolution
-  const currentMonthAverageResolution = currentMonth?.averageResolution ?? 0;
-  // Current month performance
   const resolutionChange = currentMonth?.resolutionChangePercent ?? null;
 
   const stats = [
@@ -36,12 +38,12 @@ const Stats = () => {
     },
     {
       label: "Avg Resolution",
-      value: currentMonthAverageResolution.toFixed(1),
-      unit: "days",
+      value: overallAverageResolution === null ? "N/A" : overallAverageResolution.toFixed(1),
+      unit: overallAverageResolution === null ? "" : "days",
       color: "blue-800",
       trend:
         resolutionChange === null
-          ? "No previous month data"
+          ? "Across all resolved issues"
           : resolutionChange >= 0
             ? `${resolutionChange.toFixed(1)}% faster than last month`
             : `${Math.abs(resolutionChange).toFixed(1)}% slower than last month`,
@@ -52,10 +54,10 @@ const Stats = () => {
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
           <div>
-            <span className="text-xs font-bold uppercase tracking-widest text-primary mb-2 block">
-              Transparency Index
+            <h2 className="text-2xl md:text-4xl font-bold  tracking-wider text-primary"> City Imapct Overview</h2>
+            <span className="text-xl tracking-widest text-secondary mt-3">
+              Your reports are moving the ciry forward.
             </span>
-            <h2 className="text-4xl font-extrabold">Real-Time Impact Metrics</h2>
           </div>
           <div className="px-4 py-2 bg-white rounded-lg shadow-sm flex items-center gap-2">
             <motion.span

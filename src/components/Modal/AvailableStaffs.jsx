@@ -15,7 +15,11 @@ const AvailableStaffs = ({ issue, staffModalRef }) => {
   const queryClient = useQueryClient();
   const axiosSecure = useAxiosSecure();
 
-  const { data: staffsResult, isPending, isLoading } = useQuery({
+  const {
+    data: staffsResult,
+    isPending,
+    isLoading,
+  } = useQuery({
     queryKey: ["staffs"],
     queryFn: async () => {
       const res = await axiosSecure.get("/staffs");
@@ -26,7 +30,23 @@ const AvailableStaffs = ({ issue, staffModalRef }) => {
   const staffs = staffsResult?.data || [];
 
   const handleAssign = async (staff) => {
+    Swal.fire({
+  title: "Are you sure?",
+  text: "You won't be able to revert this!",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonColor: "#3085d6",
+  cancelButtonColor: "#d33",
+  confirmButtonText: "Yes, delete it!"
+}).then((result) => {
+  if (result.isConfirmed) Swal.fire({
+    title: "Deleted!",
+    text: "Your file has been deleted.",
+    icon: "success"
+  });
+});
     try {
+      
       await axiosSecure.patch(`/issues/admin/${issue._id}`, { staffEmail: staff.email });
       toast.success("Staff assigned successfully");
       staffModalRef.current.close();
@@ -42,14 +62,11 @@ const AvailableStaffs = ({ issue, staffModalRef }) => {
       initial={{ opacity: 0, scale: 0.97, y: 12 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-      className="bg-white rounded-2xl border border-slate-100 shadow-xl w-full md:min-w-[640px] max-w-2xl overflow-hidden"
+      className="bg-white rounded-xl border border-slate-100 shadow-xl w-full md:min-w-[640px] max-w-2xl overflow-hidden"
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-        <div>
-          <p className="text-[11px] font-bold uppercase tracking-widest text-blue-600 mb-0.5">Assignment</p>
-          <h2 className="font-bold text-slate-800 text-base">Select Available Staff</h2>
-        </div>
+      <div className=" flex items-center justify-between px-6 py-4 border-b border-slate-100">
+          <h2 className="md:text-2xl font-bold text-center text-slate-800 text-base">Available Staffs</h2>
         <form method="dialog">
           <button className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors">
             <X size={14} className="text-slate-500" />
@@ -67,7 +84,7 @@ const AvailableStaffs = ({ issue, staffModalRef }) => {
       )}
 
       {/* Table */}
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto overflow-y-auto max-h-64 p-3">
         {isLoading || isPending ? (
           <div className="flex justify-center items-center py-12">
             <motion.div
@@ -77,10 +94,10 @@ const AvailableStaffs = ({ issue, staffModalRef }) => {
             />
           </div>
         ) : (
-          <table className="w-full text-sm">
+          <table className="w-full text-sm ">
             <thead>
               <tr className="border-b border-slate-100">
-                {["#", "Staff Member", "Email", "Phone", "Action"].map((h) => (
+                {["#", "Staff Member", "Department", "Contact", "Action"].map((h) => (
                   <th
                     key={h}
                     className="text-left text-[10px] font-bold uppercase tracking-wider text-slate-400 px-5 py-3"
@@ -99,29 +116,37 @@ const AvailableStaffs = ({ issue, staffModalRef }) => {
                 </tr>
               ) : (
                 staffs.map((staff, index) => (
-                  <tr
-                    key={staff._id}
-                    className="border-b border-slate-50 hover:bg-slate-50/60 transition-colors"
-                  >
+                  <tr key={staff._id} className="border-b border-slate-50 hover:bg-slate-50/60 transition-colors">
                     <td className="px-5 py-3.5 text-xs text-slate-400 font-medium">{index + 1}</td>
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-2.5">
                         {staff.photoURL ? (
-                          <img src={staff.photoURL} alt={staff.displayName} className="w-8 h-8 rounded-full object-cover shrink-0" />
+                          <img
+                            src={staff.photoURL}
+                            alt={staff.displayName}
+                            className="w-8 h-8 rounded-full object-cover shrink-0"
+                          />
                         ) : (
-                          <div className={`w-8 h-8 rounded-full ${avatarColor(staff.displayName || "")} flex items-center justify-center text-white text-xs font-bold shrink-0`}>
+                          <div
+                            className={`w-8 h-8 rounded-full ${avatarColor(staff.displayName || "")} flex items-center justify-center text-white text-xs font-bold shrink-0`}
+                          >
                             {(staff.displayName || "??").slice(0, 2).toUpperCase()}
                           </div>
                         )}
                         <p className="font-semibold text-slate-800 text-sm">{staff.displayName}</p>
                       </div>
                     </td>
-                    <td className="px-5 py-3.5 text-xs text-slate-500">{staff.email}</td>
-                    <td className="px-5 py-3.5 text-xs text-slate-500">{staff.phone || "—"}</td>
+                    <td className="px-5 py-3.5 text-xs text-slate-500">{staff.department}</td>
+                    <td className="px-5 py-3.5 text-xs text-slate-500">
+                      <div>
+                        <p>{staff.email}</p>
+                        <p>{staff.phone || "—"}</p>
+                      </div>
+                    </td>
                     <td className="px-5 py-3.5">
                       <button
                         onClick={() => handleAssign(staff)}
-                        className="flex items-center gap-1.5 text-xs font-semibold bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-1.5 rounded-lg transition-colors"
+                        className="flex items-center gap-1.5 text-xs font-semibold bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
                       >
                         {isPending ? (
                           <>
@@ -141,15 +166,6 @@ const AvailableStaffs = ({ issue, staffModalRef }) => {
             </tbody>
           </table>
         )}
-      </div>
-
-      {/* Footer */}
-      <div className="px-6 py-4 border-t border-slate-100 flex justify-end">
-        <form method="dialog">
-          <button className="text-sm font-semibold text-slate-600 border border-slate-200 rounded-xl px-4 py-2 hover:bg-slate-50 transition-colors">
-            Cancel
-          </button>
-        </form>
       </div>
     </motion.div>
   );

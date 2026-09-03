@@ -6,7 +6,6 @@ import PrivateRoute from "./PrivateRoute";
 import DashboardLayout from "../layout/DashboardLayout";
 import MapView from "../pages/MapView/MapView";
 import ActivityHistory from "../pages/Dashboard/Common/ActivityHistory";
-import Settings from "../pages/Dashboard/Common/Settings";
 import TaskDetails from "../pages/Dashboard/Staff/TaskDetails";
 import LazyWrapper from "../components/LazyWrapper";
 
@@ -47,9 +46,9 @@ export const router = createBrowserRouter([
       {
         path: "/",
         element: (
-          <LazyWrapper>
-            <Home />
-          </LazyWrapper>
+          // <LazyWrapper>
+          <Home />
+          // </LazyWrapper>
         ),
       },
       {
@@ -231,14 +230,6 @@ export const router = createBrowserRouter([
             element: (
               <LazyWrapper>
                 <MyProfile />
-              </LazyWrapper>
-            ),
-          },
-          {
-            path: "/dashboard/settings",
-            element: (
-              <LazyWrapper>
-                <Settings />
               </LazyWrapper>
             ),
           },

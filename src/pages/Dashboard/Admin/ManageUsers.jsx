@@ -13,17 +13,16 @@ import {
   Ban,
   ShieldAlert,
   TrendingUp,
-  Filter,
-  Calendar,
-  ChevronLeft,
-  ChevronRight,
   CheckCircle2,
   AlertTriangle,
 } from "lucide-react";
 import { FaDownload } from "react-icons/fa";
 import { monthlyDataResolution } from "../../../utils/monthlyDataResolution";
 import jsPDF from "jspdf";
-import autoTable from 'jspdf-autotable'
+import autoTable from "jspdf-autotable";
+import SearchFilterPanel from "../../../components/SearchFilterPanel";
+import Pagination from "../../../components/Pagination";
+import PageHeader from "../../../components/PageHeader";
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 20 },
@@ -39,6 +38,7 @@ const avatarColor = (name = "") => {
 const ManageUsers = () => {
   const [accountFilter, setAccountFilter] = useState("all");
   const [subFilter, setSubFilter] = useState("all");
+  const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 8;
   const queryClient = useQueryClient();
@@ -89,13 +89,15 @@ const ManageUsers = () => {
 
   const filtered = useMemo(() => {
     return users.filter((u) => {
+      if (search && !`${u.displayName || ""} ${u.email || ""}`.toLowerCase().includes(search.toLowerCase()))
+        return false;
       if (subFilter === "premium" && !u.isPremium) return false;
       if (subFilter === "free" && u.isPremium) return false;
       if (accountFilter === "blocked" && !u.isBlocked) return false;
       if (accountFilter === "active" && u.isBlocked) return false;
       return true;
     });
-  }, [users, accountFilter, subFilter]);
+  }, [users, accountFilter, subFilter, search]);
 
   const totalPages = Math.ceil(filtered.length / pageSize);
   const paginated = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
@@ -113,242 +115,233 @@ const ManageUsers = () => {
       </div>
     );
   }
- const handleDownloadData = ()=>{
-  const doc = new jsPDF();
-  doc.text("All Citizens --  CityCare", 13,15);
-  doc.text(`Generated on - ${new Date().toLocaleDateString()}`,13,23);
-  doc.text(`Total users - ${users?.length}`,13,31);
+  const handleDownloadData = () => {
+    const doc = new jsPDF();
+    doc.text("All Citizens --  CityCare", 13, 15);
+    doc.text(`Generated on - ${new Date().toLocaleDateString()}`, 13, 23);
+    doc.text(`Total users - ${users?.length}`, 13, 31);
 
-  autoTable(doc,{
-    startY:40,
-    head:[['SL. No', 'Citizen Name', 'Email', 'Account Type', 'Reports', 'Solved', 'Account Status' ]],
-    body: users.map((u,i)=>[
-      i+1,
-      u.displayName,
-      u.email,
-      `${u.isPremium ? "Premium":"Basic"}`,
-      u.reports || 0,
-      u.solved ||0 ,
-      `${u.isBlocked?"Blocked":"Active"}` 
-    ])
-  })
-  doc.save("All_Citizens_CityCare.pdf");
+    autoTable(doc, {
+      startY: 40,
+      head: [["SL. No", "Citizen Name", "Email", "Account Type", "Reports", "Solved", "Account Status"]],
+      body: users.map((u, i) => [
+        i + 1,
+        u.displayName,
+        u.email,
+        `${u.isPremium ? "Premium" : "Basic"}`,
+        u.reports || 0,
+        u.solved || 0,
+        `${u.isBlocked ? "Blocked" : "Active"}`,
+      ]),
+    });
+    doc.save("All_Citizens_CityCare.pdf");
     toast.success("PDF Downloaded Successfully");
- }
+  };
   return (
     <div className="min-h-screen">
       <title>Manage Citizens</title>
       <Container className="px-4 md:px-10">
         <div className="pt-8 pb-16 space-y-6">
-
           {/* ── Header ── */}
-          <motion.div {...fadeUp(0)} className="flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-widest text-blue-600 mb-1">Governance Portal</p>
-              <h1 className="text-3xl font-bold text-slate-900 mt-1 mb-1">Manage Citizens</h1>
-              <p className="text-slate-500 text-sm max-w-xl">
-                Manage the registered citizen database, monitor engagement metrics, and oversee subscription tiers for
-                premium municipal services.
+          <PageHeader
+            eyebrow="Governance Portal"
+            title="Manage Citizens"
+            description="Manage the registered citizen database, monitor engagement metrics, and oversee subscription tiers for premium municipal services."
+            actions={
+              <button
+                onClick={handleDownloadData}
+                className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 cursor-pointer"
+              >
+                <Download size={14} /> Export Directory
+              </button>
+            }
+          />
+
+          {/* ── 4 KPI cards ── */}
+          <motion.div {...fadeUp(0.1)} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Total Citizens</p>
+              <div className="flex flex-col md:flex-row items-end justify-between">
+                <div>
+                  <p className="text-4xl font-bold text-slate-900">{users.length.toLocaleString()}</p>
+                  <p className="text-xs text-emerald-600 font-semibold mt-1.5 flex items-center gap-1">
+                    <TrendingUp size={11} /> +{((currentMonthsNewUsers / users.length) * 100).toFixed(1)}% this month
+                  </p>
+                </div>
+                {/* mini bar chart visual */}
+                <div className="flex items-end gap-1 h-10">
+                  {Object.values(usersChartData)
+                    .reverse()
+                    .map((v, i) => (
+                      <div
+                        key={i}
+                        className={`w-2 rounded ${i === 5 ? "bg-blue-600" : "bg-blue-200"}`}
+                        style={{ height: `${v * 10}%`, minHeight: "4px" }}
+                      />
+                    ))}
+                </div>
+              </div>
+            </div>
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Premium Users</p>
+              <p className="text-4xl font-bold text-blue-600">{premiumUsers.length.toLocaleString()}</p>
+              <p className="text-xs text-slate-400 mt-1.5">
+                {users.length > 0 ? ((premiumUsers.length / users.length) * 100).toFixed(1) : 0}% of total base
               </p>
             </div>
-            <button
-              onClick={handleDownloadData}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-xl px-4 py-2.5 shadow-sm transition-colors"
-            >
-              <Download size={14} /> Export Directory
-            </button>
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Pending Reports</p>
+              <p className="text-4xl font-bold text-amber-500">
+                {pendingReports || users.filter((u) => !u.isBlocked).length}
+              </p>
+              <p className="text-xs text-amber-600 font-semibold mt-1.5 flex items-center gap-1">
+                <AlertTriangle size={11} /> Urgent Review Required
+              </p>
+            </div>
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Solved Issues</p>
+              <p className="text-4xl font-bold text-slate-900">
+                {solvedIssues || users.filter((u) => u.isPremium).length}
+              </p>
+              <p className="text-xs text-slate-400 mt-1.5 flex items-center gap-1">
+                <CheckCircle2 size={11} className="text-emerald-500" /> Last updated 2h ago
+              </p>
+            </div>
           </motion.div>
 
-      {/* ── 4 KPI cards ── */}
-      <motion.div {...fadeUp(0.1)} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Total Citizens</p>
-          <div className="flex flex-col md:flex-row items-end justify-between">
-            <div>
-              <p className="text-4xl font-bold text-slate-900">{users.length.toLocaleString()}</p>
-              <p className="text-xs text-emerald-600 font-semibold mt-1.5 flex items-center gap-1">
-                <TrendingUp size={11} /> +{((currentMonthsNewUsers / users.length) * 100).toFixed(1)}% this month
-              </p>
-            </div>
-            {/* mini bar chart visual */}
-            <div className="flex items-end gap-1 h-10">
-              {Object.values(usersChartData)
-                .reverse()
-                .map((v, i) => (
-                  <div
-                    key={i}
-                    className={`w-2 rounded ${i === 5 ? "bg-blue-600" : "bg-blue-200"}`}
-                    style={{ height: `${v * 10}%`, minHeight: "4px" }}
-                  />
-                ))}
-            </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Premium Users</p>
-          <p className="text-4xl font-bold text-blue-600">{premiumUsers.length.toLocaleString()}</p>
-          <p className="text-xs text-slate-400 mt-1.5">
-            {users.length > 0 ? ((premiumUsers.length / users.length) * 100).toFixed(1) : 0}% of total base
-          </p>
-        </div>
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Pending Reports</p>
-          <p className="text-4xl font-bold text-amber-500">
-            {pendingReports || users.filter((u) => !u.isBlocked).length}
-          </p>
-          <p className="text-xs text-amber-600 font-semibold mt-1.5 flex items-center gap-1">
-            <AlertTriangle size={11} /> Urgent Review Required
-          </p>
-        </div>
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Solved Issues</p>
-          <p className="text-4xl font-bold text-slate-900">{solvedIssues || users.filter((u) => u.isPremium).length}</p>
-          <p className="text-xs text-slate-400 mt-1.5 flex items-center gap-1">
-            <CheckCircle2 size={11} className="text-emerald-500" /> Last updated 2h ago
-          </p>
-        </div>
-      </motion.div>
+          {/* ── Table ── */}
+          <motion.div {...fadeUp(0.2)} className="table-shell mb-10">
+            <SearchFilterPanel
+              search={search}
+              onSearchChange={setSearch}
+              searchPlaceholder="Search citizens by name or email"
+              onFilterChange={(key, value) => (key === "account" ? setAccountFilter(value) : setSubFilter(value))}
+              filters={[
+                {
+                  key: "account",
+                  value: accountFilter,
+                  label: "Account type: All",
+                  options: [
+                    { value: "active", text: "Active" },
+                    { value: "blocked", text: "Blocked" },
+                  ],
+                },
+                {
+                  key: "subscription",
+                  value: subFilter,
+                  label: "Subscription: All",
+                  options: [
+                    { value: "premium", text: "Premium" },
+                    { value: "free", text: "Free" },
+                  ],
+                },
+              ]}
+              className="rounded-none border-b border-slate-100"
+            />
 
-      {/* ── Table ── */}
-      <motion.div
-        {...fadeUp(0.2)}
-        className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden mb-10"
-      >
-        {/* Filters row */}
-        <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-b border-slate-100">
-          <div className="flex flex-wrap items-center gap-2">
-            {/* Account type filter */}
-            <div className="relative">
-              <Filter size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <select
-                className="pl-7 pr-3 py-2 text-xs font-semibold bg-slate-50 border border-slate-200 rounded-lg focus:outline-none"
-                value={accountFilter}
-                onChange={(e) => setAccountFilter(e.target.value)}
-              >
-                <option value="all">Account Type: All</option>
-                <option value="active">Active</option>
-                <option value="blocked">Blocked</option>
-              </select>
-            </div>
-            {/* Subscription filter */}
-            <div className="relative">
-              <Calendar size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <select
-                className="pl-7 pr-3 py-2 text-xs font-semibold bg-slate-50 border border-slate-200 rounded-lg focus:outline-none"
-                value={subFilter}
-                onChange={(e) => setSubFilter(e.target.value)}
-              >
-                <option value="all">Subscription: All</option>
-                <option value="premium">Premium</option>
-                <option value="free">Free</option>
-              </select>
-            </div>
-          </div>
-          <p className="text-xs text-slate-400 font-medium">
-            Showing {(currentPage - 1) * pageSize + 1}–{Math.min(currentPage * pageSize, filtered.length)} of{" "}
-            {filtered.length.toLocaleString()}
-          </p>
-        </div>
+            <div className="overflow-x-auto">
+              <table className="data-table">
+                <thead>
+                  <tr className="border-b border-slate-100">
+                    {["CITIZEN NAME", "ACCOUNT TYPE", "REPORTS", "SOLVED", "Account Status", "ACTIONS"].map((h) => (
+                      <th
+                        key={h}
+                        className="text-left text-[10px] font-bold uppercase tracking-wider text-slate-400 px-5 py-3"
+                      >
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {paginated.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="text-center py-14 text-slate-400">
+                        No citizens found
+                      </td>
+                    </tr>
+                  ) : (
+                    paginated.map((u, index) => {
+                      const isBlocked = u.isBlocked;
+                      const isPremium = u.isPremium;
+                      const reports = u.reports || 0;
+                      const solved = u.solved || 0;
+                      const isActive = !isBlocked;
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-slate-100">
-                {["CITIZEN NAME", "ACCOUNT TYPE", "REPORTS", "SOLVED", "Account Status", "ACTIONS"].map((h) => (
-                  <th
-                    key={h}
-                    className="text-left text-[10px] font-bold uppercase tracking-wider text-slate-400 px-5 py-3"
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {paginated.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="text-center py-14 text-slate-400">
-                    No citizens found
-                  </td>
-                </tr>
-              ) : (
-                paginated.map((u, index) => {
-                  const isBlocked = u.isBlocked;
-                  const isPremium = u.isPremium;
-                  const reports = u.reports || 0;
-                  const solved = u.solved || 0;
-                  const isActive = !isBlocked;
-
-                  return (
-                    <motion.tr
-                      key={u._id}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.3, delay: index * 0.04 }}
-                      className={`border-b border-slate-50 transition-colors group
+                      return (
+                        <motion.tr
+                          key={u._id}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.3, delay: index * 0.04 }}
+                          className={`border-b border-slate-50 transition-colors group
                           ${isBlocked ? "bg-red-50/30 hover:bg-red-50/50" : "hover:bg-slate-50/60"}`}
-                    >
-                      {/* Name */}
-                      <td className="px-5 py-4">
-                        <div className="flex items-center gap-3">
-                          {u.photoURL ? (
-                            <img src={u.photoURL} alt={u.displayName} className="w-10 h-10 rounded-full object-cover" />
-                          ) : (
-                            <div
-                              className={`w-10 h-10 rounded-full ${avatarColor(u.displayName || "")} flex items-center justify-center text-white text-sm font-bold shrink-0`}
-                            >
-                              {(u.displayName || "??").slice(0, 2).toUpperCase()}
-                            </div>
-                          )}
-                          <div>
-                            <p
-                              className={`font-semibold ${isBlocked ? "text-slate-500 line-through" : "text-slate-800"}`}
-                            >
-                              {u.displayName || "Unknown"}
-                            </p>
-                            <p className="text-xs text-slate-400">{u.email}</p>
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* Account type */}
-                      <td className="px-5 py-4">
-                        <span
-                          className={` w-16 text-xs font-semibold px-2.5 py-1 rounded-lg
-                            ${isPremium ? "bg-violet-100 text-violet-700" : "bg-slate-100 text-slate-600"}`}
                         >
-                          {isPremium ? "PREMIUM" : "BASIC"}
-                        </span>
-                      </td>
+                          {/* Name */}
+                          <td className="px-5 py-4">
+                            <div className="flex items-center gap-3">
+                              {u.photoURL ? (
+                                <img
+                                  src={u.photoURL}
+                                  alt={u.displayName}
+                                  className="w-10 h-10 rounded-full object-cover"
+                                />
+                              ) : (
+                                <div
+                                  className={`w-10 h-10 rounded-full ${avatarColor(u.displayName || "")} flex items-center justify-center text-white text-sm font-bold shrink-0`}
+                                >
+                                  {(u.displayName || "??").slice(0, 2).toUpperCase()}
+                                </div>
+                              )}
+                              <div>
+                                <p
+                                  className={`font-semibold ${isBlocked ? "text-slate-500 line-through" : "text-slate-800"}`}
+                                >
+                                  {u.displayName || "Unknown"}
+                                </p>
+                                <p className="text-xs text-slate-400">{u.email}</p>
+                              </div>
+                            </div>
+                          </td>
 
-                      {/* Reports */}
-                      <td className="px-5 py-4 font-semibold text-slate-800">{reports}</td>
+                          {/* Account type */}
+                          <td className="px-5 py-4">
+                            <span
+                              className={` w-16 text-xs font-semibold px-2.5 py-1 rounded-lg
+                            ${isPremium ? "bg-violet-100 text-violet-700" : "bg-slate-100 text-slate-600"}`}
+                            >
+                              {isPremium ? "PREMIUM" : "BASIC"}
+                            </span>
+                          </td>
 
-                      {/* Solved */}
-                      <td className="px-5 py-4 font-semibold text-slate-800">{solved}</td>
+                          {/* Reports */}
+                          <td className="px-5 py-4 font-semibold text-slate-800">{reports}</td>
 
-                      {/* Account status */}
-                      <td className="px-5 py-4">
-                        <div className="flex items-center gap-1.5">
-                          <div className={`w-2 h-2 rounded-full ${isActive ? "bg-emerald-500" : "bg-slate-300"}`} />
-                          <span className={`text-xs font-medium ${isActive ? "text-slate-700" : "text-slate-400"}`}>
-                            {isActive ? "Active" : "Inactive"}
-                          </span>
-                        </div>
-                      </td>
+                          {/* Solved */}
+                          <td className="px-5 py-4 font-semibold text-slate-800">{solved}</td>
 
-                      {/* Actions */}
-                      <td className="px-5 py-4">
-                        <div className="flex items-center gap-1.5">
-                          {/* View */}
-                          {/* <button
+                          {/* Account status */}
+                          <td className="px-5 py-4">
+                            <div className="flex items-center gap-1.5">
+                              <div className={`w-2 h-2 rounded-full ${isActive ? "bg-emerald-500" : "bg-slate-300"}`} />
+                              <span className={`text-xs font-medium ${isActive ? "text-slate-700" : "text-slate-400"}`}>
+                                {isActive ? "Active" : "Inactive"}
+                              </span>
+                            </div>
+                          </td>
+
+                          {/* Actions */}
+                          <td className="px-5 py-4">
+                            <div className="flex items-center gap-1.5">
+                              {/* View */}
+                              {/* <button
                             className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
                             title="View user details"
                           >
                             <Eye size={13} className="text-slate-600" />
                           </button> */}
-                          {/* Subscription */}
-                          {/* <button
+                              {/* Subscription */}
+                              {/* <button
                             className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors
                               ${isBlocked ? "bg-slate-100 opacity-40 cursor-not-allowed" : "bg-slate-100 hover:bg-slate-200"}`}
                             title="Manage subscription"
@@ -356,69 +349,37 @@ const ManageUsers = () => {
                           >
                             <CreditCard size={13} className="text-slate-600" />
                           </button> */}
-                          {/* Block / Unblock */}
-                          <button
-                            onClick={() => handleToggleBlock(u)}
-                            className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors
+                              {/* Block / Unblock */}
+                              <button
+                                onClick={() => handleToggleBlock(u)}
+                                className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors
                                 ${isBlocked ? "bg-red-200 hover:bg-red-300" : "bg-slate-100 hover:bg-red-100"}`}
-                            title={isBlocked ? "Unblock user" : "Block user"}
-                          >
-                            {isBlocked ? (
-                              <ShieldAlert size={13} className="text-red-600" />
-                            ) : (
-                              <Ban size={13} className="text-slate-500 hover:text-red-500" />
-                            )}
-                          </button>
-                        </div>
-                      </td>
-                    </motion.tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
+                                title={isBlocked ? "Unblock user" : "Block user"}
+                              >
+                                {isBlocked ? (
+                                  <ShieldAlert size={13} className="text-red-600" />
+                                ) : (
+                                  <Ban size={13} className="text-slate-500 hover:text-red-500" />
+                                )}
+                              </button>
+                            </div>
+                          </td>
+                        </motion.tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
 
-        {/* Pagination */}
-        <div className="flex items-center justify-center gap-2 px-6 py-4 border-t border-slate-100">
-          <button
-            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-            disabled={currentPage === 1}
-            className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-40 transition-colors"
-          >
-            <ChevronLeft size={14} className="text-slate-600" />
-          </button>
-          {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => i + 1).map((pg) => (
-            <button
-              key={pg}
-              onClick={() => setCurrentPage(pg)}
-              className={`w-8 h-8 rounded-lg text-sm font-semibold transition-colors
-                    ${currentPage === pg ? "bg-blue-600 text-white" : "text-slate-600 hover:bg-slate-100"}`}
-            >
-              {pg}
-            </button>
-          ))}
-          {totalPages > 5 && (
-            <>
-              <span className="text-slate-400 text-sm">…</span>
-              <button
-                onClick={() => setCurrentPage(totalPages)}
-                className="w-8 h-8 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-colors"
-              >
-                {totalPages}
-              </button>
-            </>
-          )}
-          <button
-            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-            disabled={currentPage >= totalPages}
-            className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-40 transition-colors"
-          >
-            <ChevronRight size={14} className="text-slate-600" />
-          </button>
-        </div>
-      </motion.div>
-
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={filtered.length}
+              pageSize={pageSize}
+              onPageChange={setCurrentPage}
+            />
+          </motion.div>
         </div>
       </Container>
     </div>

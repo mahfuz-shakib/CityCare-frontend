@@ -6,8 +6,8 @@ import useAuth from "../../../hooks/useAuth";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import BlockedWarning from "../../../components/Modal/BlockedWarning";
 import PremiumSubscriptionWarning from "../../../components/Modal/PremiumSubscriptionWarning";
-import Loader from "../../../components/Loader";
 import { motion } from "framer-motion";
+import ListingSkeleton from "../../../components/ListingSkeleton";
 
 const ReportIssue = () => {
   const { user } = useAuth();
@@ -23,7 +23,7 @@ const ReportIssue = () => {
   });
 
   if (isLoading) {
-    return <Loader />;
+    return <ListingSkeleton/>
   }
 
   if (userData?.isBlocked) {
@@ -37,16 +37,18 @@ const ReportIssue = () => {
   return (
     <Container>
       <title>Report Issues</title>
-
-      <div className=" rounded-xl mt-8">
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-          <h1 className="text-4xl font-bold text-slate-800 mb-3">Report an Issue</h1>
-          <p className="text-lg text-slate-600 leading-relaxed">
-            Help us improve your city by reporting issues. Share details about problems you've noticed in your
-            community.
-          </p>
-        </motion.div>
-      </div>
+      <motion.div
+        className="mt-5"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <span className="text-xs font-semibold text-indigo-700">NEW SUBMISSION</span>
+        <h1 className="text-2xl md:text-3xl font-bold text-slate-800 mb-1">Report New Issue</h1>
+        <p className=" md:text-lg text-slate-600 leading-relaxed">
+          Help us improve your city by reporting issues. Share details about problems you've noticed in your community.
+        </p>
+      </motion.div>
       <ReportIssueForm />
     </Container>
   );

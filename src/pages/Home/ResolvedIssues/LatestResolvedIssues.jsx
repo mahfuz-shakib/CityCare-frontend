@@ -7,13 +7,13 @@ import { Link } from "react-router";
 import ResilvedIssueCard from "../../../components/ResilvedIssueCard";
 import { ArrowRight } from "lucide-react";
 
-const LatestResolvedIssues = ({ getLastIssue }) => {
+const LatestResolvedIssues = () => {
   const axiosInstance = useAxios();
   const { data: issuesData, isLoading } = useQuery({
     queryKey: ["latestResolvedIssues"],
     queryFn: async () => {
       const res = await axiosInstance.get("/issues/?status=resolved&limit=6");
-      getLastIssue(res?.data?.data[1] || {}, isLoading);
+      console.log(res.data.data);
       return res.data?.data || res.data || [];
     },
   });

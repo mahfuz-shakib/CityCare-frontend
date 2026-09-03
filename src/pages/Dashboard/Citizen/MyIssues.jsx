@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import React, { useState, useRef, useMemo } from "react";
+import React, { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
@@ -9,11 +9,14 @@ import Container from "../../../container/Container";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import UpdateIssueForm from "../../../components/Form/UpdateIssueForm";
 import { Link } from "react-router";
-import { FaClock, FaEye, FaFilter, FaPlus, FaRegEdit } from "react-icons/fa";
-import { MdDelete, MdLocationPin, MdNavigateBefore, MdNavigateNext } from "react-icons/md";
+import { FaClock, FaEye, FaPlus, FaRegEdit } from "react-icons/fa";
+import { MdDelete, MdLocationPin } from "react-icons/md";
 import IssuePriorityBadge from "../../../components/IssuePriorityBadge";
 import IssueStatusBadge from "../../../components/IssueStatusBadge";
 import IssueCategoryBadge from "../../../components/IssueCategoryBadge";
+import IssueFilterBar from "../../../components/IssueFilterBar";
+import Pagination from "../../../components/Pagination";
+import PageHeader from "../../../components/PageHeader";
 
 const MyIssues = () => {
   const { user, loading } = useAuth();
@@ -47,14 +50,6 @@ const MyIssues = () => {
   React.useEffect(() => {
     setCurrentPage(1);
   }, [filters.category, filters.status, filters.priority, filters.search]);
-
-  const paginationButtons = useMemo(() => {
-    if (pagination.totalPages <= 1) return [];
-    const pages = Array.from({ length: pagination.totalPages }, (_, i) => i + 1);
-    return pages.filter((page) => {
-      return page === 1 || page === pagination.totalPages || (page >= currentPage - 1 && page <= currentPage + 1);
-    });
-  }, [pagination.totalPages, currentPage]);
 
   const handleUpdate = (item) => {
     setUpdateItem(item);
@@ -95,97 +90,34 @@ const MyIssues = () => {
       <title>My Issues</title>
 
       <div className="  rounded-xl my-8">
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-          <h1 className="text-4xl font-bold text-slate-800 mb-3">My Issues</h1>
-          <div className="flex justify-between items-center">
-            <p className=" text-slate-600 leading-relaxed">
-              Track and manage all the issues you've reported. View their status, priority, and take action when needed.
-            </p>
+        <PageHeader
+          eyebrow="Citizen Portal"
+          title="My Issues"
+          description="Track and manage all the issues you've reported. View their status, priority, and take action when needed."
+          actions={
             <Link
               to="/dashboard/report-issue"
               className="btn bg-primary text-white hidden md:flex items-center gap-2 hover:shadow-2xl"
             >
               <FaPlus /> Report New Issue
             </Link>
-          </div>
-        </motion.div>
+          }
+        />
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.5 }}
-        className="flex flex-col md:flex-row gap-5 mt-6 px-3 bg-surface-container-low py-2 rounded-t-lg "
-      >
-        <label className="input rounded-full w-full lg:w-60 ">
-          <svg className="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <g strokeLinejoin="round" strokeLinecap="round" strokeWidth="2.5" fill="none" stroke="currentColor">
-              <circle cx="11" cy="11" r="8"></circle>
-              <path d="m21 21-4.3-4.3"></path>
-            </g>
-          </svg>
-          <input
-            onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-            type="search"
-            required
-            placeholder="Search by title, category or location"
-          />
-        </label>
-        <div className="relative">
-          <FaFilter className="absolute text-sm text-gray-600 left-2 top-1/2 -translate-y-1/2 z-1" />
-          <select
-            onChange={(e) => setFilters({ ...filters, category: e.target.value })}
-            defaultValue="Select Category"
-            className="pl-7 w-full md:w-42 select select-bordered rounded-2xl"
-          >
-            <option value="">Select Category</option>
-            <option value="road">Road</option>
-            <option value="water">Water</option>
-            <option value="electricity">Electricity</option>
-            <option value="garbage">Garbage</option>
-          </select>
-        </div>
-        <div className="relative">
-          <FaFilter className="absolute text-sm text-gray-600 left-2 top-1/2 -translate-y-1/2 z-1" />
-          <select
-            onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-            defaultValue="Select Status"
-            className="pl-7 w-full md:w-42 select select-bordered rounded-2xl"
-          >
-            <option value="">Select Status</option>
-            <option value="pending">Pending</option>
-            <option value="in-progress">In-progress</option>
-            <option value="resolved">Resolved</option>
-            <option value="closed">Closed</option>
-            <option value="rejected">Rejected</option>
-          </select>
-        </div>
-        <div className="relative">
-          <FaFilter className="absolute text-sm text-gray-600 left-2 top-1/2 -translate-y-1/2 z-1" />
-          <select
-            onChange={(e) => setFilters({ ...filters, priority: e.target.value })}
-            defaultValue="Select Priority"
-            className="pl-7 w-full md:w-42 select select-bordered rounded-2xl"
-          >
-            <option value="">Select Priority</option>
-            <option value="high">High</option>
-            <option value="normal">Normal</option>
-          </select>
-        </div>
-      </motion.div>
+      <IssueFilterBar filters={filters} onFilterChange={(key, value) => setFilters({ ...filters, [key]: value })} />
 
       {!user.email || loading || isLoading ? (
         <Loader />
       ) : myIssues.length ? (
         <div>
-          <div className="overflow-x-auto mb-16">
+          <div className="overflow-x-auto mb-12">
             <motion.table
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
-              className="table table-border overflow-hidden"
+              className="data-table"
             >
               {/* head */}
               <thead>
@@ -276,54 +208,13 @@ const MyIssues = () => {
               </tbody>
             </motion.table>
           </div>
-          {pagination.totalPages > 1 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="flex flex-wrap justify-end items-center gap-3  mb-8"
-            >
-              <motion.button
-                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                disabled={currentPage === 1}
-                className="btn btn-outline"
-                whileHover={{ scale: currentPage === 1 ? 1 : 1.05 }}
-                whileTap={{ scale: currentPage === 1 ? 1 : 0.95 }}
-              >
-                Previous
-              </motion.button>
-              <div className="flex gap-2">
-                {paginationButtons.map((page, index, array) => {
-                  const showEllipsisBefore = index > 0 && array[index - 1] !== page - 1;
-                  return (
-                    <React.Fragment key={page}>
-                      {showEllipsisBefore && <span className="px-2 text-gray-500">...</span>}
-                      <motion.button
-                        onClick={() => setCurrentPage(page)}
-                        className={`btn ${currentPage === page ? "btn-primary" : "btn-outline"}`}
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                      >
-                        {page}
-                      </motion.button>
-                    </React.Fragment>
-                  );
-                })}
-              </div>
-              <motion.button
-                onClick={() => setCurrentPage((prev) => Math.min(pagination.totalPages, prev + 1))}
-                disabled={currentPage === pagination.totalPages}
-                className="btn btn-outline"
-                whileHover={{ scale: currentPage === pagination.totalPages ? 1 : 1.05 }}
-                whileTap={{ scale: currentPage === pagination.totalPages ? 1 : 0.95 }}
-              >
-                Next
-              </motion.button>
-              <span className="text-sm text-gray-600 px-4">
-                Page {pagination.page} of {pagination.totalPages} ({pagination.total} total)
-              </span>
-            </motion.div>
-          )}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={pagination.totalPages}
+            totalItems={pagination.total}
+            pageSize={pageSize}
+            onPageChange={setCurrentPage}
+          />
         </div>
       ) : (
         <p className="my-18 text-3xl font-bold">No reported issues found</p>

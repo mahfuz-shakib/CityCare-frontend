@@ -1,9 +1,12 @@
 import React from "react";
+import { formatCategory } from "../constants/categories";
 
-const IssueCategoryBadge = ({ category }) => {
+const IssueCategoryBadge = ({ category, className = "" }) => {
   return (
-    <span className="inline-flex items-center text-[11px] font-bold px-2.5 py-1 rounded-full capitalize bg-sky-100 text-sky-700">
-      {category}
+    <span
+      className={`inline-flex items-center rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-bold capitalize text-primary ${className}`}
+    >
+      {category ? formatCategory(category) : "Uncategorized"}
     </span>
   );
 };
