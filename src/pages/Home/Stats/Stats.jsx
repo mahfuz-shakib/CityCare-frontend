@@ -80,7 +80,7 @@ const Stats = () => {
             >
               <p className="text-xs md:text-sm uppercase tracking-wider text-secondary mb-2">{stat.label}</p>
               <div className="flex items-baseline justify-center gap-2">
-                <p className={`text-sm flex items-end gap-1 font-black text-${stat.color}`}> <p className="text-2xl md:text-5xl">{stat.value}</p>  {stat.value>0 && i==3 && "Days"}</p>
+                <div className={`text-sm flex items-end gap-1 font-black text-${stat.color}`}> <p className="text-2xl md:text-5xl">{stat.value}</p>  {stat.value>0 && i==3 && "Days"}</div>
                 {stat.unit && <span className="text-xl font-bold text-secondary">{stat.unit}</span>}
               </div>
               {stat.progress ? (

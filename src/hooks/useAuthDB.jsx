@@ -1,28 +1,27 @@
 import { useQuery } from "@tanstack/react-query";
-import React from "react";
 import useAuth from "./useAuth";
 import useAxiosSecure from "./useAxiosSecure";
 
 const useAuthDB = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const axiosSecure = useAxiosSecure();
 
-  const { isLoading, data:User } = useQuery({
-    queryKey: ["users", user?.email],
+  const query = useQuery({
+    queryKey: ["my-info", user?.email],
+    enabled: Boolean(user?.email) && !authLoading,
     queryFn: async () => {
-      const res = await axiosSecure.get(`/users/?email=${user?.email}`);
+      const response = await axiosSecure.get(`/getMyInfo/${user?.email}`);
+      console.log(response.data);
+      return response.data;
+    },
+    retry: false,
+  });
 
-      return res.data?.[0] || user;
-    },
-  });
-  const { isLoading: loading, data: Staff } = useQuery({
-    queryKey: ["staffs", user?.email],
-    queryFn: async () => {
-      const res = await axiosSecure.get(`/staffs/?email=${user?.email}`);
-      return res.data?.[0] || user;
-    },
-  });
-  return {User,Staff,isLoading,loading}
+  return {
+    myInfo: query.data ?? null,
+    loading: authLoading || query.isLoading,
+    error: query.error,
+  };
 };
 
 export default useAuthDB;

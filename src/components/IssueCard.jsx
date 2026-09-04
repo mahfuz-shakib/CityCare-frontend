@@ -16,7 +16,8 @@ import Swal from "sweetalert2";
 
 const IssueCard = ({ issue }) => {
   const { user } = useAuth();
-  const { User } = useAuthDB();
+  const { myInfo,loading } = useAuthDB();
+  console.log(myInfo);
   const navigate = useNavigate();
   const axiosSecure = useAxiosSecure();
   const axiosInstance = useAxios();
@@ -32,7 +33,7 @@ const IssueCard = ({ issue }) => {
   };
 
   const params = new URLSearchParams(queries).toString();
-  const queryKey = ["upvotes", user?.email, _id];
+  const queryKey = ["upvotes", user?.email ||"guest", _id];
 
   const { data } = useQuery({
     queryKey,
@@ -78,7 +79,7 @@ const IssueCard = ({ issue }) => {
       navigate("/login");
       return;
     }
-    if (User?.isBlocked) {
+    if (myInfo?.isBlocked) {
       Swal.fire({
         title: "Account blocked",
         text: "Contact with Citycare authority",
