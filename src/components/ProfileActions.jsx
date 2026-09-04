@@ -5,8 +5,8 @@ const ProfileActions = ({ title = "Useful links", items = [] }) => (
   <section className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
     <h3 className="mb-4 text-base font-bold text-slate-800">{title}</h3>
     <div className="divide-y divide-slate-100">
-      {items.map(({ to, label, description, icon: Icon }) => (
-        <Link key={to} to={to} className="group flex items-center gap-3 py-3 first:pt-0 last:pb-0">
+      {items.map(({ to, label, description, icon: Icon,i }) => (
+        <Link key={i} to={to} className="group flex items-center gap-3 py-3 first:pt-0 last:pb-0">
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-primary">
             {Icon && <Icon size={17} />}
           </span>

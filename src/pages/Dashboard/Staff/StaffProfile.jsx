@@ -17,10 +17,6 @@ const StaffProfile = () => {
   const { user, setUser, updateUser } = useAuth();
   const axiosSecure = useAxiosSecure();
   const queryClient = useQueryClient();
-  const { mutateAsync: updateAvailability, isPending: availabilityUpdating } = useMutation({
-    mutationFn: (isAvailable) => axiosSecure.patch(`/staffs/${staffData?._id}`, { isAvailable }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["staffs", user?.email] }),
-  });
 
   const { data: staffData, isLoading: staffLoading } = useQuery({
     queryKey: ["staffs", user?.email],
@@ -31,7 +27,6 @@ const StaffProfile = () => {
     },
     enabled: !!user?.email,
   });
-  console.log(staffData);
   const [isEditing, setIsEditing] = useState(false);
 
   const { register, handleSubmit, reset } = useForm({
@@ -47,7 +42,10 @@ const StaffProfile = () => {
       photoURL: staffData?.photoURL || user.photoURL || "",
     });
   }, [staffData, user, reset]);
-
+  const { mutateAsync: updateAvailability, isPending: availabilityUpdating } = useMutation({
+    mutationFn: (isAvailable) => axiosSecure.patch(`/staffs/${staffData?._id}`, { isAvailable }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["staffs", user?.email] }),
+  });
   const onSubmit = async (formData) => {
     try {
       const photoURL = formData?.image?.[0] ? await imageUpload(formData.image[0]) : undefined;

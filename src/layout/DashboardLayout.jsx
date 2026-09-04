@@ -8,7 +8,7 @@ import CitizenMenu from "../components/Dashboard/Menu/CitizenMenu";
 import Loader from "../components/Loader";
 import Container from "../container/Container";
 import { AuthContext } from "../providers/AuthContext";
-import { FaUser } from "react-icons/fa";
+import { FaHome, FaUser } from "react-icons/fa";
 import NavProfileDropdown from "../components/NavProfileDropdown";
 import useAuth from "../hooks/useAuth";
 import ListingSkeleton from "../components/ListingSkeleton";
@@ -62,7 +62,7 @@ const DashboardLayout = () => {
                 transition={{ delay: 0.2 }}
                 className="px-4 font-semibold text-gray-700"
               >
-                CityCare Dashboard
+                Dashboard
               </motion.div>
             </div>
             <div className="mr-12 relative" ref={dropdownRef}>
@@ -80,7 +80,7 @@ const DashboardLayout = () => {
           </motion.div>
         </div>
 
-        <div className="drawer-side is-drawer-close:overflow-visible">
+        <div className="drawer-side w-48 is-drawer-close:w-16">
           <label htmlFor="my-drawer-4" aria-label="close sidebar" className="drawer-overlay"></label>
           <motion.div
             initial={{ x: -100 }}
@@ -89,11 +89,15 @@ const DashboardLayout = () => {
             className="flex min-h-full flex-col items-start bg-gradient-to-b from-blue-50 to-indigo-100 is-drawer-close:w-48 is-drawer-open:w-64 shadow-lg"
           >
             {/* Sidebar content here */}
-            <ul className="menu w-full grow p-4">
+            <ul className="menu grow">
               {/* List item */}
               <motion.li initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-                <Link to="/" className="bg-surface-container-low">
-                  <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-700 to-indigo-700 bg-clip-text text-transparent mb-2 hover:text-indigo-700 hover:scale-102">
+                <Link
+                  to="/"
+                  className="is-drawer-close:tooltip is-drawer-close:tooltip-right flex bg-surface-container-low "
+                >
+                  <FaHome className="my-1.5 inline-block size-4" />
+                  <h3 className="is-drawer-close:hidden text-2xl font-bold bg-gradient-to-r from-blue-700 to-indigo-700 bg-clip-text text-transparent mb-2 hover:text-indigo-700 hover:scale-102">
                     CityCare
                   </h3>
                 </Link>

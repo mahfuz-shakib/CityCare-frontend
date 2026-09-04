@@ -213,7 +213,6 @@ const CitizenProfile = () => {
               </h3>
 
               {!userData?.isPremium ? (
-                <>
                   <div className="space-y-3">
                     <div>
                       <p className="text-gray-600 mb-1">
@@ -234,7 +233,6 @@ const CitizenProfile = () => {
                       Upgrade to Premium (৳1000)
                     </motion.button>
                   </div>
-                </>
               ) : (
                 <div className="space-y-3">
                   <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-300 rounded-lg p-4">

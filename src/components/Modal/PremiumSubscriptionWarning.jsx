@@ -1,10 +1,37 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { FaCrown, FaLock } from 'react-icons/fa';
 import { Link } from 'react-router';
 import Container from '../../container/Container';
+import useAuth from '../../hooks/useAuth';
+import useAxiosSecure from '../../hooks/useAxiosSecure';
+import { useQuery } from '@tanstack/react-query';
+import Swal from 'sweetalert2';
 
 const PremiumSubscriptionWarning = () => {
+  const { user } = useAuth();
+  const axiosSecure = useAxiosSecure();  
+  const { data: userData } = useQuery({
+    queryKey: ["users", user?.email],
+    queryFn: async () => {
+      const res = await axiosSecure.get(`/users/?email=${user?.email}`);
+      return res.data?.[0];
+    },
+    enabled: !!user?.email,
+  });
+  const handleSubscribe = async () => {
+    try {
+      const userInfo = {
+        userId: userData?._id,
+        senderEmail: user?.email,
+        photoURL: user?.photoURL,
+      };
+      const res = await axiosSecure.post("/subscription-payment-session", userInfo);
+      window.location.replace(res.data.url);
+    } catch (error) {
+      Swal.fire("Payment Error", error.message || "Failed to initiate payment", "error");
+    }
+  };
     return (
         <Container>
             <motion.div
@@ -39,12 +66,12 @@ const PremiumSubscriptionWarning = () => {
                             </li>
                         </ul>
                         <p className="text-2xl font-bold text-yellow-600 mb-4">Only ৳1000 one-time payment</p>
-                        <Link
-                            to="/dashboard/myProfile"
+                        <button
+                        onClick={handleSubscribe}
                             className="btn btn-warning btn-lg"
                         >
                             Upgrade to Premium Now
-                        </Link>
+                        </button>
                     </div>
                 </div>
             </motion.div>

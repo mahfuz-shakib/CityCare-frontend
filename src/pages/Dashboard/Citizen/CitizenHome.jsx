@@ -1,18 +1,17 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { FaClipboardList, FaClock, FaSpinner, FaCheckCircle, FaCreditCard, FaPlus } from "react-icons/fa";
+import { FaClipboardList, FaClock, FaSpinner, FaCheckCircle, FaCreditCard, FaPlus, FaArrowRight } from "react-icons/fa";
 import { MdOutlinePayment, MdOutlineReportProblem } from "react-icons/md";
 
 import { Link } from "react-router";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import useAuth from "../../../hooks/useAuth";
 import Container from "../../../container/Container";
-import Loader from "../../../components/Loader";
 import { getChartData } from "../../../Data/Data";
 import ActivityTrends from "../../../components/Charts/ActivityTrends";
 import IssueStatusBadge from "../../../components/IssueStatusBadge";
-import { FaLocationDot, FaLocationPin } from "react-icons/fa6";
+import { FaLocationDot } from "react-icons/fa6";
 import ListingSkeleton from "../../../components/ListingSkeleton";
 
 const CitizenHome = () => {
@@ -107,10 +106,10 @@ const CitizenHome = () => {
     <Container>
       <title>Dashboard</title>
 
-      <div className="space-y-8 py-8">
+      <div className="space-y-8 py-5 md:py-8">
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
           <div className="flex justify-between items-center">
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">
+            <h1 className="text-2xl md:text-4xl font-bold text-gray-800 mb-2">
               Welcome back, { user?.displayName}!
             </h1>
             <Link
@@ -120,11 +119,11 @@ const CitizenHome = () => {
               <FaPlus /> Report New Issue
             </Link>
           </div>
-          <p className="text-gray-600">Here's an overview of your reported issues</p>
+          <p className="text-secondary">Here's an overview of your reported issues</p>
         </motion.div>
 
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-6">
           {statCards.map((stat, index) => (
             <motion.div
               key={stat.title}
@@ -132,16 +131,16 @@ const CitizenHome = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
             >
-              <div className={`bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer`}>
+              <div className={`bg-white rounded-lg shadow-md p-4 md:p-6 hover:shadow-lg transition-shadow cursor-pointer`}>
                 <div className="space-y-4">
-                  <div className="flex justify-between">
+                  <div className="flex justify-between gap-2">
                     <div className={`${stat.color} p-2 rounded-lg text-white`}>
-                      <stat.icon className="text-lg" />
+                      <stat.icon className="md:text-lg" />
                     </div>
-                    <p className="text-gray-600 text-sm font-medium">{stat.title}</p>
+                    <p className="text-gray-600 text-xs md:text-sm font-medium">{stat.title}</p>
                   </div>
                   <div className="flex items-end gap-2">
-                    <p className="text-3xl md:text-4xl font-bold text-gray-800">{stat.value}</p>
+                    <p className="text-2xl md:text-4xl font-bold text-gray-800">{stat.value}</p>
                     <span className={`text-xs ${stat.analyticsColor} font-semibold`}>{stat.analytics}</span>
                   </div>
                 </div>
@@ -159,9 +158,9 @@ const CitizenHome = () => {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="bg-white rounded-lg shadow-md p-6"
+            className="bg-white rounded-lg shadow-md p-5 md:p-6"
           >
-            <h3 className="text-xl font-bold text-gray-800 mb-4">Issue Status Distribution</h3>
+            <h3 className="text-lg md:text-xl font-bold text-gray-800 mb-4">Issue Status Distribution</h3>
             <div className="space-y-4">
               {[
                 { label: "Resolved", value: stats.resolved, color: "bg-green-500", total: stats.totalIssues },
@@ -189,9 +188,9 @@ const CitizenHome = () => {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            className="bg-white rounded-lg shadow-md p-6"
+            className="bg-white rounded-lg shadow-md p-5 md:p-6"
           >
-            <h3 className="text-xl font-bold text-gray-800 mb-4">Payment Summary</h3>
+            <h3 className="text-lg md:text-xl font-bold text-gray-800 mb-4">Payment Summary</h3>
             <div className="space-y-4">
               {[
                 { title: "Total Payments", value: stats.totalPayments, textColor: "text-blue-600", bg: "bg-blue-50" },
@@ -219,14 +218,14 @@ const CitizenHome = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.5 }}
-          className="bg-white rounded-lg shadow-md p-6"
+          className="bg-white rounded-lg shadow-md p-5 md:p-6"
         >
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-xl flex items-center gap-1 font-bold text-gray-800">
-              Latest Issues <MdOutlineReportProblem />
+            <h3 className="text-lg md:text-xl flex items-center gap-1 font-bold text-gray-800">
+              <MdOutlineReportProblem />  Latest Issues
             </h3>
-            <Link to="/dashboard/my-issues" className="text-blue-600 hover:underline text-sm font-medium">
-              View All →
+            <Link to="/dashboard/my-issues" className="flex items-center gap-1 text-blue-600 hover:underline text-sm font-medium">
+              View All <FaArrowRight/>
             </Link>
           </div>
           {latestIssues.length > 0 ? (
@@ -234,18 +233,18 @@ const CitizenHome = () => {
               {latestIssues.map((issue) => (
                 <div
                   key={issue._id}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                  className="flex flex-col md:flex-row md:items-center mjustify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                 >
-                  <div className="flex-1">
+                  <div className="flex-1 space-y-1">
                     <p className="font-bold text-gray-800 flex items-center gap-1">{issue.title}</p>
                     <p className="text-sm text-gray-600 flex items-center gap-1">
                       <FaLocationDot /> {issue.location}
                     </p>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3  mt-2 md:mt-0">
                     <IssueStatusBadge status={issue.status} />
-                    <Link to={`/all-issues/${issue._id}`} className="text-blue-600 hover:underline text-sm">
-                      View
+                    <Link to={`/all-issues/${issue._id}`} className="text-blue-600 hover:underline text-xs md:text-sm flex items-center btn btn-sm rounded-full py-0">
+                      View <FaArrowRight/>
                     </Link>
                   </div>
                 </div>
@@ -261,14 +260,14 @@ const CitizenHome = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.6 }}
-            className="bg-white rounded-lg shadow-md p-6"
+            className="bg-white rounded-lg shadow-md p-5 md:p6"
           >
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl flex items-center gap-1 font-bold text-gray-800">
-                Recent Payments <MdOutlinePayment />
+              <h3 className="text-lg md:text-xl flex items-center gap-1 font-bold text-gray-800">
+                 <MdOutlinePayment /> Recent Payments
               </h3>
-              <Link to="/dashboard/payment-history" className="text-blue-600 hover:underline text-sm font-medium">
-                View All →
+              <Link to="/dashboard/payment-history" className=" flex items-center text-blue-600 hover:underline text-sm font-medium">
+                View All <FaArrowRight/>
               </Link>
             </div>
             <div className="space-y-3">

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useSearchParams } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import Container from "../../../container/Container";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import jsPDF from "jspdf";
@@ -21,7 +21,6 @@ const PaymentSuccess = () => {
       const fetchPaymentInfo = async () => {
         try {
           const { data } = await axiosSecure.get(`/payment-session-info?sessionId=${sessionId}`);
-          console.log("sessionInfo: ", data);
           setPaymentInfo(data);
           await savePaymentToDatabase(data);
         } catch (error) {
@@ -234,8 +233,8 @@ const PaymentSuccess = () => {
     <Container>
       <title>Payment Success</title>
 
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 py-12 px-4">
-        <div className="max-w-2xl mx-auto">
+      <div className="min-h-screen">
+        <div className="max-w-2xl mx-auto my-8 md:my-10">
           {loading ? (
             <div className="flex justify-center items-center h-96">
               <div className="text-center">
@@ -246,41 +245,41 @@ const PaymentSuccess = () => {
               </div>
             </div>
           ) : paymentInfo ? (
-            <div className="space-y-6">
+            <div>
               {/* Success Card */}
               <div className="bg-white rounded-2xl shadow-lg overflow-hidden border-t-4 border-green-500">
-                <div className="bg-gradient-to-r from-green-500 to-green-600 px-8 py-8 text-white text-center">
-                  <div className="text-6xl mb-4">✓</div>
-                  <h1 className="text-4xl font-bold mb-2">Payment Successful!</h1>
-                  <p className="text-green-100">Thank you for your payment</p>
+                <div className="bg-green-600 px-8 py-6 text-white text-center">
+                  <div className="text-2xl md:text-6xl mb-3">✓</div>
+                  <h1 className="text-xl md:text-4xl font-bold mb-2">Payment Successful!</h1>
+                  <p className="text-green-100 text-sm md:text-base">Thank you for your payment</p>
                 </div>
 
                 {/* Payment Details */}
-                <div className="px-8 py-8">
-                  <div className="grid grid-cols-2 gap-6 mb-8">
+                <div className=" p-4 md:p-8">
+                  <div className="grid grid-cols-2 gap-3 md:gap-6 mb-4 md:mb-8">
                     <div className="bg-gray-50 p-4 rounded-lg">
-                      <p className="text-sm text-gray-600 font-semibold uppercase tracking-wide">Amount</p>
-                      <p className="text-2xl font-bold text-gray-900 mt-1">
-                        {paymentInfo.amount_total / 100} {paymentInfo.currency?.toUpperCase()}
+                      <p className="text-xs text-gray-600 font-semibold uppercase tracking-wide">Amount</p>
+                      <p className="text-xl md:text-2xl font-bold text-gray-900 mt-1">
+                        {paymentInfo.amount_total / 100} <span className="text-xs md:text-base">{paymentInfo.currency?.toUpperCase()}</span>
                       </p>
                     </div>
                     <div className="bg-gray-50 p-4 rounded-lg">
-                      <p className="text-sm text-gray-600 font-semibold uppercase tracking-wide">Status</p>
-                      <p className="text-2xl font-bold text-green-600 mt-1">
+                      <p className="text-xs text-gray-600 font-semibold uppercase tracking-wide">Status</p>
+                      <p className="text-xl md:text-2xl font-bold text-green-600 mt-1">
                         {paymentInfo.payment_status.charAt(0).toUpperCase() + paymentInfo.payment_status.slice(1)}
                       </p>
                     </div>
                   </div>
 
                   {/* Customer Email */}
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
-                    <p className="text-sm text-gray-600 font-semibold uppercase tracking-wide">Customer Email</p>
-                    <p className="text-lg text-gray-900 mt-1">{paymentInfo.customer_email}</p>
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4 md:mb-8">
+                    <p className="text-xs md:text-sm text-gray-600 font-semibold uppercase tracking-wide">Customer Email</p>
+                    <p className="text-lg text-gray-900">{paymentInfo.customer_email}</p>
                   </div>
 
                   {/* Payment Type Details */}
-                  <div className="border-t pt-8">
-                    <h3 className="text-lg font-bold text-gray-900 mb-6">Payment Details</h3>
+                  <div className="">
+                    <h3 className=" md:text-lg font-bold text-gray-900 mb-2">Payment Details</h3>
                     {paymentInfo.metadata?.issueId && (
                       <div className="bg-purple-50 border-l-4 border-purple-500 p-6 rounded">
                         <div className="flex items-center mb-4">
@@ -297,39 +296,39 @@ const PaymentSuccess = () => {
                       </div>
                     )}
                     {paymentInfo.metadata?.userId && (
-                      <div className="bg-amber-50 border-l-4 border-amber-500 p-6 rounded">
-                        <div className="flex items-center mb-4">
+                      <div className="bg-amber-50 border-l-4 border-amber-500 p-3 md:p-6 rounded">
+                        <div className="flex items-center mb-2 md:mb-4">
                           <span className="inline-block bg-amber-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
                             PREMIUM SUBSCRIPTION
                           </span>
                         </div>
                         <p className="text-gray-700">
-                          <strong className="text-gray-900">User ID:</strong> {paymentInfo.metadata?.userId}
+                          <strong className="text-gray-900">User ID:</strong> <span className="text-sm md:text-base">{paymentInfo.metadata?.userId}</span>
                         </p>
                       </div>
                     )}
                   </div>
 
                   {/* Session ID */}
-                  <div className="mt-8 pt-8 border-t">
-                    <p className="text-sm text-gray-600 font-semibold uppercase tracking-wide mb-2">Transaction ID</p>
+                  <div className="mt-5 md:mt-8">
+                    <p className="text-xs md:text-sm text-gray-600 font-semibold uppercase tracking-wide mb-2">Transaction ID</p>
                     <p className="font-mono text-sm bg-gray-100 p-3 rounded text-gray-900 break-all">{sessionId}</p>
                   </div>
 
                   {/* Success Message */}
-                  {saved && (
+                  {/* {saved && (
                     <div className="mt-8 bg-green-50 border border-green-200 rounded-lg p-4 text-center">
                       <p className="text-green-700 font-semibold">
                         ✓ Payment information saved successfully to our records
                       </p>
                     </div>
-                  )}
+                  )} */}
 
                   {/* Actions */}
-                  <div className="mt-8 flex gap-4">
+                  <div className="mt-4 md:mt-8 flex flex-col md:flex-row gap-3 md:gap-4">
                     <button
                       onClick={downloadReceipt}
-                      className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center gap-2"
+                      className="md:flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-2 md:px-4 rounded-lg transition duration-200 flex items-center justify-center gap-2"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path
@@ -339,11 +338,11 @@ const PaymentSuccess = () => {
                           d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8m0 8l-4-2m4 2l4-2"
                         />
                       </svg>
-                      Download PDF Receipt
+                      Download Receipt
                     </button>
-                    <a
-                      href="/dashboard"
-                      className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center gap-2"
+                    <Link
+                      to="/dashboard"
+                      className=" flex-1 bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold py-3 px-2 md:px-4 rounded-lg transition duration-200 flex items-center justify-center gap-2"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path
@@ -354,7 +353,7 @@ const PaymentSuccess = () => {
                         />
                       </svg>
                       Back to Dashboard
-                    </a>
+                    </Link>
                   </div>
                 </div>
               </div>
