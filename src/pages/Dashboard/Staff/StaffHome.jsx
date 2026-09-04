@@ -1,7 +1,7 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { FaClipboardList, FaCheckCircle, FaClock, FaTasks } from "react-icons/fa";
+import { FaClipboardList, FaCheckCircle, FaClock, FaTasks, FaArrowRight } from "react-icons/fa";
 import { Link } from "react-router";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import useAuth from "../../../hooks/useAuth";
@@ -9,6 +9,7 @@ import Container from "../../../container/Container";
 import Loader from "../../../components/Loader";
 import IssueStatusBadge from "../../../components/IssueStatusBadge";
 import IssuePriorityBadge from "../../../components/IssuePriorityBadge";
+import IssueCategoryBadge from "../../../components/IssueCategoryBadge";
 
 const StaffHome = () => {
   const { user } = useAuth();
@@ -48,7 +49,7 @@ const StaffHome = () => {
 
   const statCards = [
     {
-      title: "Assigned Issues",
+      title: "Assigned Tasks",
       value: stats.assignedIssues,
       icon: FaClipboardList,
       color: "bg-blue-500",
@@ -95,7 +96,7 @@ const StaffHome = () => {
         </motion.div>
 
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-3 md:gap-6">
           {statCards.map((stat, index) => (
             <motion.div
               key={stat.title}
@@ -104,15 +105,15 @@ const StaffHome = () => {
               transition={{ duration: 0.5, delay: index * 0.1 }}
             >
               <Link to={stat.link}>
-                <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-gray-600 text-sm font-medium">{stat.title}</p>
-                      <p className="text-3xl font-bold text-gray-800 mt-2">{stat.value}</p>
+                <div className="bg-white rounded-lg shadow-md p-4 md:p-6 hover:shadow-lg transition-shadow cursor-pointer">
+                  <div className="md:flex items-center gap-2">
+                    <div className={`${stat.color} w-fit p-2 md:p-4 rounded-full text-white mb-2`}>
+                      <stat.icon className="text-lg md:text-xl" />
                     </div>
-                    <div className={`${stat.color} p-4 rounded-full text-white`}>
-                      <stat.icon className="text-2xl" />
-                    </div>
+                    <p className="text-gray-600 text-sm md:text-base font-medium">{stat.title}</p>
+                  </div>
+                  <div>
+                    <p className="text-3xl font-bold text-gray-800 mt-2">{stat.value}</p>
                   </div>
                 </div>
               </Link>
@@ -200,19 +201,22 @@ const StaffHome = () => {
               {latestIssues.map((issue) => (
                 <div
                   key={issue._id}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                  className="md:flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors space-y-2"
                 >
                   <div className="flex-1">
-                    <p className="font-medium text-gray-800">{issue.title}</p>
+                    <p className="font-medium text-gray-800 mb-2 md:mb-0">{issue.title}</p>
                     <p className="text-sm text-gray-600">
-                      {issue.location} • {issue.category}
+                      {issue.location} • <IssueCategoryBadge category={issue.category} />
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
                     <IssuePriorityBadge priority={issue.priority} />
                     <IssueStatusBadge status={issue.status} />
-                    <Link to={`/all-issues/${issue._id}`} className="text-blue-600 hover:underline text-sm">
-                      View
+                    <Link
+                      to={`/all-issues/${issue._id}`}
+                      className="text-blue-600 hover:underline text-xs md:text-sm flex items-center gap-1"
+                    >
+                      View <FaArrowRight />
                     </Link>
                   </div>
                 </div>

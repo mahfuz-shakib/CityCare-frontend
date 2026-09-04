@@ -5,15 +5,18 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 
 import useAuth from "../hooks/useAuth";
+import useAuthDB from "../hooks/useAuthDB";
 import { condition } from "../utils/DisableCondition";
 import useAxiosSecure from "../hooks/useAxiosSecure";
 import useAxios from "../hooks/useAxios";
 import IssueStatusBadge from "./IssueStatusBadge";
 import IssueCategoryBadge from "./IssueCategoryBadge";
 import IssuePriorityBadge from "./IssuePriorityBadge";
+import Swal from "sweetalert2";
 
 const IssueCard = ({ issue }) => {
   const { user } = useAuth();
+  const { User } = useAuthDB();
   const navigate = useNavigate();
   const axiosSecure = useAxiosSecure();
   const axiosInstance = useAxios();
@@ -73,6 +76,13 @@ const IssueCard = ({ issue }) => {
   const handleUpvote = async () => {
     if (!user) {
       navigate("/login");
+      return;
+    }
+    if (User?.isBlocked) {
+      Swal.fire({
+        title: "Account blocked",
+        text: "Contact with Citycare authority",
+      });
       return;
     }
 

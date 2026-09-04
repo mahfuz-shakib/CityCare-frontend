@@ -14,14 +14,14 @@ const Pagination = ({ currentPage, totalPages, totalItems = 0, pageSize = 1, onP
       <span className="text-sm text-gray-600">
         Showing {firstItem}-{lastItem} of {totalItems}
       </span>
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <button
           type="button"
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
           className="btn btn-outline btn-sm rounded-2xl gap-1"
         >
-          <ChevronLeft size={15} /> Previous
+          <ChevronLeft size={15} /> Prev
         </button>
         {pages.map((page, index) => (
           <span className="flex items-center gap-2" key={page}>

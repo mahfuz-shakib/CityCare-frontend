@@ -17,9 +17,11 @@ import IssueCategoryBadge from "../../../components/IssueCategoryBadge";
 import IssueFilterBar from "../../../components/IssueFilterBar";
 import Pagination from "../../../components/Pagination";
 import PageHeader from "../../../components/PageHeader";
+import useAuthDB from "../../../hooks/useAuthDB";
 
 const MyIssues = () => {
   const { user, loading } = useAuth();
+  const { User } = useAuthDB();
   const [filters, setFilters] = useState({ email: user?.email, category: "", status: "", priority: "", search: "" });
   const [updateItem, setUpdateItem] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
@@ -58,6 +60,13 @@ const MyIssues = () => {
   };
 
   const handleDelete = (item) => {
+    if (User?.isBlocked) {
+      Swal.fire({
+        title: "Account blocked",
+        text: "Contact with Citycare authority",
+      });
+      return;
+    }
     Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",

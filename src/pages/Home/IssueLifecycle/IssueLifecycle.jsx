@@ -4,17 +4,17 @@ import { motion } from "framer-motion";
 
 const IssueLifecycle = () => {
   return (
-    <section className="px-6 py-24">
+    <section className="px-6 py-12 md:py-24">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-extrabold mb-4">The Lifecycle of a Report</h2>
-          <p className="text-secondary max-w-2xl mx-auto">
+          <h2 className="text-2xl md:text-4xl font-extrabold mb-4">The Lifecycle of a Report</h2>
+          <p className="text-secondary max-w-2xl mx-auto text-sm md:text-base">
             Simple, transparent, and efficient. See how your contribution moves through the system.
           </p>
         </div>
         <div className="relative">
           <div className="absolute top-1/2 left-0 w-full h-1 bg-surface-container-high -translate-y-1/2 hidden lg:block"></div>
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-12 relative">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-12 relative">
             {issueLifecycles.map((step, i) => (
               <motion.div
                 key={i}

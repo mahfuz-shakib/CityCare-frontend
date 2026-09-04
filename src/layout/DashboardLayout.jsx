@@ -80,13 +80,13 @@ const DashboardLayout = () => {
           </motion.div>
         </div>
 
-        <div className="drawer-side w-48 is-drawer-close:w-16">
+        <div className="drawer-side is-drawer-close:overflow-visible">
           <label htmlFor="my-drawer-4" aria-label="close sidebar" className="drawer-overlay"></label>
           <motion.div
             initial={{ x: -100 }}
             animate={{ x: 0 }}
             transition={{ duration: 0.3 }}
-            className="flex min-h-full flex-col items-start bg-gradient-to-b from-blue-50 to-indigo-100 is-drawer-close:w-48 is-drawer-open:w-64 shadow-lg"
+            className="flex min-h-full flex-col items-start bg-gradient-to-b from-blue-50 to-indigo-100 is-drawer-close:w-16 is-drawer-open:w-48 shadow-lg"
           >
             {/* Sidebar content here */}
             <ul className="menu grow">

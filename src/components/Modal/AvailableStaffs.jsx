@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { UserPlus, X } from "lucide-react";
+import Swal from "sweetalert2";
 
 /* ── avatar color helper ── */
 const avatarColor = (name = "") => {
@@ -30,23 +31,7 @@ const AvailableStaffs = ({ issue, staffModalRef }) => {
   const staffs = staffsResult?.data || [];
 
   const handleAssign = async (staff) => {
-    Swal.fire({
-  title: "Are you sure?",
-  text: "You won't be able to revert this!",
-  icon: "warning",
-  showCancelButton: true,
-  confirmButtonColor: "#3085d6",
-  cancelButtonColor: "#d33",
-  confirmButtonText: "Yes, delete it!"
-}).then((result) => {
-  if (result.isConfirmed) Swal.fire({
-    title: "Deleted!",
-    text: "Your file has been deleted.",
-    icon: "success"
-  });
-});
     try {
-      
       await axiosSecure.patch(`/issues/admin/${issue._id}`, { staffEmail: staff.email });
       toast.success("Staff assigned successfully");
       staffModalRef.current.close();
@@ -62,11 +47,11 @@ const AvailableStaffs = ({ issue, staffModalRef }) => {
       initial={{ opacity: 0, scale: 0.97, y: 12 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-      className="bg-white rounded-xl border border-slate-100 shadow-xl w-full md:min-w-[640px] max-w-2xl overflow-hidden"
+      className="bg-white rounded-xl border border-slate-100 shadow-xl w-72 sm:96 md:min-w-172 max-w-2xl overflow-hidden"
     >
       {/* Header */}
       <div className=" flex items-center justify-between px-6 py-4 border-b border-slate-100">
-          <h2 className="md:text-2xl font-bold text-center text-slate-800 text-base">Available Staffs</h2>
+        <h2 className="md:text-2xl font-bold text-center text-slate-800 text-base">Available Staffs</h2>
         <form method="dialog">
           <button className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors">
             <X size={14} className="text-slate-500" />

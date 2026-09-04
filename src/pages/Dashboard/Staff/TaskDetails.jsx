@@ -51,13 +51,6 @@ const TaskDetails = () => {
 
           toast.success("Status changed successfully!");
           queryClient.invalidateQueries({ queryKey });
-          Swal.fire({
-            position: "top-end",
-            title: "Updated!",
-            text: "Issue status has been updated.",
-            icon: "success",
-            showConfirmButton: false,
-          });
         } catch (err) {
           toast.error("Status change failed. Please try again.");
           console.error(err);

@@ -10,8 +10,8 @@ const Transparency_Analytics = () => {
   const currentMonth = resolutionPerformance?.at(-1);
   const hasCurrentMonthData = currentMonth?.averageResolution !== null && currentMonth?.averageResolution !== undefined;
   return (
-    <section className="px-6 py-24 bg-primary text-white">
-      <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
+    <section className="px-6  py-16 md:py-24 bg-primary text-white">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
         <motion.div
           initial={{ opacity: 0, x: -30 }}
           whileInView={{ opacity: 1, x: 0 }}
@@ -21,15 +21,15 @@ const Transparency_Analytics = () => {
           <div className="flex items-center justify-between mb-8">
             <div>
               <p className="text-xs uppercase opacity-70 mb-1">Current Efficiency</p>
-              <h3 className="text-3xl font-black">Resolution Performance</h3>
+              <h3 className="text-xl md:text-3xl font-black">Resolution Performance</h3>
             </div>
-            <div className="w-20 h-20 rounded-full border-4 border-white/20 flex items-center justify-center">
-              <span className="text-xl font-black">
+            <div className="h-12 w-16 md:h-20 md:w-20 rounded-full border-4 border-white/20 flex items-center justify-center">
+              <span className="md:text-xl font-black">
                 {hasCurrentMonthData ? `${currentMonth.averageResolution}d` : "N/A"}
               </span>
             </div>
           </div>
-          <div className="flex items-end gap-3 h-48">
+          <div className="flex items-end gap-3 h-28 md:h-48">
             {resolutionPerformance?.map((m, i) => (
               <div
                 key={m.monthKey}
@@ -53,14 +53,14 @@ const Transparency_Analytics = () => {
         </motion.div>
 
         <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
-          <h2 className="text-4xl lg:text-5xl font-extrabold mb-6 leading-tight">Data-Driven Transparency</h2>
-          <p className="text-xl opacity-80 mb-8 leading-relaxed">
+          <h2 className="text-xl lg:text-5xl font-extrabold mb-6 leading-tight">Data-Driven Transparency</h2>
+          <p className="text-sm md:text-xl opacity-80 mb-8 leading-relaxed">
             We believe in radical honesty. Every report and its resolution timeline is public record, ensuring your
             taxes are used where they are needed most.
           </p>
-          <ul className="space-y-4 mb-10">
+          <ul className="space-y-4">
             {["Blockchain-verified report integrity", "Monthly municipal accountability audits"].map((item, i) => (
-              <li key={i} className="flex items-center gap-3">
+              <li key={i} className="text-sm md:text-base flex items-center gap-3">
                 <CheckCircle size={20} className="text-emerald-400" />
                 <span>{item}</span>
               </li>

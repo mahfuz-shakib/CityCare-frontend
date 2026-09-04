@@ -25,22 +25,22 @@ const LatestResolvedIssues = () => {
   const issues = issuesData || [];
 
   return (
-    <section className="bg-white py-16">
+    <section className="bg-white py-12 md:py-20">
       <Container>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="flex justify-between items-center mb-10"
+          className="flex flex-col md:flex-row justify-between items-end md:items-center mb-8 md:mb-10"
         >
           <div className="space-y-3">
-            <h2 className="text-4xl font-extrabold">Recent Wins</h2>
-            <p className="text-gray-600">See how our community is making a difference</p>
+            <h2 className="text-2xl md:text-4xl font-extrabold">Recent Wins</h2>
+            <p className="text-gray-600 text-sm md:text-base">See how our community is making a difference</p>
           </div>
           <Link
             to={`/all-issues/?status=resolved`}
-            className="text-primary font-bold hover:underline flex items-center gap-1"
+            className="text-primary font-semibold md:font-bold hover:underline flex items-center gap-1"
           >
             View All Success Stories
             <ArrowRight size={18} />
@@ -49,7 +49,7 @@ const LatestResolvedIssues = () => {
 
         {issues.length > 0 ? (
           <>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8 px-3">
               {issues.map((issue, index) => (
                 <motion.div
                   key={issue._id}

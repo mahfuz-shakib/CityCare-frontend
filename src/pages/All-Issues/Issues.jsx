@@ -83,7 +83,7 @@ const Issues = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.3 }}
-        className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12 mt-3"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12 mt-3"
       >
         {isLoading
           ? Array.from({ length: 6 }).map((_, i) => <ListingSkeleton key={i} />)

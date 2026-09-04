@@ -144,8 +144,8 @@ const ManageStaffs = () => {
   return (
     <div className="min-h-screen bg-[#f7f8fc]">
       <title>Manage Staffs</title>
-      <Container className="px-4 md:px-10">
-        <div className="pt-8 pb-16 space-y-6">
+      <Container className="">
+        <div className="pt-8 space-y-6">
           {/* ── Header ── */}
 
           <PageHeader
@@ -154,18 +154,18 @@ const ManageStaffs = () => {
             title="Manage Staff"
             description="Supervise municipal personnel, track operational performance metrics, and optimize field assignments across city departments."
             actions={
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 mb-4 md:mb-0">
                 <button
                   onClick={handleExportPDF}
-                  className="flex items-center gap-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-sm rounded-xl px-4 py-2.5 shadow-sm transition-colors cursor-pointer"
+                  className="flex items-center gap-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-sm rounded-xl px-3 md:px-4 py-2.5 shadow-sm transition-colors cursor-pointer"
                 >
-                  <Download size={14} /> <span className="hidden md:inline">Export PDF</span>
+                  <Download size={14} /> <span className="hidde text-xs md:text-base md:inline">Export PDF</span>
                 </button>
                 <button
                   onClick={handleCreateStaff}
-                  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-xl px-4 py-2.5 shadow-sm transition-colors cursor-pointer"
+                  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-xl px-3 md:px-4 py-2.5 shadow-sm transition-colors cursor-pointer"
                 >
-                  <UserPlus size={16} /> <span className="hidden md:inline">Add Staff Member</span>
+                  <UserPlus size={16} /> <span className="hidde text-xs md:text-base md:inline">Add Staff Member</span>
                 </button>
               </div>
             }
@@ -175,7 +175,7 @@ const ManageStaffs = () => {
           <motion.div {...fadeUp(0.1)} className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
               <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Total Workforce</p>
-              <div className="flex flex-col md:flex-row items-end justify-between">
+              <div className="flex flex-row md:items-end justify-between">
                 <div>
                   <p className="text-4xl font-bold text-slate-900">{staffs.length}</p>
                   <p className="text-xs text-emerald-600 font-semibold mt-1 flex items-center gap-1">
@@ -199,7 +199,7 @@ const ManageStaffs = () => {
 
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 border-l-4 border-l-blue-500">
               <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Active Tasks</p>
-              <div className="flex flex-col md:flex-row items-end justify-between">
+              <div className="flex md:flex-row md:items-end justify-between">
                 <div>
                   <p className="text-4xl font-bold text-blue-600">{activeTasks || 0}</p>
                   <p className="text-xs text-slate-400 mt-1">{completionRate}% completion rate</p>

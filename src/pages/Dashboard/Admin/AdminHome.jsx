@@ -71,8 +71,6 @@ const FeedEntry = ({ icon: Icon, iconBg, title, sub, time }) => (
 
 const AdminHome = () => {
   const axiosSecure = useAxiosSecure();
-  const [dateRange] = useState("Last 30 Days");
-
   const { data: issuesData, isLoading: issuesLoading } = useQuery({
     queryKey: ["issues", "admin"],
     queryFn: async () => {
@@ -127,7 +125,6 @@ const AdminHome = () => {
   const totalRevenue = payments?.reduce((s, p) => s + (p.amount || 0), 0);
   const pending = issues.filter((i) => i.status === "pending").length;
   const resolved = issues.filter((i) => i.status === "resolved" || i.status === "closed").length;
-  const rejected = issues.filter((i) => i.status === "rejected").length;
   const premiumUsers = users.filter((u) => u.isPremium).length;
   const resolutionRate = issues.length > 0 ? pct(resolved, issues.length) : "0.0";
   const boostPayments = payments.filter((p) => p.purpose?.toLowerCase().includes("boost") || p.metadata?.issueId);

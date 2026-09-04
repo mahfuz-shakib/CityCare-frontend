@@ -16,7 +16,6 @@ import {
   CheckCircle2,
   AlertTriangle,
 } from "lucide-react";
-import { FaDownload } from "react-icons/fa";
 import { monthlyDataResolution } from "../../../utils/monthlyDataResolution";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -48,7 +47,7 @@ const ManageUsers = () => {
     queryKey: ["users", "citizen"],
     queryFn: async () => {
       const res = await axiosSecure.get("/users/?role=citizen");
-      return res.data;
+      return await res.data;
     },
   });
 
@@ -79,12 +78,13 @@ const ManageUsers = () => {
     });
   };
 
+
   /* ── computed ── */
   const premiumUsers = users.filter((u) => u.isPremium);
   const reportIssues = users.reduce((s, u) => s + (u.reports || 0), 0);
   const solvedIssues = users.reduce((s, u) => s + (u.solved || 0), 0);
   const pendingReports = reportIssues - solvedIssues;
-  const usersChartData = monthlyDataResolution(users);
+  const usersChartData = users && monthlyDataResolution(users);
   const currentMonthsNewUsers = users?.length - (users?.length - usersChartData[new Date().toISOString().slice(0, 7)]);
 
   const filtered = useMemo(() => {
@@ -104,7 +104,7 @@ const ManageUsers = () => {
 
   React.useEffect(() => setCurrentPage(1), [accountFilter, subFilter]);
 
-  if (isLoading) {
+    if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-slat-50">
         <motion.div
@@ -161,9 +161,9 @@ const ManageUsers = () => {
           <motion.div {...fadeUp(0.1)} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
               <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Total Citizens</p>
-              <div className="flex flex-col md:flex-row items-end justify-between">
+              <div className="flex flex-row md:items-end justify-between">
                 <div>
-                  <p className="text-4xl font-bold text-slate-900">{users.length.toLocaleString()}</p>
+                  <p className="text-3xl md:text-4xl font-bold text-slate-900">{users.length.toLocaleString()}</p>
                   <p className="text-xs text-emerald-600 font-semibold mt-1.5 flex items-center gap-1">
                     <TrendingUp size={11} /> +{((currentMonthsNewUsers / users.length) * 100).toFixed(1)}% this month
                   </p>

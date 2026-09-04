@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Container from "../../container/Container";
 import useAuth from "../../hooks/useAuth";
-import useAxiosSecure from '../../hooks/useAxiosSecure'
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 const Login = () => {
   const { signInUser, signInWithGoogle, loading, setLoading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
@@ -25,8 +25,7 @@ const Login = () => {
   /* ---------------- GOOGLE USER SAVE ---------------- */
 
   const { mutateAsync: saveUserToDB } = useMutation({
-    mutationFn: (payload) =>
-      axiosSecure.post(`/users`, payload),
+    mutationFn: (payload) => axiosSecure.post(`/users`, payload),
     onSuccess: () => {
       queryClient.invalidateQueries();
     },
@@ -48,6 +47,8 @@ const Login = () => {
           : "Login failed. Try again.";
       setAuthError(message);
       toast.error(message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -60,7 +61,7 @@ const Login = () => {
 
       navigate(location.state || "/", { replace: true });
       toast.success("Login successful");
-      
+
       await saveUserToDB({
         displayName: user.displayName,
         email: user.email,

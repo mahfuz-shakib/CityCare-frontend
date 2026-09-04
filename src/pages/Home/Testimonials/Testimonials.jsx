@@ -6,17 +6,17 @@ import { testimonials } from "../../../Data/Data";
 
 const Testimonials = () => {
   return (
-    <section className="px-6 py-24 bg-surface-container-lowest">
+    <section className="px-6 py-16 md:py-24 bg-surface-container-lowest">
       <Container>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="text-center mb-12 md:mb-16"
         >
-          <h2 className="text-4xl font-extrabold text-gray-800 mb-4">What Our Users Say</h2>
-          <p className="text-gray-600 text-lg">Real feedback from citizens who made a difference</p>
+          <h2 className="text-2xl md:text-4xl font-extrabold text-gray-800 mb-4">What Our Users Say</h2>
+          <p className="text-gray-600 md:text-lg">Real feedback from citizens who made a difference</p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

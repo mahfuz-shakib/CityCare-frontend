@@ -309,8 +309,8 @@ const AllIssues = () => {
       </Container>
 
       {/* Assign Staff Modal */}
-      <dialog ref={staffModalRef} className="modal modal-bottom sm:modal-middle">
-        <div className="p-2 md:p-4 rounded scale-85 md:scale-100 mx-auto">
+      <dialog ref={staffModalRef} className="modal modal-middle">
+        <div className="p-2 md:p-4 rounded md:scale-100 mx-auto">
           <AvailableStaffs issue={issue} staffModalRef={staffModalRef} />
         </div>
       </dialog>
